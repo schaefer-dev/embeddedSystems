@@ -37,7 +37,7 @@
 % Fancy Header on every Page
 \pagestyle{fancy}
 \lhead{\textbf{Embedded Systems Problem Set A}}
-\rhead{Daniel Schäfer (2549458)\\ Rafael Dewes ()\\ Kevin M\"uller (2550062)}
+\rhead{Daniel Schäfer (2549458)\\ Rafael Dewes (2548365)\\ Kevin M\"uller (2550062)}
 \renewcommand{\headrulewidth}{1.2pt}
 \setlength{\headheight}{110pt}
 
@@ -56,9 +56,9 @@ In the case where the car does not accelerate (i.e. $F=0$), it can only reach an
 
 \section*{Problem A2}
 \begin{enumerate}[a)]
-  \item 
+  \item
       \includegraphics[scale = 0.22]{pictures/pa2a}\\
-  \item 
+  \item
       \includegraphics[scale = 0.22]{pictures/pa2b}\\
   \item All outputs are upper bound by some constant because of the following arguments:
   \begin{itemize}
@@ -81,30 +81,30 @@ $$lim_{x \rightarrow 0^+} f'(x) = +\infty$$
 
 As shown in the limes values above, the derivative of the given function is not bound by some constant, which means that the given function can also not be Lipschitz continious.
 
-\newpage
 \section*{Problem A4}
 
 \begin{enumerate}[a)]
-  \item 
+  \item
       See following Diagram:\\
     \includegraphics[scale = 0.23]{pictures/pa4a}\\
   \item
       \textbf{Model Overview:}\\
     \includegraphics[scale = 0.19]{pictures/model1}\\
+    \newpage
     Subsystem Roboter Driving:\\
     \includegraphics[scale = 0.29]{pictures/model2}\\
-    \newpage
       Subsystem Roboter Pushing Ball:\\
     \includegraphics[scale = 0.29]{pictures/model3}\\
       Subsystem Ball Falling over Edge:\\
     \includegraphics[scale = 0.29]{pictures/model4}\\
-    \newpage
       Resulting Plot (only falling phase for N=5):\\
+      the falling line represents the decreasing y coordinate of the ball in its fall and the rising line shows the increasing distance to the table edge in X direction.\\
     \includegraphics[scale = 0.20]{pictures/falling_5}\\
 \newpage
-  \item 
+  \item
     \includegraphics[scale = 0.26]{pictures/pa4c}\\
-    We verified this result in our Simulink implementation as shown in the plot below (Plot only contains Falling phase):\\
+    We verified this result in our Simulink implementation as shown in the plot below (Plot only contains Falling phase for N=0.075):\\
+    Just like previously the falling line represents the decreasing y coordinate of the ball in its fall and the rising line shows the increasing distance to the table edge in X direction.
     \includegraphics[scale = 0.20]{pictures/falling_0075}\\
 \end{enumerate}
 
