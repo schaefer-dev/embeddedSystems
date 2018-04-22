@@ -5,10 +5,10 @@
 ----------------------------------------------------------------------------- 
 
 # Sat. 21.04
-- 
+- Daniel: Studying of 3pi user Manual + parts of Data sheet + online resources from "hackaday"
 
 # Sun. 22.04
-- 
+- Daniel Studying of zumo user Manual + parts of Data sheet
 
 # Mon. 23.04
 - 
