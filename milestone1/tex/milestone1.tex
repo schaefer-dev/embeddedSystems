@@ -80,17 +80,30 @@
 \normalsize
 
 
-\subsection*{Collector}
+\subsection*{Collector} 
+\small 
 \begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
   \hline
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
+  \textbf{PB0} & Red LED (RX)\newline User pushbutton C\newline LCD data line DB5 & SPI slave select ($\overline{\text{SS}}$)\newline Pin-change interrupt (PCINT0) & \\
   \hline
+  \textbf{PD5} & Green LED (TX)\newline
+User pushbutton B\newline
+LCD data line DB7 \newline & UART external clock (XCK1)\newline
+UART flow control ($\overline{\text{CTS}}$) & \\
   \hline
-  \textbf{PB4} & LCD data line DB5 & User push button\newline ISP Programming line & Push buttons with inverted logic!\\
+  \textbf{PD7} & Buzzer PWM & Analog input (ADC10)\newline Timer4 PWM output D (OC4D)\newline Timer0 counter source (T0) & \\
   \hline
+  \textbf{PB3} & User pushbutton A\newline LCD data line DB4  & SPI Master Input/Slave Output (MISO)\newline Pin-change interrupt (PCINT3)  & Push buttons with inverted logic!\\
+  \hline
+  \textbf{PC7} & Yellow LED\newline LCD data line DB6 & Timer4 PWM output A (OC4A)\newline Timer3 input capture pin (ICP3)\newline Divided system clock output (CLKO) & \\
+  \hline
+  \textbf{PD2} & LCD control line (RS) & UART receive pin (RXD1)\newline External interrupt source ($\overline{\text{INT2}}$) & \\
+  \hline
+  \textbf{PD3} & LCD control line (E) & UART transmit pin (TXD1)\newline External interrupt source ($\overline{\text{INT3}}$) & \\
 \end{tabular}
-
+\normalsize
 
 \section*{Interrupts}
 
