@@ -1,0 +1,73 @@
+% exercise sheet with header on every page for math or close subjects
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{graphicx}
+
+% Shortcuts for bb, frak and cal letters
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Pfrak}{\mathfrak{P}}
+\newcommand{\Pfrac}{\mathfrak{P}}
+\newcommand{\Bfrac}{\mathfrak{P}}
+\newcommand{\Bfrak}{\mathfrak{B}}
+\newcommand{\Fcal}{\mathcal{F}}
+\newcommand{\Ycal}{\mathcal{Y}}
+\newcommand{\Bcal}{\mathcal{B}}
+\newcommand{\Acal}{\mathcal{A}}
+
+% formating
+\topmargin -3.5cm
+\textheight 22cm
+\textwidth 16.0 cm
+\oddsidemargin -0.1cm
+
+% Fancy Header on every Page
+\pagestyle{fancy}
+\lhead{\textbf{Embedded Systems Milestone 1}}
+\rhead{Daniel Schäfer (2549458)\\ Rafael Dewes (2548365)\\ Kevin M\"uller (2550062)}
+\renewcommand{\headrulewidth}{1.2pt}
+\setlength{\headheight}{110pt}
+
+\begin{document}
+\pagenumbering{gobble}
+\lstset{language=C++}
+
+\section*{Pins}
+
+\begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
+  \hline
+  \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
+  \hline
+  \hline
+  \hline
+  \textbf{PB4} & LCD data line DB5 & User push button\newline ISP Programming line & Push buttons with inverted logic!\\
+  \hline
+  \textbf{PB5} & LCD data line DB6 & User push button\newline ISP Programming line & Push buttons with inverted logic!\\
+  \hline
+  \textbf{PB0} & LCD Control Line R/W & Timer1 input capture (ICP1)\newline divided system clock output (CLK0) & \\
+  \hline
+  \textbf{PD4} & LCD control line E & USART external clock input/output (XCK)\newline Timer0 external counter (T0) & \\
+  \hline
+  \textbf{PD7} & LCD data line DB7 & connected to green user LED & high value turns LED on\\
+  \hline
+
+\end{tabular}
+
+\begin{itemize}
+\end{itemize}
+
+
+\end{document}
