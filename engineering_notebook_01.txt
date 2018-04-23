@@ -5,13 +5,22 @@
 ----------------------------------------------------------------------------- 
 
 # Sat. 21.04
-- Daniel: Studying of 3pi user Manual + parts of Data sheet + online resources from "hackaday"
+- Daniel: Studying of 3pi user Manual + marking important parts + reading parts of Data sheet + online resources from "hackaday"
 
 # Sun. 22.04
-- Daniel Studying of zumo user Manual + parts of Data sheet
+- Daniel Studying of zumo user Manual + marking important parts + reading parts of Data sheet
 
 # Mon. 23.04
-- 
+- Daniel: both clion and manual flash fails with following error.
+    Manual flashing using: 
+    "avrdude -p m32u4 -c avrispv2 -P /dev/tty.usbmodem00110791 -U flash:w:collector.hex"
+        avrdude: stk500v2_command(): command failed
+        avrdude: initialization failed, rc=-1
+                Double check connections and try again, or use -F to override
+                this check.
+
+    Turns out it was on on/off switch.
+    Environment now working perfectly in both commandline and clion
 
 # Tue. 24.04
 - 
