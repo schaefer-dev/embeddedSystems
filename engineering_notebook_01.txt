@@ -19,8 +19,16 @@
                 Double check connections and try again, or use -F to override
                 this check.
 
-    Turns out it was on on/off switch.
+    -> Turns out it was on on/off switch.
     Environment now working perfectly in both commandline and clion
+
+    Group Meeting + Discussion:
+    Kevin takes care of Hybrid Automata
+    Daniel and Rafael PINs and Interrupts
+
+    Relevant Ressources are being collected in GitHub wiki
+
+- Daniel: Researching SPI, Master-Slave relation and the necessary pins + how data is being transfered (clock timing)
 
 # Tue. 24.04
 - 
