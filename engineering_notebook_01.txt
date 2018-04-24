@@ -6,6 +6,7 @@
 
 # Sat. 21.04
 - Daniel: Studying of 3pi user Manual + marking important parts + reading parts of Data sheet + online resources from "hackaday"
+- Rafael: Familiarising with resources on robots
 
 # Sun. 22.04
 - Daniel: Studying of zumo user Manual + marking important parts + reading parts of Data sheet
@@ -31,13 +32,14 @@
 
 - Daniel: Researching SPI, Master-Slave relation and the necessary pins + how data is being transfered (clock timing)
 - Kevin: Studied fundamental microcontroller concepts (blogs, videos, wikipedia).
-
+- Rafael: Read through communication module documentation; looked for external resources regarding pins, communication protocols
 
 # Tue. 24.04
 - Kevin: 
     Re-built bouncing ball and problem A4 a) in Simulink to better understand the concepts. 
     Studied Simulink's "Getting Started" tutorials (charts, actions, hierarchies, parallelism, events) as well as several video tutorials and explored sf_aircontrol and sf_security.
     Started working on Milestone 1 task "Hybrid Automata".
+- Rafael: Read https://www.embeddedrelated.com/showarticle/453.php , watched https://youtu.be/iqMiI9Zgxhk
 
 # Wed. 25.04
 - 
