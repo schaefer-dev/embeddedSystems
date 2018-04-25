@@ -5,10 +5,17 @@
 ----------------------------------------------------------------------------- 
 
 # Sat. 21.04
-- Daniel: Studying of 3pi user Manual + marking important parts + reading parts of Data sheet + online resources from "hackaday"
+- Daniel: Reading + Studying of 3pi user Manual + marking important parts + reading some corresponding parts of Data sheet + online resources from "hackaday" regarding usage of 3pi robot
+	https://youtu.be/Xh5R6Pnk6gA
+	https://youtu.be/QYQE_za8KQQ
+	https://youtu.be/E2GtvigNPX8
+	https://youtu.be/9XjSJV5MPc0
+	https://youtu.be/tIL-2lZAFZo
+
+- Rafael: Familiarising with resources on robots
 
 # Sun. 22.04
-- Daniel: Studying of zumo user Manual + marking important parts + reading parts of Data sheet
+- Daniel: Reading + Studying of zumo user Manual + marking important parts + reading some corresponding of Data sheet
 - Kevin: Learning Matlab and Simulink, common workflows, project setup and version controll
 
 # Mon. 23.04
@@ -31,14 +38,22 @@
 
 - Daniel: Researching SPI, Master-Slave relation and the necessary pins + how data is being transfered (clock timing)
 - Kevin: Studied fundamental microcontroller concepts (blogs, videos, wikipedia).
-
+- Rafael: Read through communication module documentation; looked for external resources regarding pins, communication protocols
 
 # Tue. 24.04
 - Kevin: 
     Re-built bouncing ball and problem A4 a) in Simulink to better understand the concepts. 
     Studied Simulink's "Getting Started" tutorials (charts, actions, hierarchies, parallelism, events) as well as several video tutorials and explored sf_aircontrol and sf_security.
     Started working on Milestone 1 task "Hybrid Automata".
+- Rafael: Read https://www.embeddedrelated.com/showarticle/453.php , watched https://youtu.be/iqMiI9Zgxhk
 
+- Daniel: SPI Videos: 	https://youtu.be/iqMiI9Zgxhk 
+						https://youtu.be/9XjSJV5MPc0 
+		  RS232 Lecture: https://youtu.be/BOS1s-EqjCI
+		  I2C Lecture: https://youtu.be/OGRH-6cz8Z8						   
+		  Reading "Introduction to Microcontrollers" Chapter 1-9 starting with https://www.embeddedrelated.com/showarticle/453.php
+  
+  
 # Wed. 25.04
 - 
 
