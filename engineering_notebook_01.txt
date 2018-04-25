@@ -55,7 +55,7 @@
   
   
 # Wed. 25.04
-- 
+- Kevin: Modelled Milestone 1 Hybrid Automata in Stateflow. Differential drive motor signals still missing.
 
 # Thu. 26.04
 - 
