@@ -47,61 +47,52 @@
 
 \section*{Pins}
 
+% TODO rewrite the section below entirely, this task should only be related to the Expansion Board Schematic
+
 \subsection*{Scout}
 
+\small
+\begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
+  \hline
+  \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
+  \hline
+  \hline
+  \hline
+  \textbf{PB4} & I/O Clock of ADC & SCK of RF module & Synchronisation Clock of Serial Peripheral Interface (Master Slave Connection/SPI).\\
+  \hline
+  \textbf{PB0} & MOSI & Adress input of ADC & Master Output, Slave Input lane. The Slave Select lane (PD4/PC5) determines with which of the slaves (either RF module or ADC) the master communicates.\\
+  \hline
+  \textbf{PD4} & RF module Chip Select & - & The Slave Select Lane PD4 detimines that the communication over the BUS is with the RF module (and not with the ADC).\\
+  \hline
+  \textbf{PD7} & RF module Chip Enable & - & ?TODO?\\
+  \hline
+  \textbf{PD2} & RF IRQ & - & ?TODO?\\
+  \hline
+  \textbf{PB1} & ADC system clock & - & ?TODO?\\
+  \hline
+  \textbf{PC5} & ADC Chip Select & - & The Slave Select Lane PC5 detimines that the communication over the BUS is with the ADC (and not with the RF Module).\\
+  \hline
+  \textbf{PD0} & Dev Port RX & - & ?TODO?\\
+  \hline
+  \textbf{PD1} & Dev Port TX & - & ?TODO?\\
+  \hline
+\end{tabular}
+\normalsize
+
+\vspace{1cm}
+
+\paragraph{Must not be driven in Combination:}
+The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.
+
+
+\subsection*{Collector}
 \small
 \begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
   \hline
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
+  \textbf{PB0} & This Table & needs & a rework\\
   \hline
-  \hline
-  \textbf{PB4} & LCD data line DB5 & User push button,\newline ISP Programming line & Push buttons with inverted logic!\newline PB4 (PCINT4) can also serve as an internal interrupt source\\
-  \hline
-  \textbf{PB5} & LCD data line DB6 & User push button,\newline ISP Programming line & Push buttons with inverted logic!\newline PB5 (PCINT5) can also serve as an internal interrupt source\\
-  \hline
-  \textbf{PB0} & LCD Control Line R/W & Timer1 input capture (ICP1),\newline divided system clock output (CLK0) & \\
-  \hline
-  \textbf{PD4} & LCD control line E & USART external clock input/output (XCK)\newline Timer0 external counter (T0) & \\
-  \hline
-  \textbf{PD7} & LCD data line DB7 & connected to green user LED & high value turns LED on\\
-  \hline
-  \textbf{PD2} & LCD control line RS & external interrupt 0 (INT0) & NOTE\\
-  \hline
-  \textbf{PB1} & LCD data line DB4 & user pushbutton,\newline Timer1 PWM output A (OC1A) & inverted logic on button\\
-  \hline
-  \textbf{PC5} & analog input and digital I/O & jumpered to sensors IR LEDs (driving low turns off emitters),\newline ADC input channel 5 (ADC5) & \\
-  \hline
-  \textbf{PD0} & free digital I/O & USART input pin (RXD) & DEV port RX\\
-  \hline
-  \textbf{PD1} & free digital I/O & connected to red user LED,\newline USART input pin (TXD) & DEV port TX\\
-  \hline
-\end{tabular}
-\normalsize
-
-
-\subsection*{Collector} 
-\small 
-\begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
-  \hline
-  \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
-  \hline
-  \textbf{PB0} & Red LED (RX)\newline User pushbutton C\newline LCD data line DB5 & SPI slave select ($\overline{\text{SS}}$)\newline Pin-change interrupt (PCINT0) & \\
-  \hline
-  \textbf{PD5} & Green LED (TX)\newline
-User pushbutton B\newline
-LCD data line DB7 \newline & UART external clock (XCK1)\newline
-UART flow control ($\overline{\text{CTS}}$) & \\
-  \hline
-  \textbf{PD7} & Buzzer PWM & Analog input (ADC10)\newline Timer4 PWM output D (OC4D)\newline Timer0 counter source (T0) & \\
-  \hline
-  \textbf{PB3} & User pushbutton A\newline LCD data line DB4  & SPI Master Input/Slave Output (MISO)\newline Pin-change interrupt (PCINT3)  & Push buttons with inverted logic!\\
-  \hline
-  \textbf{PC7} & Yellow LED\newline LCD data line DB6 & Timer4 PWM output A (OC4A)\newline Timer3 input capture pin (ICP3)\newline Divided system clock output (CLKO) & \\
-  \hline
-  \textbf{PD2} & LCD control line (RS) & UART receive pin (RXD1)\newline External interrupt source ($\overline{\text{INT2}}$) & \\
-  \hline
-  \textbf{PD3} & LCD control line (E) & UART transmit pin (TXD1)\newline External interrupt source ($\overline{\text{INT3}}$) & \\
 \end{tabular}
 \normalsize
 
