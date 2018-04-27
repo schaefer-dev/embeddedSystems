@@ -62,7 +62,10 @@
 - Kevin: Modelled Milestone 1 Hybrid Automata in Stateflow.
 
 # Fri. 27.04
-- 
+- Daniel: New understanding of Task1. It does not refer to the entire atmega328, but instead we should only work with the schematic, preceding the cheatsheet. 
+    This task seems much more realistic without pasting 300pages datasheets.
+    Reading in Datasheet of RF module and ADC
+    + Kevin showed results of Hybrid Automata in Stateflow, discussion of work that is still TODO
 
 # Sat. 28.04
 - 
