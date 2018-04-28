@@ -51,6 +51,8 @@
 
 \subsection*{Scout}
 
+\textbf{TODO}: It might be possible that the ADC is not connected over SPI! In this case the function of I/O Clock and System Clock are switched!\\
+
 \small
 \begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
   \hline
@@ -64,11 +66,11 @@
   \hline
   \textbf{PD4} & RF module Chip Select & - & The Slave Select Lane PD4 detimines that the communication over the BUS is with the RF module (and not with the ADC).\\
   \hline
-  \textbf{PD7} & RF module Chip Enable & - & ?TODO?\\
+  \textbf{PD7} & RF module Chip Enable & - & Chip Enable Activates RX (used as receiver) or TX Mode (used as transmitter)\\
   \hline
-  \textbf{PD2} & RF IRQ & - & ?TODO?\\
+  \textbf{PD2} & RF IRQ & - & Maskable interrupt pin. Active low. Confirms either packet arrival when package loaded into RX FIFO (RX mode) or arrival of ACK (acknowledge) packet (TX mode).\\
   \hline
-  \textbf{PB1} & ADC system clock & - & ?TODO?\\
+  \textbf{PB1} & ADC system clock & - & Prescaled Clock source, which allows time for a conversion to happen inside the ADC (I/O Clock must remain low for at least 36 system clock cycles to allow conversion to be completed)\\
   \hline
   \textbf{PC5} & ADC Chip Select & - & The Slave Select Lane PC5 detimines that the communication over the BUS is with the ADC (and not with the RF Module).\\
   \hline
