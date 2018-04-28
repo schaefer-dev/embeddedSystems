@@ -98,6 +98,31 @@ The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. Th
 
 \section*{Interrupts}
 
+\textit{Which conditions should an interrupt concerning the communication with the expansion board occur?} \\
+\textit{Is the interrupt triggered by an external or internal source?} \\
 
+3pi/Scout(ATmega 328): \\
+\begin{itemize}
+\item Finding a location where the photo sensor readings surpass 200 (external)
+\item Check for timer $> 5$ minutes (internal)
+\end{itemize}
+Zumo/Collector(ATmega 32u4): \\
+\begin{itemize}
+\item Check if communication by Scout $\neq -1$ (external)
+\end{itemize} 
+
+\flushleft
+\textit{How does the interrupt service routine handle the interrupt? Which pins are affected?} \\
+
+3pi/Scout(ATmega 328): \\
+\begin{itemize}
+\item Finding a location: INT0, 0x0002
+The interrupt is executed asynchronously 
+\item Check for timer: TIMER2 COMPA, 0x000E 
+\end{itemize}
+Zumo/Collector(ATmega 32u4): \\
+\begin{itemize}
+\item Check Scout communication: INT0, \$0006
+\end{itemize}
 
 \end{document}

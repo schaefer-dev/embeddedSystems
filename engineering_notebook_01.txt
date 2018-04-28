@@ -57,9 +57,11 @@
 # Wed. 25.04
 - Kevin: Modelled Milestone 1 Hybrid Automata in Stateflow. Differential drive motor signals still missing.
     Modelled separate differential drive motor.
+- Rafael: Read up on Interrupts, started linking interrupts and pins 
 
 # Thu. 26.04
 - Kevin: Modelled Milestone 1 Hybrid Automata in Stateflow.
+- Rafael: Milestone 1 interrupts
 
 # Fri. 27.04
 - Daniel: New understanding of Task1. It does not refer to the entire atmega328, but instead we should only work with the schematic, preceding the cheatsheet. 
@@ -68,7 +70,7 @@
     + Kevin showed results of Hybrid Automata in Stateflow, discussion of work that is still TODO
 
 # Sat. 28.04
-- 
+- Rafael: Reviewed tasks for Milestone 1 and redid answers with regard to interrupts
 
 # Sun. 29.04
 - 
