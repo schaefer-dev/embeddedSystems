@@ -45,13 +45,12 @@
 \pagenumbering{gobble}
 \lstset{language=C++}
 
-\section*{Pins}
-
-% TODO rewrite the section below entirely, this task should only be related to the Expansion Board Schematic
-
-\subsection*{Scout}
+\section*{Pins - Scout}
 
 \textbf{TODO}: It might be possible that the ADC is not connected over SPI! In this case the function of I/O Clock and System Clock are switched!\\
+
+\paragraph{Must not be driven in Combination:}
+The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.\\
 
 \small
 \begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
@@ -59,10 +58,11 @@
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
   \hline
-  \hline
   \textbf{PB4} & I/O Clock of ADC & SCK of RF module & Synchronisation Clock of Serial Peripheral Interface (Master Slave Connection/SPI).\\
   \hline
-  \textbf{PB0} & MOSI & Adress input of ADC & Master Output, Slave Input lane. The Slave Select lane (PD4/PC5) determines with which of the slaves (either RF module or ADC) the master communicates.\\
+  \textbf{PB5} & MOSI lane to ADC & MOSI lane to RF & Master Output, Slave Input lane. The Slave Select lane (PD4/PC5) determines with which of the slaves (either RF module or ADC) the master communicates. This lane is used to communicate to the ADC of which photoresistor data should be read and to communicate information to the RF module.\\
+  \hline
+  \textbf{PB0} & MISO lane to ADC & MISO lane to RF & Master Input, Slave Output lane. The master receives either the output of the data out lane of the ADC or the output of the MISO lane of the RF.\\
   \hline
   \textbf{PD4} & RF module Chip Select & - & The Slave Select Lane PD4 detimines that the communication over the BUS is with the RF module (and not with the ADC).\\
   \hline
@@ -74,30 +74,41 @@
   \hline
   \textbf{PC5} & ADC Chip Select & - & The Slave Select Lane PC5 detimines that the communication over the BUS is with the ADC (and not with the RF Module).\\
   \hline
-  \textbf{PD0} & Dev Port RX & - & ?TODO?\\
+  \textbf{PD0} & Dev Port RX & - & Communication Input of UART Serial Communication (Output atmega328 - Input Dev Port)\\
   \hline
-  \textbf{PD1} & Dev Port TX & - & ?TODO?\\
+  \textbf{PD1} & Dev Port TX & - & Communication Output of UART Serial Communication (Output Dev Port - Input atmega328)\\
   \hline
 \end{tabular}
 \normalsize
 
 \vspace{1cm}
 
-\paragraph{Must not be driven in Combination:}
-The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.
-
-
-\subsection*{Collector}
+\newpage
+\section*{Pins - Collector}
 \small
-\begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
+\begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
   \hline
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
-  \textbf{PB0} & This Table & needs & a rework\\
+  \hline
+  \textbf{PB0} & RF SCK &  & Serial Clock given by master to synchronize communication over SPI protocol. \\
+  \hline
+  \textbf{PD5} & RF MOSI &  & Master Output - Slave Input lane used for SPI. This lane will e.g. be used to send package contents to the RF chip.\\
+  \hline
+  \textbf{PD7} & RF MISO &  & Master Input - Slave Output lane used for SPI. This lane will e.g. be used to receive package contents from the RF chip.\\
+  \hline
+  \textbf{PB3} & RF chip select &  & This Slave Select Lane detimines that the communication over the BUS is with the RF module\\
+  \hline
+  \textbf{PC7} & RF chip enable &  & Chip Enable Activates RX (used as receiver) or TX Mode (used as transmitter) \\
+  \hline
+  \textbf{PD2} & RF IRQ & Dev Port RX & Maskable interrupt pin. Active low. Confirms either packet arrival when package loaded into RX FIFO (RX mode) or arrival of ACK (acknowledge) packet (TX mode). Additionally this lane is the communication Input of UART Serial Communication (Output atmega32u4 - Input Dev Port) \\
+  \hline
+  \textbf{PD3} & Dev Port TX &  & Communication Output of UART Serial Communication (Output Dev Port - Input atmega32u4) \\
   \hline
 \end{tabular}
 \normalsize
 
+\newpage
 \section*{Interrupts}
 
 \textit{Which conditions should an interrupt concerning the communication with the expansion board occur?} \\
