@@ -48,14 +48,14 @@
 \section*{Pins - Scout}
 
 \paragraph{Must not be driven in Combination:}
-The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.
+The only Pins that can not be driven simultaneously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either Pin PD4 OR Pin PC5.
 
 \paragraph{Must be driven in Combination:}
-During the entire process of transfering data using SPI, it is obvious that PB4 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (either PD4 or PC5 in case of scout).
+During the entire process of transferring data using SPI, it is obvious that PB4 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this data is transferred over the lane with the Clockrate given by SCK. Bot MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (either PD4 or PC5 in case of scout).
 
-\paragraph{Usecases for PINs:} PB4 will pulse continiously with some determined frequency to determine the clockrate with which data is being sent and received over SPI. At the beginning of our application the atmega board on the scout will mainly communicate with the ADC as its primary job is to find a spot with high brightness to communicate it to the collector. To signal the ADC that sent data is directed to him Pin PC5 will be driven. To achieve communication with the ADC the MOSI lane will be used to request the brightness information of one of the Photoresistors. And the MISO lane will be used to receive this information (coming from the DATA/OUT pin of the ADC).
+\paragraph{Usecases for PINs:} PB4 will pulse continuously with some determined frequency to determine the clockrate with which data is being sent and received over SPI. At the beginning of our application the atmega board on the scout will mainly communicate with the ADC as its primary job is to find a spot with high brightness to communicate it to the collector. To signal the ADC that sent data is directed to him Pin PC5 will be driven. To achieve communication with the ADC the MOSI lane will be used to request the brightness information of one of the Photoresistors. And the MISO lane will be used to receive this information (coming from the DATA/OUT pin of the ADC).
 
-Whenever the Scout found a spot with a brightness over a certain threshhold it will communicate this information to the collector. To do this PD4 will be driven to select the RF module as target of communication over SPI and PD7 will be driven to activate the RF module into TX Mode. Over the MOSI lane PB5 the coordinates will be sent to the RF module which will send these coordinates to the RF module of the collector which will be in RX mode. After receiving the ACK package signaled by pin PD2, the scout will continue searching for a spot with even higher brightness and upon finding one, communicate it to the collector.
+Whenever the Scout found a spot with a brightness over a certain threshold it will communicate this information to the collector. To do this PD4 will be driven to select the RF module as target of communication over SPI and PD7 will be driven to activate the RF module into TX Mode. Over the MOSI lane PB5 the coordinates will be sent to the RF module which will send these coordinates to the RF module of the collector which will be in RX mode. After receiving the ACK package signaled by pin PD2, the scout will continue searching for a spot with even higher brightness and upon finding one, communicate it to the collector.
 
 The pins PD0 and PD1 might be used for debugging.
 
@@ -98,11 +98,11 @@ The pins PD0 and PD1 might be used for debugging.
 All pins mentioned on the cheatsheet can be driven in combination.
 
 \paragraph{Must be driven in Combination:}
-During the entire process of transfering data using SPI, it is obvious that PB0 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (in the case of collector, this is only PB3 as only one slave is specified on the cheatsheet)
+During the entire process of transferring data using SPI, it is obvious that PB0 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transferred over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (in the case of collector, this is only PB3 as only one slave is specified on the cheatsheet)
 
 \paragraph{Usecases for PINs:}
 
-The Collector will set the RF module to RX mode using PC7 and listen for a coordinate sent by the scout. An interrupt on PD2 signalizes receiving a coordinate sent by the scout. The data packet which contains the coordinate will be transfered from the RF module to the atmega over PD7, the MISO lane. Communication over SPI with the SPI module always drives pin PB3 and PB0 will be driven in a set frequency to determine the clockrate with which data is being sent and received over SPI.
+The Collector will set the RF module to RX mode using PC7 and listen for a coordinate sent by the scout. An interrupt on PD2 signalizes receiving a coordinate sent by the scout. The data packet which contains the coordinate will be transferred from the RF module to the atmega over PD7, the MISO lane. Communication over SPI with the SPI module always drives pin PB3 and PB0 will be driven in a set frequency to determine the clockrate with which data is being sent and received over SPI.
 
 The pins PD2 and PD3 might be used for debugging.
 
@@ -132,32 +132,39 @@ The pins PD2 and PD3 might be used for debugging.
 
 \newpage
 \section*{Interrupts}
-3pi/Scout(ATmega 328): \\
+\subsection*{Scout(3pi/ATmega 328):}
 \begin{itemize}
-\item Finding a location where the photo sensor readings surpass 200 (external)
-\item Check for timer $> 5$ minutes (internal)
+\item Finding a location where the photo sensor readings surpass 200 (external)\\
+We need to save the coordinates, and communicate them to the Collector with the RF module.
+\item Check for timer $> 5$ minutes (internal)\\
+We need to fire an interrupt after a 5 minute time limit and signal saved coordinates to the Collector.
+
 \end{itemize}
-Zumo/Collector(ATmega 32u4): \\
+
+\subsection*{Collector(Zumo/ATmega 32u4):}
 \begin{itemize}
-\item Check if communication by Scout $\neq -1$ (external)
+\item Check if communication by Scout $\neq -1$ (external)\\
+We wait for coordinates sent by the Scout, let the RF module send an interrupt.
+\item Other robot in specified proximity sensor range (external)\\
+Change direction into sensed position.
 \end{itemize} 
 
-\flushleft
-\textit{How does the interrupt service routine handle the interrupt? Which pins are affected?} \\
-
-3pi/Scout(ATmega 328): \\
-\begin{itemize}
-\item Finding a location: INT0, 0x0002
-The interrupt is executed asynchronously 
-\item Check for timer: TIMER2 COMPA, 0x000E 
-\end{itemize}
-Zumo/Collector(ATmega 32u4): \\
-\begin{itemize}
-\item Check Scout communication: INT0, \$0006
-\end{itemize}
-
-\textit{Which conditions should an interrupt concerning the communication with the expansion board occur?} \\
-\textit{Is the interrupt triggered by an external or internal source?} \\
+%
+%\textit{How does the interrupt service routine handle the interrupt? Which pins are affected?} \\
+%
+%3pi/Scout(ATmega 328): \\
+%\begin{itemize}
+%\item Finding a location: INT0, 0x0002
+%The interrupt is executed asynchronously 
+%\item Check for timer: TIMER2 COMPA, 0x000E 
+%\end{itemize}
+%Zumo/Collector(ATmega 32u4): \\
+%\begin{itemize}
+%\item Check Scout communication: INT0, \$0006
+%\end{itemize}
+%
+%\textit{Which conditions should an interrupt concerning the communication with the expansion board occur?} \\
+%\textit{Is the interrupt triggered by an external or internal source?} \\
 
 
 \newpage
