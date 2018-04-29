@@ -53,13 +53,19 @@ The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. Th
 \paragraph{Must be driven in Combination:}
 During the entire process of transfering data using SPI, it is obvious that PB4 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (either PD4 or PC5 in case of scout).
 
+\paragraph{Usecases for PINs:} PB4 will pulse continiously with some determined frequency to determine the clockrate with which data is being sent and received over SPI. At the beginning of our application the atmega board on the scout will mainly communicate with the ADC as its primary job is to find a spot with high brightness to communicate it to the collector. To signal the ADC that sent data is directed to him Pin PC5 will be driven. To achieve communication with the ADC the MOSI lane will be used to request the brightness information of one of the Photoresistors. And the MISO lane will be used to receive this information (coming from the DATA/OUT pin of the ADC).
+
+Whenever the Scout found a spot with a brightness over a certain threshhold it will communicate this information to the collector. To do this PD4 will be driven to select the RF module as target of communication over SPI and PD7 will be driven to activate the RF module into TX Mode. Over the MOSI lane PB5 the coordinates will be sent to the RF module which will send these coordinates to the RF module of the collector which will be in RX mode. After receiving the ACK package signaled by pin PD2, the scout will continue searching for a spot with even higher brightness and upon finding one, communicate it to the collector.
+
+The pins PD0 and PD1 might be used for debugging.
+
 \small
 \begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
   \hline
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
   \hline
-  \textbf{PB4} & I/O Clock of ADC & SCK of RF module & Synchronisation Clock of Serial Peripheral Interface (Master Slave Connection/SPI).\\
+  \textbf{PB4} & I/O Clock of ADC & SCK of RF module & Synchronisation Clock of Serial Peripheral Interface (Master Slave Connection/SPI). Determines the clockrate with which Data is being sent and received over SPI.\\
   \hline
   \textbf{PB5} & MOSI lane to ADC & MOSI lane to RF & Master Output, Slave Input lane. The Slave Select lane (PD4/PC5) determines with which of the slaves (either RF module or ADC) the master communicates. This lane is used to communicate to the ADC of which photoresistor data should be read and to communicate information to the RF module.\\
   \hline
@@ -92,7 +98,14 @@ During the entire process of transfering data using SPI, it is obvious that PB4 
 All pins mentioned on the cheatsheet can be driven in combination.
 
 \paragraph{Must be driven in Combination:}
-During the entire process of transfering data using SPI, it is obvious that PB0 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (in the case of collector, this is only PB3 as only one slave is specified on the cheatsheet)\\
+During the entire process of transfering data using SPI, it is obvious that PB0 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (in the case of collector, this is only PB3 as only one slave is specified on the cheatsheet)
+
+\paragraph{Usecases for PINs:}
+
+The Collector will set the RF module to RX mode using PC7 and listen for a coordinate sent by the scout. An interrupt on PD2 signalizes receiving a coordinate sent by the scout. The data packet which contains the coordinate will be transfered from the RF module to the atmega over PD7, the MISO lane. Communication over SPI with the SPI module always drives pin PB3 and PB0 will be driven in a set frequency to determine the clockrate with which data is being sent and received over SPI.
+
+The pins PD2 and PD3 might be used for debugging.
+
 
 \small
 \begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
