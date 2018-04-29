@@ -75,7 +75,8 @@
    Also finished all mentioned PINs for Collector
 
 # Sun. 29.04
-- 
+- Daniel: Extended chapter of PINs which have to be driven at the same time.
+	Extended chapter of PINs which must not be driven at the same time.
 
 # Mon. 30.04
 - 

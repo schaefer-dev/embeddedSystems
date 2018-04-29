@@ -47,10 +47,11 @@
 
 \section*{Pins - Scout}
 
-\textbf{TODO}: It might be possible that the ADC is not connected over SPI! In this case the function of I/O Clock and System Clock are switched!\\
-
 \paragraph{Must not be driven in Combination:}
-The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.\\
+The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.
+
+\paragraph{Must be driven in Combination:}
+During the entire process of transfering data using SPI, it is obvious that PB4 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (either PD4 or PC5 in case of scout).
 
 \small
 \begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
@@ -85,6 +86,14 @@ The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. Th
 
 \newpage
 \section*{Pins - Collector}
+
+
+\paragraph{Must not be driven in Combination:}
+All pins mentioned on the cheatsheet can be driven in combination.
+
+\paragraph{Must be driven in Combination:}
+During the entire process of transfering data using SPI, it is obvious that PB0 has to "run" all the time to ensure that Master and Slaves communicate in a  synchronized manner. To achieve this Data is transfered over the lane with the Clockrate given by SCK. Both MOSI and MISO lanes can only be driven when one of the Slave Select Lanes is driven aswell (in the case of collector, this is only PB3 as only one slave is specified on the cheatsheet)\\
+
 \small
 \begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
   \hline
