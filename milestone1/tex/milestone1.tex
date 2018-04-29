@@ -45,67 +45,97 @@
 \pagenumbering{gobble}
 \lstset{language=C++}
 
-\section*{Pins}
+\section*{Pins - Scout}
 
-\subsection*{Scout}
+\textbf{TODO}: It might be possible that the ADC is not connected over SPI! In this case the function of I/O Clock and System Clock are switched!\\
+
+\paragraph{Must not be driven in Combination:}
+The only Pins that can not be driven simultaniously are the PINS PD4 and PC5. These PINS are used for the SPI Protocol to select either the ADC and RF module as the "receiver" of a message and only one of the chips can be selected using either PIN PD4 OR Pin PC5.\\
 
 \small
-\begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
+\begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
   \hline
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
   \hline
+  \textbf{PB4} & I/O Clock of ADC & SCK of RF module & Synchronisation Clock of Serial Peripheral Interface (Master Slave Connection/SPI).\\
   \hline
-  \textbf{PB4} & LCD data line DB5 & User push button,\newline ISP Programming line & Push buttons with inverted logic!\newline PB4 (PCINT4) can also serve as an internal interrupt source\\
+  \textbf{PB5} & MOSI lane to ADC & MOSI lane to RF & Master Output, Slave Input lane. The Slave Select lane (PD4/PC5) determines with which of the slaves (either RF module or ADC) the master communicates. This lane is used to communicate to the ADC of which photoresistor data should be read and to communicate information to the RF module.\\
   \hline
-  \textbf{PB5} & LCD data line DB6 & User push button,\newline ISP Programming line & Push buttons with inverted logic!\newline PB5 (PCINT5) can also serve as an internal interrupt source\\
+  \textbf{PB0} & MISO lane to ADC & MISO lane to RF & Master Input, Slave Output lane. The master receives either the output of the data out lane of the ADC or the output of the MISO lane of the RF.\\
   \hline
-  \textbf{PB0} & LCD Control Line R/W & Timer1 input capture (ICP1),\newline divided system clock output (CLK0) & \\
+  \textbf{PD4} & RF module Chip Select & - & The Slave Select Lane PD4 detimines that the communication over the BUS is with the RF module (and not with the ADC).\\
   \hline
-  \textbf{PD4} & LCD control line E & USART external clock input/output (XCK)\newline Timer0 external counter (T0) & \\
+  \textbf{PD7} & RF module Chip Enable & - & Chip Enable Activates RX (used as receiver) or TX Mode (used as transmitter)\\
   \hline
-  \textbf{PD7} & LCD data line DB7 & connected to green user LED & high value turns LED on\\
+  \textbf{PD2} & RF IRQ & - & Maskable interrupt pin. Active low. Confirms either packet arrival when package loaded into RX FIFO (RX mode) or arrival of ACK (acknowledge) packet (TX mode).\\
   \hline
-  \textbf{PD2} & LCD control line RS & external interrupt 0 (INT0) & NOTE\\
+  \textbf{PB1} & ADC system clock & - & Prescaled Clock source, which allows time for a conversion to happen inside the ADC (I/O Clock must remain low for at least 36 system clock cycles to allow conversion to be completed)\\
   \hline
-  \textbf{PB1} & LCD data line DB4 & user pushbutton,\newline Timer1 PWM output A (OC1A) & inverted logic on button\\
+  \textbf{PC5} & ADC Chip Select & - & The Slave Select Lane PC5 detimines that the communication over the BUS is with the ADC (and not with the RF Module).\\
   \hline
-  \textbf{PC5} & analog input and digital I/O & jumpered to sensors IR LEDs (driving low turns off emitters),\newline ADC input channel 5 (ADC5) & \\
+  \textbf{PD0} & Dev Port RX & - & Communication Input of UART Serial Communication (Output atmega328 - Input Dev Port)\\
   \hline
-  \textbf{PD0} & free digital I/O & USART input pin (RXD) & DEV port RX\\
-  \hline
-  \textbf{PD1} & free digital I/O & connected to red user LED,\newline USART input pin (TXD) & DEV port TX\\
+  \textbf{PD1} & Dev Port TX & - & Communication Output of UART Serial Communication (Output Dev Port - Input atmega328)\\
   \hline
 \end{tabular}
 \normalsize
 
+\vspace{1cm}
 
-\subsection*{Collector} 
-\small 
-\begin{tabular}{c || p{30mm} | p{30mm} | p{60mm}}
+\newpage
+\section*{Pins - Collector}
+\small
+\begin{tabular}{| c || p{30mm} | p{30mm} | p{60mm} |}
   \hline
   \textbf{PIN} & FUNCTION & alternate Functions & NOTES\\
   \hline
-  \textbf{PB0} & Red LED (RX)\newline User pushbutton C\newline LCD data line DB5 & SPI slave select ($\overline{\text{SS}}$)\newline Pin-change interrupt (PCINT0) & \\
   \hline
-  \textbf{PD5} & Green LED (TX)\newline
-User pushbutton B\newline
-LCD data line DB7 \newline & UART external clock (XCK1)\newline
-UART flow control ($\overline{\text{CTS}}$) & \\
+  \textbf{PB0} & RF SCK &  & Serial Clock given by master to synchronize communication over SPI protocol. \\
   \hline
-  \textbf{PD7} & Buzzer PWM & Analog input (ADC10)\newline Timer4 PWM output D (OC4D)\newline Timer0 counter source (T0) & \\
+  \textbf{PD5} & RF MOSI &  & Master Output - Slave Input lane used for SPI. This lane will e.g. be used to send package contents to the RF chip.\\
   \hline
-  \textbf{PB3} & User pushbutton A\newline LCD data line DB4  & SPI Master Input/Slave Output (MISO)\newline Pin-change interrupt (PCINT3)  & Push buttons with inverted logic!\\
+  \textbf{PD7} & RF MISO &  & Master Input - Slave Output lane used for SPI. This lane will e.g. be used to receive package contents from the RF chip.\\
   \hline
-  \textbf{PC7} & Yellow LED\newline LCD data line DB6 & Timer4 PWM output A (OC4A)\newline Timer3 input capture pin (ICP3)\newline Divided system clock output (CLKO) & \\
+  \textbf{PB3} & RF chip select &  & This Slave Select Lane detimines that the communication over the BUS is with the RF module\\
   \hline
-  \textbf{PD2} & LCD control line (RS) & UART receive pin (RXD1)\newline External interrupt source ($\overline{\text{INT2}}$) & \\
+  \textbf{PC7} & RF chip enable &  & Chip Enable Activates RX (used as receiver) or TX Mode (used as transmitter) \\
   \hline
-  \textbf{PD3} & LCD control line (E) & UART transmit pin (TXD1)\newline External interrupt source ($\overline{\text{INT3}}$) & \\
+  \textbf{PD2} & RF IRQ & Dev Port RX & Maskable interrupt pin. Active low. Confirms either packet arrival when package loaded into RX FIFO (RX mode) or arrival of ACK (acknowledge) packet (TX mode). Additionally this lane is the communication Input of UART Serial Communication (Output atmega32u4 - Input Dev Port) \\
+  \hline
+  \textbf{PD3} & Dev Port TX &  & Communication Output of UART Serial Communication (Output Dev Port - Input atmega32u4) \\
+  \hline
 \end{tabular}
 \normalsize
 
+\newpage
 \section*{Interrupts}
+3pi/Scout(ATmega 328): \\
+\begin{itemize}
+\item Finding a location where the photo sensor readings surpass 200 (external)
+\item Check for timer $> 5$ minutes (internal)
+\end{itemize}
+Zumo/Collector(ATmega 32u4): \\
+\begin{itemize}
+\item Check if communication by Scout $\neq -1$ (external)
+\end{itemize} 
+
+\flushleft
+\textit{How does the interrupt service routine handle the interrupt? Which pins are affected?} \\
+
+3pi/Scout(ATmega 328): \\
+\begin{itemize}
+\item Finding a location: INT0, 0x0002
+The interrupt is executed asynchronously 
+\item Check for timer: TIMER2 COMPA, 0x000E 
+\end{itemize}
+Zumo/Collector(ATmega 32u4): \\
+\begin{itemize}
+\item Check Scout communication: INT0, \$0006
+\end{itemize}
+
+\textit{Which conditions should an interrupt concerning the communication with the expansion board occur?} \\
+\textit{Is the interrupt triggered by an external or internal source?} \\
 
 \section*{Hybrid Automata}
 \subsection* {Scout}
@@ -129,5 +159,6 @@ getAngle(x, y, harvestX, harvestY) {
 The robot compares this angle with its current angle \Theta  and transitions into either TurnLeft or TurnRight and turns until it points straight at the harvesting position. It then transitions back into the Harvest state where it moves forward towards the harvesting position. Once there, it stops. To ensure that the system does not transition back to Annoy once it has been in Harvest, we introduced the variable a that ensures that states TurnLeft and TurnRight can only transition to the states that transitioned to them and, in particular, not from Harvest to Annoy or vice versa.\\
 Note that the turning functionality as we have modelled it for the collector can work int the same way for the scout. For simplicity we have omitted it in the above automaton because given the assumption from the exercise that we have an infinitely large map with no sensible boundaries it does note make a difference whether the scout makes turns or only keeps driving forward. We have modelled the automatas also in Stateflow where we let the scout make turns based on the current clock value.\\
 \includegraphics[scale = 0.8]{pictures/hybrid_automata_collector}
+
 
 \end{document}
