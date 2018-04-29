@@ -134,19 +134,19 @@ The pins PD2 and PD3 might be used for debugging.
 \section*{Interrupts}
 \subsection*{Scout(3pi/ATmega 328):}
 \begin{itemize}
-\item Finding a location where the photo sensor readings surpass 200 (external)\\
-We need to save the coordinates, and communicate them to the Collector with the RF module.
-\item Check for timer $> 5$ minutes (internal)\\
-We need to fire an interrupt after a 5 minute time limit and signal saved coordinates to the Collector.
+\item \textit{Finding a location where the photo sensor readings surpass 200 (external)}\\
+The sensors readings get to the ADC. After checking against the threshold, we need to save the coordinates and communicate them to the Collector with the RF module. The PD4 pin allows us to access the RF chip, the MOSI pin is used to get the coordinate data to the communication module, so during this process we cannot access the ADC. We also need Pin PD2 from RF IRQ to control for sent acknowledgement, where the RF module sends its interrupts regarding receive, transmit, transmit fail.
+\item \textit{Check for timer $> 5$ minutes (internal)}\\
+We need to fire an interrupt after a 5 minute time limit and signal saved coordinates to the Collector. This happens internally such that we do not have to drive a pin. We must pay attention to the overflow as 5 minutes are relative to our system clock. Afterwards we need to signal coordinates to the Collector as we do in the above case, so at least MOSI and PD2 are used.
 
 \end{itemize}
 
 \subsection*{Collector(Zumo/ATmega 32u4):}
 \begin{itemize}
-\item Check if communication by Scout $\neq -1$ (external)\\
-We wait for coordinates sent by the Scout, let the RF module send an interrupt.
-\item Other robot in specified proximity sensor range (external)\\
-Change direction into sensed position.
+\item \textit{Check if communication by Scout $\neq -1$ (external)}\\
+We wait for coordinates sent by the Scout. When coordinate data is received through the communication, the RF module will send an interrupt on IRQ pin to pin PD2 on ATmega 32u4. Now we need to handle the received coordinates.
+\item \textit{Other robot in specified proximity sensor range (external)}\\
+After the proximity sensor outputs a value above the predetermined threshold, we change the orientation of our collector robot to the direction of sensed object. 
 \end{itemize} 
 
 %
