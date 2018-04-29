@@ -73,6 +73,7 @@
 - Rafael: Reviewed tasks for Milestone 1 and redid answers with regard to interrupts
 - Daniel: Completed Reading Wireless chip datasheet + improved PIN Descriptions and use cases for all pins contained on cheatsheet. Only remaining problem is communication with the ADC. If this happens over SPI the pins "system clock"  and "I/O" Clock should be swapped on the ADC.
    Also finished all mentioned PINs for Collector
+- Kevin: Modelled Hybrid Automata based on Stateflow model and description text.
 
 # Sun. 29.04
 - Daniel: Extended chapter of PINs which have to be driven at the same time.
