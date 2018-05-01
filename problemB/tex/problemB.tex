@@ -70,7 +70,7 @@
 	
 \end{enumerate}
 
-
+\end{enumerate}
 \section*{Problem B2}
 % TODO
 
@@ -80,7 +80,12 @@
 
 
 \section*{Problem B4}
-% TODO
+\begin{enumerate}[a)]
+	\item The integral part of a PID (or PI) controller accumulates the error so far, meaning that the constant error introduced by the bias will accumulate. Eventually, by adjusting the integral gain as a response to the accumulation of errors, the error will go to zero. The derivative part of a PID (or PD) controller changes the signal gain based on the error rate of change. Since we have a constant bias, the rate of change will essentially be zero. Therefore a PD controller will have no advantage over simple P controller (only proportional gain), while a PI controller will get rid of the bias and get the error down to zero.\\
+This is our stateflow diagram of the differential drive:\\
+Here is our simulink block diagram of the plant and controller:\\
 
+	\item TODO
+\end{enumerate}
 
 \end{document}
