@@ -1,0 +1,73 @@
+% exercise sheet with header on every page for math or close subjects
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{graphicx}
+
+% Shortcuts for bb, frak and cal letters
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Pfrak}{\mathfrak{P}}
+\newcommand{\Pfrac}{\mathfrak{P}}
+\newcommand{\Bfrac}{\mathfrak{P}}
+\newcommand{\Bfrak}{\mathfrak{B}}
+\newcommand{\Fcal}{\mathcal{F}}
+\newcommand{\Ycal}{\mathcal{Y}}
+\newcommand{\Bcal}{\mathcal{B}}
+\newcommand{\Acal}{\mathcal{A}}
+
+% formating
+\topmargin -3.5cm
+\textheight 22cm
+\textwidth 16.0 cm
+\oddsidemargin -0.1cm
+
+% Fancy Header on every Page
+\pagestyle{fancy}
+\lhead{\textbf{Embedded Systems Problem Set B}}
+\rhead{Daniel Schäfer (2549458)\\ Rafael Dewes (2548365)\\ Kevin M\"uller (2550062)}
+\renewcommand{\headrulewidth}{1.2pt}
+\setlength{\headheight}{110pt}
+
+\begin{document}
+\pagenumbering{gobble}
+\lstset{language=C++}
+
+
+\section*{Problem B1}
+% TODO
+\begin{enumerate}[a)]
+	\item According to sampling theory (Nyquist criterion) the sampling rate needs to be at least twice as big as the highest frequency of the component sine waves.
+	$$ f_s > 2 * f_N$$
+	To compute the necessary sampling rate, the Nyquist frequency $f_N$ has to be computed as follows
+	$$ S(t) = \underbrace{sin(2\pi t + \frac{1}{4}}_{f = 1Hz} + \underbrace{sin(4\pi t + \frac{1}{4}}_{f = 2}$$
+	The highest frequency of the component sine waves is $2$, which means that $f_N = 2$.
+	
+	$\Rightarrow$ The signal has to be sampled at least 4 times per second to enable a reconstruction (Nyquist frequency).
+
+
+\section*{Problem B2}
+% TODO
+
+
+\section*{Problem B3}
+% TODO
+
+
+\section*{Problem B4}
+% TODO
+
+
+\end{document}
