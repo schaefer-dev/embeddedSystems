@@ -52,24 +52,43 @@
 	\item According to sampling theory (Nyquist criterion) the sampling rate needs to be at least twice as big as the highest frequency of the component sine waves.
 	$$ f_s > 2 * f_N$$
 	To compute the necessary sampling rate, the Nyquist frequency $f_N$ has to be computed as follows
-	$$ S(t) = \underbrace{sin(2\pi t + \frac{1}{4})}_{f = 1Hz} + \underbrace{sin(4\pi t + \frac{1}{4})}_{f = 2}$$
+	$$ S(t) = \underbrace{sin(2\pi t + \frac{1}{4})}_{f = 1Hz} + \underbrace{sin(4\pi t + \frac{1}{4})}_{f = 2Hz}$$
 	The highest frequency of the component sine waves is $2$, which means that $f_N = 2$.
 	
 	$\Rightarrow$ The signal has to be sampled at least 4 times per second to enable a reconstruction.
 	
 	\item Shannon-Whittaker interpolation:
-	$$\sum_{s=0}^{2} y(t_s) * \frac{sin(\frac{\pi}{p_s}(t-t_s))}{\frac{\pi}{p_s}(t-t_s)}$$
-	$$\sum_{s=0}^{2} y(t_s) * \frac{sin(\frac{\pi}{0.25}(t-t_s))}{\frac{\pi}{0.25}(t-t_s)}$$
-	% TODO
-	
-	\item TODO
-	% TODO
-	
-	\item TODO
-	% TODO
-	
-\end{enumerate}
+	As calculated above we have a frequency of 4, giving us f = 4.
+	We can then define our sinc function in the following way
+	\[
+    		sinc(i)= 
+		\begin{cases}
+    			 \frac{sin(4{\pi}i)}{4{\pi}i},& \text{if } x\neq 1\\
+    			1,              & \text{otherwise}
+		\end{cases}
+	\]
+	Given a reconstruction intervall of [0,2] and a sampling frequency of f=4 we know that we have 8 samples for this intervall. This gives us the Shannon-Whittaker interpolation function as:
 
+	$$z(t) = \sum_{s=1}^{8} y(t_s) * sinc(t-t_s)$$
+	$$=  y(t_1) * sinc(t-t_1) + y(t_2) * sinc(t-t_2) + ...$$
+	$$=  y(0) * sinc(t-0) + y(0.25) * sinc(t-0.25) + ...$$
+	
+The resulting function {z(t)} gives us a reconstruction of the original signal based on the sampled values plotted as a step function.\\
+
+
+\includegraphics[scale = 0.3]{figures/sinc}\\
+From the plot we can see that the original and the reconstructed signals match at the points in time where the original signal was sampled. However, since the sampling frequency was rather low (exactly twice the maximum frequency), the reconstruction is far from accurate. For example at time points t=0.3 or t=1.1 we can see large differences. The original signal has a period of 1. Given the interval of 2, we have two full  periods sampled. Our sampled signal is also periodic which means it will repeat itself outside of the intervall. The reconstructed intervall will therefore also be periodic after t=2.
+
+%	$$\sum_{s=0}^{8} y(t_s) * \frac{sin({4\pi}(t-t_s))}{{4\pi}(t-t_s)}$$
+%	$$\sum_{s=0}^{2} y(t_s) * \frac{sin(\frac{4\pi}(t-t_s))}{\frac{\pi}{0.25}(t-t_s)}$$
+
+	
+	\item TODO
+	% TODO
+	
+	\item TODO
+	% TODO
+	
 \end{enumerate}
 \section*{Problem B2}
 % TODO
