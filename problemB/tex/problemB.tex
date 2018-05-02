@@ -63,11 +63,11 @@
 	\[
     		sinc(i)= 
 		\begin{cases}
-    			 \frac{sin(4{\pi}i)}{4{\pi}i},& \text{if } x\neq 1\\
+    			 \frac{sin(4{\pi}i)}{4{\pi}i},& \text{if } i\neq 0\\
     			1,              & \text{otherwise}
 		\end{cases}
 	\]
-	Given a reconstruction intervall of [0,2] and a sampling frequency of f=4 we know that we have 8 samples for this intervall. This gives us the Shannon-Whittaker interpolation function as:
+    Given a reconstruction intervall of [0,2] and a sampling frequency of $f=\frac{1}{4}$ we know that we have 8 samples for this intervall. This gives us the Shannon-Whittaker interpolation function as:
 
 	$$z(t) = \sum_{s=1}^{8} y(t_s) * sinc(t-t_s)$$
 	$$=  y(t_1) * sinc(t-t_1) + y(t_2) * sinc(t-t_2) + ...$$
@@ -76,8 +76,18 @@
 The resulting function {z(t)} gives us a reconstruction of the original signal based on the sampled values plotted as a step function.\\
 
 
-\includegraphics[scale = 0.3]{figures/sinc}\\
+\begin{centering}
+\includegraphics[scale = 0.3]{figures/sinc4}\\
+\end{centering}
+
 From the plot we can see that the original and the reconstructed signals match at the points in time where the original signal was sampled. However, since the sampling frequency was rather low (exactly twice the maximum frequency), the reconstruction is far from accurate. For example at time points t=0.3 or t=1.1 we can see large differences. The original signal has a period of 1. Given the interval of 2, we have two full  periods sampled. Our sampled signal is also periodic which means it will repeat itself outside of the intervall. The reconstructed intervall will therefore also be periodic after t=2.
+
+Using a matlab script we noticed, that especially a frequency of $frac{1}{5}$ worked very well, as seen in the plot below.\\
+
+\begin{centering}
+\includegraphics[scale = 0.3]{figures/sinc5}\\
+\end{centering}
+
 
 %	$$\sum_{s=0}^{8} y(t_s) * \frac{sin({4\pi}(t-t_s))}{{4\pi}(t-t_s)}$$
 %	$$\sum_{s=0}^{2} y(t_s) * \frac{sin(\frac{4\pi}(t-t_s))}{\frac{\pi}{0.25}(t-t_s)}$$
