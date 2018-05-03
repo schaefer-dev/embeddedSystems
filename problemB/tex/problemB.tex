@@ -118,13 +118,6 @@ Using a matlab script we noticed, that especially a frequency of $\frac{1}{5}$ w
         % TODO write more?
 
 \end{enumerate}
-\section*{Problem B2}
-% TODO
-
-
-\section*{Problem B3}
-% TODO
-
 
 \section*{Problem B4}
 \begin{enumerate}[a)]
@@ -137,11 +130,15 @@ Our model for this exercise corresponds to the one shown in b) except for the ad
 \item D: Causes the error to get smaller based on the rate of change. This has to account for the noise that changes a lot so it should not be too small but we noticed that it doesn't seem to have a big effect on the response curve. 50 seems to be a good value.
 \end{itemize}
 The second PID controller gets the desired speed as reference signal and the current speed and outputs again a value that is used to adjust both wheel velocities to reach the desired state. In particular, when the car is too slow, the output of the PID controller will cause the car to slow down and vice versa. As a result, from the initial state with velocity zero, while at the same time turning to the desired reference angle, the car gradually accelerates to the desired speed of 100 and reaches it after 3 seconds. These are our values for the controller:\begin{itemize}
-\item P: Since we want to drive as fast as possible most of the time, there is no need for a big proportional gain, so we set this relatively low to 100.
-\item I: The integral part is very important to get rid of the steady state error of the wheel velocities so this get's a higher value of 500.
-\item D: Again, the derivative part is used as a countermeasure to the quickly changing error due to the noise which is why we also set this relatively high to 300.
+\item P: Since we want to drive as fast as possible most of the time, there is no need for a big proportional gain, so we set this to 1.
+\item I: The integral part is very important to get rid of the steady state error of the wheel velocities so this get's a higher value of 300.
+\item D: Again, the derivative part is used as a countermeasure to the quickly changing error due to the noise which is why we also set this to 100.
 \end{itemize}
-We discovered these values by the above considerations but also by trying out some values until the desired response was reached. For each controller, we kept the filter coefficient (N) down at 1 so it does not have an effect. This is because it was not mentioned in the lecture and it not part of a basic PID controller. One thing to note is that we adjusted the controllers and the effect they have on the signal in the way that the car still behaves in a reasonable and realistic manner, meaning that the wheel velocities stay within a reasonable range, causing the car to gradually reach the desired state as it would be in an experiment with the real robot.
+We discovered these values by the above considerations but also by trying out some values until the desired response was reached. For each controller, we kept the filter coefficient (N) down at 1 so it does not have an effect. This is because it was not mentioned in the lecture and it not part of a basic PID controller. One thing to note is that we adjusted the controllers and the effect they have on the signal in the way that the car still behaves in a reasonable and realistic manner, meaning that the wheel velocities stay within a reasonable range, causing the car to gradually reach the desired state as it would be in an experiment with the real robot.\\
+This is our simulink model:\\
+\includegraphics[scale = 0.5]{figures/diff_drive}\\
+This is the output of the exercise scope where violet is the angle $\Theta$ and green is the velocity. Blue and yellow are the separate wheel velocities:\\
+\includegraphics[scale = 0.5]{figures/pid_graph}\\
 \end{enumerate}
 
 \end{document}
