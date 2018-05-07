@@ -1,0 +1,34 @@
+Scout:
+- max speed laut datenblatt fuer motor
+- initial position
+- 4 photo sensoren + noise (value domain rausfinden)
+- Minimalstrategie implementieren
+
+Collector:
+- max speed laut datenblatt fuer motor
+- initial position
+- 3 Proximity sensoren + noise (value domain rausfinden)
+- Minimalstrategie implementieren
+- gegner pushen, scount ignorieren wenn am pushen
+- darf nicht team mate out of bounds pushen
+
+Referee:
+- drift/noise für jeden spieler
+- communication bit/byte-wise, message size, ack, timing laut RF
+- 5% chance of losing message (every comminunication)
+- Bounding box und ouf bounds check
+- berechnet punktestand (jede sekunde kuken wer im licht is und drauf addieren)
+
+God:
+- Licht (pattern und random)
+- Generates sensor readings basiernd auf den realen position (inkl noise) der anderen spieler
+- Addiert noise auf signal und sendet es zu den robotern
+
+Colliosion zunächst nur vereinfacht durch einfaches wegschieben der
+Gegner modellieren.
+
+Daniel: RF Modul ankuken, Motor input value range, sensor value domain (photo, proximity)
+Rafi: Konzept Schnittstellen
+Kev: Diff drive und roboter als datei/modul, tcp communication
+
+
