@@ -6,7 +6,7 @@ def Main():
      
     mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     mySocket.bind((host,port))
-    mySocket.listen(1)
+    mySocket.listen()    
     BUFFER_SIZE = 8
     
     conn, addr = mySocket.accept()
@@ -15,12 +15,9 @@ def Main():
             data = conn.recv(BUFFER_SIZE)
             if not data:
                     break
-            print ("from connected  user: ", data)
-             
-            #data = str(data).upper()
-            #print ("sending: " + str(data))
-            #conn.send(data.encode())
-             
+            decoded = int.from_bytes(data, byteorder='big', signed=True)
+            print ("data: ", data)
+            print ("dec : ", decoded)             
     conn.close()
      
 if __name__ == '__main__':
