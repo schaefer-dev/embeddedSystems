@@ -13,22 +13,31 @@ Collector:
 - darf nicht team mate out of bounds pushen
 
 Referee:
-- drift/noise für jeden spieler
 - communication bit/byte-wise, message size, ack, timing laut RF
 - 5% chance of losing message (every comminunication)
 - Bounding box und ouf bounds check
-- berechnet punktestand (jede sekunde kuken wer im licht is und drauf addieren)
+- berechnet punktestand (jede sekunde kuken wer im licht (vom God) ist und drauf addieren)
+- gibt aktuelle position und winkel an jeden roboter alle x zeitintervalle
 
 God:
 - Licht (pattern und random)
 - Generates sensor readings basiernd auf den realen position (inkl noise) der anderen spieler
-- Addiert noise auf signal und sendet es zu den robotern
+- Addiert noise auf sensorsignals und sendet es zu den robotern
+- drift/noise für jeden spieler (bekommt motor signale von den
+Roboter, addiert noise und berechnet mit eigenem Diff drive die wirkliche
+Position)
+- Gibt wirkliche position zu jedem Zeitpunkt zum Referee weiter
+- managet Kollisionen
 
 Colliosion zunächst nur vereinfacht durch einfaches wegschieben der
 Gegner modellieren.
 
+Step 1: Bis Dienstag 08.05
 Daniel: RF Modul ankuken, Motor input value range, sensor value domain (photo, proximity)
 Rafi: Konzept Schnittstellen
 Kev: Diff drive und roboter als datei/modul, tcp communication
 
-
+Step 2: Bis Mittwoch 09.05
+Daniel: Roboter, random fahren und off switch wenn God sagt stehen bleiben. Robots.
+Rafi: Punkstand berechnen. Referee.
+Kev: Visualisierung fertig machen. Licht. God.
