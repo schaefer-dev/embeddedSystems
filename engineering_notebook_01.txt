@@ -1,4 +1,4 @@
--------------------------- Engineering Notebook 01 --------------------------
+﻿-------------------------- Engineering Notebook 01 --------------------------
 ---------------------------- Week 20.04 - 30.04 -----------------------------
 -----------------------------------------------------------------------------
 --------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
@@ -140,7 +140,7 @@
 
 - Daniel: Reading of RF Module Datasheet with focus on data-transfer between Scout and Collector. Notes regarding implementation of Auto-Ack + Bidirectional communication and package/payload content.
 		Reading of Datasheet Scout/Collector to gain detailed information on value domains of proximity and photosensors and the power delivery to motors on each robot.
-
+- Kevin: Created very basic reference model for collector, implement TCP communication from Simulink to Unity
 
 # Tue. 08.05
 - Group Meeting:
@@ -150,7 +150,7 @@
 			Kev: Visualisierung fertig machen. Licht. God.
 
 - Daniel: Implementation of Opponent tactic including the generation of random coordinates to which the robot automatically turns and drives, upon arrival new random coordinates are generated. Fixed Zero-Line-Crossing with condition modifications of allowing small differences between desired and actual theta values (angle towards "goal").
-
+- Kevin: Finished implementation of visualization in Unity for every data we have + Interface from simulink in God model. Integrated collector model created by Daniel into root model as referenced model. Fixed errors related to algebraic loops.
 
 # Wed. 09.05
 - Group Meeting:
@@ -176,7 +176,7 @@
 
 - Daniel: Opponent Model can now receive coordinates, which ALWAYS overwrite the current destination (which causes the robot to turn and drive towards that coordinate). This will be used for our collector, which receives these coordinates from the scout.
 	 		Additionally the opponent model now implements a "OFF_CONDITION" which is used to turn of the motor entirely (to e.g. stand still for 60s when pushed out of bounds or to demonstrate the pushing process of an opponent). The robot motor will be turned off as long as the input value is >0.
-
+- Kevin: Refinements and release of the visualization. Implemented the light to move randomly. Created referenced models for scouts and other general structural improvements with reference models and subsystems. 
 
 # Thu. 10.05
 -
