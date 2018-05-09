@@ -1,8 +1,8 @@
--------------------------- Engineering Notebook 01 -------------------------- 
----------------------------- Week 20.04 - 30.04 ----------------------------- 
------------------------------------------------------------------------------ 
+-------------------------- Engineering Notebook 01 --------------------------
+---------------------------- Week 20.04 - 30.04 -----------------------------
+-----------------------------------------------------------------------------
 --------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
------------------------------------------------------------------------------ 
+-----------------------------------------------------------------------------
 
 # Sat. 21.04
 - Daniel: Reading + Studying of 3pi user Manual + marking important parts + reading some corresponding parts of Data sheet + online resources from "hackaday" regarding usage of 3pi robot
@@ -20,7 +20,7 @@
 
 # Mon. 23.04
 - Daniel: both clion and manual flash fails with following error.
-    Manual flashing using: 
+    Manual flashing using:
     "avrdude -p m32u4 -c avrispv2 -P /dev/tty.usbmodem00110791 -U flash:w:collector.hex"
         avrdude: stk500v2_command(): command failed
         avrdude: initialization failed, rc=-1
@@ -41,30 +41,30 @@
 - Rafael: Read through communication module documentation; looked for external resources regarding pins, communication protocols
 
 # Tue. 24.04
-- Kevin: 
-    Re-built bouncing ball and problem A4 a) in Simulink to better understand the concepts. 
+- Kevin:
+    Re-built bouncing ball and problem A4 a) in Simulink to better understand the concepts.
     Studied Simulink's "Getting Started" tutorials (charts, actions, hierarchies, parallelism, events) as well as several video tutorials and explored sf_aircontrol and sf_security.
     Started working on Milestone 1 task "Hybrid Automata".
 - Rafael: Read https://www.embeddedrelated.com/showarticle/453.php , watched https://youtu.be/iqMiI9Zgxhk
 
-- Daniel: SPI Videos: 	https://youtu.be/iqMiI9Zgxhk 
-						https://youtu.be/9XjSJV5MPc0 
+- Daniel: SPI Videos: 	https://youtu.be/iqMiI9Zgxhk
+						https://youtu.be/9XjSJV5MPc0
 		  RS232 Lecture: https://youtu.be/BOS1s-EqjCI
-		  I2C Lecture: https://youtu.be/OGRH-6cz8Z8						   
+		  I2C Lecture: https://youtu.be/OGRH-6cz8Z8
 		  Reading "Introduction to Microcontrollers" Chapter 1-9 starting with https://www.embeddedrelated.com/showarticle/453.php
-  
-  
+
+
 # Wed. 25.04
 - Kevin: Modelled Milestone 1 Hybrid Automata in Stateflow. Differential drive motor signals still missing.
     Modelled separate differential drive motor.
-- Rafael: Read up on Interrupts, started linking interrupts and pins 
+- Rafael: Read up on Interrupts, started linking interrupts and pins
 
 # Thu. 26.04
 - Kevin: Modelled Milestone 1 Hybrid Automata in Stateflow.
 - Rafael: Milestone 1 interrupts
 
 # Fri. 27.04
-- Daniel: New understanding of Task1. It does not refer to the entire atmega328, but instead we should only work with the schematic, preceding the cheatsheet. 
+- Daniel: New understanding of Task1. It does not refer to the entire atmega328, but instead we should only work with the schematic, preceding the cheatsheet.
     This task seems much more realistic without pasting 300pages datasheets.
     Reading in Datasheet of RF module and ADC
     + Kevin showed results of Hybrid Automata in Stateflow, discussion of work that is still TODO
@@ -80,13 +80,110 @@
 	Extended chapter of PINs which must not be driven at the same time.
 	Also included specific usecase explanations for all PINs listed on the cheatsheet now.
 
-# Mon. 30.04
-- 
-# Tue. 01.05
-- 
-# Wed. 02.05
-- 
-# Thu. 03.05
-- 
-# Fri. 04.05
-- 
+
+
+
+
+	-------------------------- Engineering Notebook 02 --------------------------
+	---------------------------- Week 03.05 - 14.05 -----------------------------
+	-----------------------------------------------------------------------------
+	--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
+	-----------------------------------------------------------------------------
+
+# Sat. 06.05
+- Daniel: Studying of Simulink Documentation and Tutorials on YouTube
+
+# Sun. 06.05
+- Daniel: Experimenting with simulink, especially related to plotting of roboter positions simultaniously into a single "map plot"
+
+# Mon. 07.05
+- Group Meeting Discussion of Layout
+				Scout:
+				- (DONE) max speed laut datenblatt fuer motor
+				- initial position
+				- 4 photo sensoren + noise (value domain rausfinden)
+				- Minimalstrategie implementieren
+
+				Collector:
+				- (DONE) max speed laut datenblatt fuer motor
+				- initial position
+				- 3 Proximity sensoren + noise (value domain rausfinden)
+				- Minimalstrategie implementieren
+				- gegner pushen, scount ignorieren wenn am pushen
+				- darf nicht team mate out of bounds pushen
+
+				Referee:
+				- communication bit/byte-wise, message size, ack, timing laut RF
+				- 5% chance of losing message (every comminunication)
+				- Bounding box und ouf bounds check
+				- berechnet punktestand (jede sekunde kuken wer im licht (vom God) ist und drauf addieren)
+				- gibt aktuelle position und winkel an jeden roboter alle x zeitintervalle
+
+				God:
+				- Licht (pattern und random)
+				- Generates sensor readings basiernd auf den realen position (inkl noise) der anderen spieler
+				- Addiert noise auf sensorsignals und sendet es zu den robotern
+				- drift/noise für jeden spieler (bekommt motor signale von den
+				Roboter, addiert noise und berechnet mit eigenem Diff drive die wirkliche
+				Position)
+				- Gibt wirkliche position zu jedem Zeitpunkt zum Referee weiter
+				- managet Kollisionen
+
+				Colliosion zunächst nur vereinfacht durch einfaches wegschieben der
+				Gegner modellieren.
+
+				Workload for team members:
+				Step 1: Bis Dienstag 08.05
+				Daniel: RF Modul ansehen, Motor input value range, sensor value domain (photo, proximity)
+				Rafi: Konzept Schnittstellen
+				Kev: Diff drive und roboter als datei/modul, tcp communication
+
+- Daniel: Reading of RF Module Datasheet with focus on data-transfer between Scout and Collector. Notes regarding implementation of Auto-Ack + Bidirectional communication and package/payload content.
+		Reading of Datasheet Scout/Collector to gain detailed information on value domains of proximity and photosensors and the power delivery to motors on each robot.
+
+
+# Tue. 08.05
+- Group Meeting:
+			Step 2: Bis Mittwoch 09.05
+			Daniel: Roboter, random fahren und off switch wenn God sagt stehen bleiben. Robots.
+			Rafi: Punkstand berechnen. Referee.
+			Kev: Visualisierung fertig machen. Licht. God.
+
+- Daniel: Implementation of Opponent tactic including the generation of random coordinates to which the robot automatically turns and drives, upon arrival new random coordinates are generated. Fixed Zero-Line-Crossing with condition modifications of allowing small differences between desired and actual theta values (angle towards "goal").
+
+
+# Wed. 09.05
+- Group Meeting:
+			Step 3: Bis Donnerstag 10.05
+				- Collector dreht sich manchmal um die falsche seite (also z.B. 300 grad rechts rum statt 60 grad links rum)
+					Und in seltenen Fällen dreht er sich ewig nach links und rechts und links und rechts etc etc.
+			Daniel:	- Eigener Collector random fahren und wenn harvest position kommt dahin fahren. Collector A.
+					Existierendes Opponent modell erweitern durch die Funktionalität zu der Harvest position zu fahren
+					(Position als Input). Modell dann 2 mal referenzieren, beim eigenen Collector sendet der Scout die
+					position an diesen Input und beim Gegner bleibt der input einfach leer. Dadurch brauchen wir nur
+					ein referenced model für beide Collectoren.
+					Wenn man in model.slx auf opponent klickt dann öffnet er das referenz modell und egal auf welches man
+					klickt werden darin die daten von nur einer der beiden Instanzen der letzten Simulation angezeigt.
+					Die Daten welcher Instanz angezeigt werden kann man ändern in Visibility Options.
+					In the Simulink Editor, select the Diagram > Subsystem & Model Reference > Model Block Normal Mode Visibility
+					https://de.mathworks.com/help/simulink/ug/simulate-models-with-multiple-referenced-model-instances-1.html#bvaxabx
+			Rafi:	- Punkstand berechnen. Referee.
+				- Referee Kommunikation. Referee.
+				- Out of bounds check. Referee.
+			Kev: 	- Gegner Scouts implementieren. Scout B.
+				- Licht. Gott aufräumen. God.
+				- Unity als exe und hochladen.
+
+
+# Thu. 10.05
+-
+
+
+# Fri. 11.05
+-
+
+# Sat. 12.05
+-
+
+# Sun. 13.05
+-
