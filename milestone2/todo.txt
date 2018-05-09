@@ -1,11 +1,11 @@
-Scout:
-- max speed laut datenblatt fuer motor
+﻿Scout:
+- (DONE) max speed laut datenblatt fuer motor
 - initial position
 - 4 photo sensoren + noise (value domain rausfinden)
 - Minimalstrategie implementieren
 
 Collector:
-- max speed laut datenblatt fuer motor
+- (DONE) max speed laut datenblatt fuer motor
 - initial position
 - 3 Proximity sensoren + noise (value domain rausfinden)
 - Minimalstrategie implementieren
@@ -41,3 +41,25 @@ Step 2: Bis Mittwoch 09.05
 Daniel: Roboter, random fahren und off switch wenn God sagt stehen bleiben. Robots.
 Rafi: Punkstand berechnen. Referee.
 Kev: Visualisierung fertig machen. Licht. God.
+
+Step 3: Bis Donnerstag 10.05
+	- Collector dreht sich manchmal um die falsche seite (also z.B. 300 grad rechts rum statt 60 grad links rum)
+		Und in seltenen Fällen dreht er sich ewig nach links und rechts und links und rechts etc etc.
+Daniel:	- Eigener Collector random fahren und wenn harvest position kommt dahin fahren. Collector A.
+		Existierendes Opponent modell erweitern durch die Funktionalität zu der Harvest position zu fahren 
+		(Position als Input). Modell dann 2 mal referenzieren, beim eigenen Collector sendet der Scout die
+		position an diesen Input und beim Gegner bleibt der input einfach leer. Dadurch brauchen wir nur 
+		ein referenced model für beide Collectoren.
+		Wenn man in model.slx auf opponent klickt dann öffnet er das referenz modell und egal auf welches man 
+		klickt werden darin die daten von nur einer der beiden Instanzen der letzten Simulation angezeigt.
+		Die Daten welcher Instanz angezeigt werden kann man ändern in Visibility Options.
+		In the Simulink Editor, select the Diagram > Subsystem & Model Reference > Model Block Normal Mode Visibility
+		https://de.mathworks.com/help/simulink/ug/simulate-models-with-multiple-referenced-model-instances-1.html#bvaxabx
+Rafi:	- Punkstand berechnen. Referee.
+	- Referee Kommunikation. Referee.
+	- Out of bounds check. Referee.
+Kev: 	- Gegner Scouts implementieren. Scout B.
+	- Licht. Gott aufräumen. God.
+	- Unity als exe und hochladen.
+	
+	
