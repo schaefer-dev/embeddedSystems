@@ -174,6 +174,9 @@
 				- Licht. Gott aufräumen. God.
 				- Unity als exe und hochladen.
 
+- Daniel: Opponent Model can now receive coordinates, which ALWAYS overwrite the current destination (which causes the robot to turn and drive towards that coordinate). This will be used for our collector, which receives these coordinates from the scout.
+	 		Additionally the opponent model now implements a "OFF_CONDITION" which is used to turn of the motor entirely (to e.g. stand still for 60s when pushed out of bounds or to demonstrate the pushing process of an opponent). The robot motor will be turned off as long as the input value is >0.
+
 
 # Thu. 10.05
 -
