@@ -195,7 +195,7 @@ And significantly improved performance in calculation of turning to next destina
 		 0   < x <  180 -> right
 		 180 < x <  360 -> left
 	Implemented motor specifications (max speed) into differential drive using existing wheel and roboter parameters
-		
+Kevin: Added random noise to wheel velocities and calculation of real position in God model	
 		
 
 
