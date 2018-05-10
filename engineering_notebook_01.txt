@@ -179,7 +179,23 @@
 - Kevin: Refinements and release of the visualization. Implemented the light to move randomly. Created referenced models for scouts and other general structural improvements with reference models and subsystems. 
 
 # Thu. 10.05
--
+- Daniel: Reworking of turning cases for all robots:
+		1  -  -1 = 2   > turn right
+		90 - -10 = 100 > turn right
+		90 - -90 = 180 > turn right
+		90 - -110 = 200 > turn left
+		180 - -179 = 360 > turn left
+		
+		-90 - 1  = -1 > turn left
+		-1 - 90  = -91 > turn left
+		-160 - 20 = -180 > turn left
+		
+		-360 < x < -180 -> right
+		-180 < x <  0   -> left
+		 0   < x <  180 -> right
+		 180 < x <  360 -> left
+		
+		
 
 
 # Fri. 11.05
