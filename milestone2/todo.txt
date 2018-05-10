@@ -16,8 +16,8 @@ Referee:
 - communication bit/byte-wise, message size, ack, timing laut RF
 - 5% chance of losing message (every comminunication)
 - Bounding box und ouf bounds check
-- berechnet punktestand (jede sekunde kuken wer im licht (vom God) ist und drauf addieren)
-- gibt aktuelle position und winkel an jeden roboter alle x zeitintervalle
+- (DONE)berechnet punktestand (jede sekunde kuken wer im licht (vom God) ist und drauf addieren)
+- (DONE)gibt aktuelle position und winkel an jeden roboter alle x zeitintervalle
 
 God:
 - Licht (pattern und random)
