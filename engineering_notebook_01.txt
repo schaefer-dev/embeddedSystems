@@ -79,8 +79,7 @@
 - Daniel: Extended chapter of PINs which have to be driven at the same time.
 	Extended chapter of PINs which must not be driven at the same time.
 	Also included specific usecase explanations for all PINs listed on the cheatsheet now.
-
-
+- Rafael: 
 
 
 
