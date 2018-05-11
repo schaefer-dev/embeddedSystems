@@ -79,7 +79,7 @@
 - Daniel: Extended chapter of PINs which have to be driven at the same time.
 	Extended chapter of PINs which must not be driven at the same time.
 	Also included specific usecase explanations for all PINs listed on the cheatsheet now.
-- Rafael: 
+- Rafael:
 
 
 
@@ -175,7 +175,7 @@
 
 - Daniel: Opponent Model can now receive coordinates, which ALWAYS overwrite the current destination (which causes the robot to turn and drive towards that coordinate). This will be used for our collector, which receives these coordinates from the scout.
 	 		Additionally the opponent model now implements a "OFF_CONDITION" which is used to turn of the motor entirely (to e.g. stand still for 60s when pushed out of bounds or to demonstrate the pushing process of an opponent). The robot motor will be turned off as long as the input value is >0.
-- Kevin: Refinements and release of the visualization. Implemented the light to move randomly. Created referenced models for scouts and other general structural improvements with reference models and subsystems. 
+- Kevin: Refinements and release of the visualization. Implemented the light to move randomly. Created referenced models for scouts and other general structural improvements with reference models and subsystems.
 
 # Thu. 10.05
 - Daniel: Reworking of turning cases for all robots, avoiding divergence in unfortunate rounding cases close to -179 and 180 degrees. Fixed rotation locks for both scout and collector
@@ -185,18 +185,52 @@ And significantly improved performance in calculation of turning to next destina
 		90 - -90 = 180 > turn right
 		90 - -110 = 200 > turn left
 		180 - -179 = 360 > turn left
-		
+
 		-90 - 1  = -1 > turn left
 		-1 - 90  = -91 > turn left
 		-160 - 20 = -180 > turn left
-		
+
 		-360 < x < -180 -> right
 		-180 < x <  0   -> left
 		 0   < x <  180 -> right
 		 180 < x <  360 -> left
 	Implemented motor specifications (max speed) into differential drive using existing wheel and roboter parameters
-Kevin: Added random noise to wheel velocities and calculation of real position in God model	
-		
+Kevin: Added random noise to wheel velocities and calculation of real position in God model
+
+Daniel: Summary of stuff that is still TODO:
+	 Rafael: Hitbox implementation,
+	         Opponent roboters which get touched by another roboter get signaled a 1 into the off_condition until simulation is finished
+	         Roboter out of bounds, gets signaled a "1" into the off_condition for 60seconds
+	         Generation of Proximity sensor data (lasors at the front, left and right) readings from 0-255. Implemented by shooting a ray out of roboter position in angle theta, theta+90, theta-90 and checking if they hit another roboters hitbox or not in range 30cm or less (+noise on that sensor data)
+		 		 	 Points awarded to each team according to Collector position and specified calculation
+
+	IMPORTANT: How messages are encoded does not matter, we can just use seperate lanes for X,Y,Theta and send the coordinates directly.
+
+	 Kevin: Sensor data for different photosensors (+noise)
+	 Kevin: Scout reads photosensor data and sends good coordinates to collector
+	 Kevin: Scout sends its position (not theta) to collector every 0.1s
+
+	 Daniel: Referee sends position updates to robots every 10 seconds
+	 Daniel: Robots handle position update sent by referee every 10 seconds
+	 Daniel: Collector receives good coordinates from scout and drives there immediately
+	 Daniel: Collector receives and holds scout position
+	 Daniel: Collector tries to push opponent whenever proximity sensors indicate the existance of an opponent, make sure to not drive out of bounds yourself
+	 Daniel: Collector is NOT ALLOWED to push own scout out of bounds
+
+
+	 WHOEVER IS FINISHED FIRST: actual pushing of robots if they touch the front of a driving robot
+
+
+	 Improvements after core is done:
+	 - Improved collision handling + Rotating bounding boxes
+
+	 Least important improvements:
+	 - If sensing with proximity sensors at the sides turn towards if the sensed robot is opponent and push out of bounds
+	 - Intelligent turning of scout depending on difference in photosensor readings (brighter on the right -> turn right until front is brightest spot)
+
+	 New information:
+	 - Bounding boxes should rotate with Robots
+	 - Collisions should "look right"
 
 
 # Fri. 11.05
