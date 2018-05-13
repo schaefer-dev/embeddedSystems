@@ -232,12 +232,28 @@ Daniel: Summary of stuff that is still TODO:
 	 - Bounding boxes should rotate with Robots
 	 - Collisions should "look right"
 
-
 # Fri. 11.05
--
+- Daniel:
+  Implemented: Robots handle position update sent by referee every 10 seconds
+  Implemented: Collector receives good coordinates from scout and drives there immediately
+  Implemented: Collector tries to push opponent whenever proximity sensors indicate the eixtance of an opponent
+  TODO: check for scout when pushing, check for out of bounds
 
 # Sat. 12.05
--
+- Daniel:
+  Implemented: photo sensor readings are now build continiously (algebraic loop)
+  Implemented: Referee sends position updates received from god every t seconds to our robots
+  Fix: updates between referee and robots are now working without causing an unsolvable algebraic loop
+  Fix: Points for both teams are beeing counted again correctly depending on collector/light position
+  Fix: Fixed integral reset case for referee update, which caused problems whenever values in the update were negative (expecially theta), which messed up equations in differential drive
+  Implemented: Out of bounds detector implemented, which will serve as a condition for robots to be punished for 30 seconds
+  Fix: fixed zero line crossing across the whole model (most of them should be ignored), which increases performance by around x4. This also fixed the error of our model hanging at 19.3 seconds when using the auto solver. The "Workaround" of using solver ode23 is no longer necessary
+  Improvement: Optimized solver parameters for best possible performance and accuracy
 
 # Sun. 13.05
--
+- Daniel:
+  Implemented: Out of bounds detection for all robots is now implemented, which sends a pulse to the OFF_Cond lane. This signal is held for 30seconds inside our robot and after these 30seconds the roboter is allowed to drive in bounds again (no time restriction) and as soon as he was inbounds for at least 1 step, he is supseptible to punishment again whenever he leaves the playzone.
+  Fix: Enhancements of proximity sensor performance by x20-40, mainly by disabling zero line crossing detection in places where it was not necessary.
+  Fix: Radial to degree conversion performance enhancement and using new theta threashholds for turning conditions - which significantly speeds up the tactic progress
+  Implemented: Own collector will now never drive out of bounds himself, even if opponent is sensed in front of him. He will only drive until the opponent was pushed out of bounds, and then continue with the other parts of the tactic.
+  Fix: Removal/Fix of 60 warnings which occumulated over the last 3 days.
