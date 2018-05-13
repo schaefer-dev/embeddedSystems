@@ -10,5 +10,6 @@ Comm B: 19, 20
 Time: 21
 Harvest A: 25, 26
 Harvest B: 27, 28
-
-OPEN: 22, 23, 24, 29+
+Scout Ghost: 29, 30, 31
+Collector Ghost: 32, 33, 34
+OPEN: 22, 23, 24, 35+
