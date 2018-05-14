@@ -197,6 +197,17 @@ And significantly improved performance in calculation of turning to next destina
 	Implemented motor specifications (max speed) into differential drive using existing wheel and roboter parameters
 Kevin: Added random noise to wheel velocities and calculation of real position in God model
 
+-Rafael: Completed Implementation first iteration of referee.
+including point calculation:
+	every t time interval we give max(255-20*d, 0) points to collector with distance d to light coordinates.
+
+out-of-bounds checking:
+	if robot is its length over the minimal/maximal dimensions of arena we send signal to the robots.
+
+communication lanes to robots (abstraction):
+	every 10 seconds we deliver the grid position of each robot on the respective communication lanes.
+
+
 Daniel: Summary of stuff that is still TODO:
 	 Rafael: Hitbox implementation,
 	         Opponent roboters which get touched by another roboter get signaled a 1 into the off_condition until simulation is finished
@@ -240,7 +251,8 @@ Daniel: Summary of stuff that is still TODO:
   TODO: check for scout when pushing, check for out of bounds
 - Kevin: 
   Implemented: Engine noise and real position calculation
-
+- Rafael:
+  mostly cleanup in god model
 
 # Sat. 12.05
 - Daniel:
@@ -257,6 +269,14 @@ Daniel: Summary of stuff that is still TODO:
   Fix: Angle calculation for the real positions of the sensors on the robot
   Fix: TCP transfer performance optimization
   Fix: Enable and Hold block can also hold negative values
+- Rafael
+	Implemented Bounding Boxes for robots
+	Concept for Proximity sensors,
+	send ray from robot position to the left, front, right
+	check for intersection with bounding boxes in range of 30cm
+    initial implementation of proximity sensor data generation
+	
+
 
 # Sun. 13.05
 - Daniel:
@@ -277,6 +297,13 @@ Daniel: Summary of stuff that is still TODO:
   Fix: Sensor noise stays within value domain boundaries
   Fix: Bounding box calculation when rotated
    
-  TODO: Collector does not push our scout
+- Rafael:
+  Fix: Bounding rectangles/ hitbox calculation
+  Fix: proximity sensor orientation
+  Converted proximity calculation to seperate model
+  
+  Implemented check for Collector to not push Scout
+
+
   TODO: Collision
   TODO: 3 Models to demonstrate functions as mentioned on sheet
