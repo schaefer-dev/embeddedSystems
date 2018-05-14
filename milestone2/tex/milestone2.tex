@@ -48,7 +48,12 @@
 \section*{Important Notes}
 
 \subsection*{The GUI and how to install/use it}
-Explain + Link
+\url{https://github.com/kvnmlr/simulink-advanced-visualization/releases}
+to download our GUI (Created using Unity)\\
+
+We decided to use a GUI built in unity, because it made it significantly easier to observe the game and the sending of data using TCP Blocks did not impact performance significantly.
+
+The GUI has to be started before starting the simulation (using \verb!model.slx!)
 
 \section*{Our Submission Scenarios}
 put Seeds etc here and explain what happens
@@ -57,7 +62,12 @@ put Seeds etc here and explain what happens
 TODO explain what works, whats missing
 
 \section*{Push conditions to avoid scout}
-put rafael drawing here
+The condition is implemented (and working), but because our Collision is not completely implemented yet, the impossible case of the hitboxes of collector and scout overlapping will cause our collector to not detect the scout of our team correctly.\\
+
+The detection works as shown below:\\
+\begin{center}
+\includegraphics[scale = 0.4]{pictures/scout_condition}
+\end{center}
 
 
 \end{document}
