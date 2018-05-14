@@ -257,3 +257,13 @@ Daniel: Summary of stuff that is still TODO:
   Fix: Radial to degree conversion performance enhancement and using new theta threashholds for turning conditions - which significantly speeds up the tactic progress
   Implemented: Own collector will now never drive out of bounds himself, even if opponent is sensed in front of him. He will only drive until the opponent was pushed out of bounds, and then continue with the other parts of the tactic.
   Fix: Removal/Fix of 60 warnings which occumulated over the last 3 days.
+  Fix: Algebraic loop between CollectorB, ScoutB and God removed, this also applies to input of differential drive
+  
+  Implemented: Tactic improvement, scout now sends the coordinate of the sensor which sensed the highest value instead of sending the scouts center position whenever sensing a value on ONE of the sensors
+  Implemented: 0.5% chance to loose communication
+  Implemented: Scout upadtes collector with his position every 1s
+
+   
+  TODO: Collector does not push our scout
+  TODO: parameters interchangable (max x, max y, gametime?, random_values)
+  TODO: 3 Models to demonstrate functions as mentioned on sheet
