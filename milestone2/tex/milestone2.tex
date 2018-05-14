@@ -56,10 +56,12 @@ We decided to use a GUI built in unity, because it made it significantly easier 
 The GUI has to be started before starting the simulation (using \verb!model.slx!)
 
 \section*{Our Submission Scenarios}
-put Seeds etc here and explain what happens
+All scenarios can be observed in the first $t=10s$ of the default configuration! Our collector will push the opponent collector multiple times, causing him to drive out of bounds because he did not receive a referee update in time, to update his expected position with his real position (as his position was changed).\\
+
+To play indefinatly just increase the $t$ value in simulink to whatever you like.
 
 \section*{Collision}
-TODO explain what works, whats missing
+For performance reasons only the collisions between the two collectors are currently enabled.
 
 \section*{Push conditions to avoid scout}
 The condition is implemented (and working), but because our Collision is not completely implemented yet, the impossible case of the hitboxes of collector and scout overlapping will cause our collector to not detect the scout of our team correctly.\\
