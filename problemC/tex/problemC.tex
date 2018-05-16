@@ -93,9 +93,22 @@ I selected the LDF (Latest Deadline First) scheduler to schedule this task with 
 		\caption{The EDF-Schedule for $\Lambda$}
 		\end{figure}
 
+\end{itemize}
+
 
 \section*{Problem C3}
-% TODO
+
+\subsection*{a)}
+We assume a preemptive schedule $\sigma$ with task $J_I$. Assume furthermore $J_I$ being preempted at time $t$ and then resumed at time $t'$ to finish at $f^\sigma_{J_I}$. 
+
+We can remove the preemption of $J_I$ in postponing it by time $t' - t$ so that it still finishes at $f^\sigma_{J_I}$. Call this changed schedule $\sigma'$. All tasks happening before or after $J_I$ in $\sigma$ are unaffected by the change, as is $f^\sigma_{J_I}$. 
+Only the tasks running during the preemption of $J_I$ can finish earlier by time $t' - t$, therefore the objective function $T_\omega (\mathcal{J}, \sigma) \geq T_\omega (\mathcal{J}, \sigma')$. 
+
+Removing all preemptions from $\sigma$ in this way yields a non preemptive schedule $\sigma^\star$ with $T_\omega (\mathcal{J}, \sigma^\star) \leq T_\omega (\mathcal{J}, \sigma)$. $\square$
+
+\subsection*{b)}
+
+
 
 \section*{Problem C4}
 % TODO
