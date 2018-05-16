@@ -107,7 +107,25 @@ Only the tasks running during the preemption of $J_I$ can finish earlier by time
 Removing all preemptions from $\sigma$ in this way yields a non preemptive schedule $\sigma^\star$ with $T_\omega (\mathcal{J}, \sigma^\star) \leq T_\omega (\mathcal{J}, \sigma)$. $\square$
 
 \subsection*{b)}
+We presume that a schedule for $\mathcal{J}$ is optimal w.r.t. $T_\omega$ if and only if tasks are sorted in a non increasing order according to their weight $\omega_J$ divided by cost $C_J$.
+Assuming two tasks $J_i$ and $J_j$ with $\frac{\omega_{J_i}}{C_{J_i}} < \frac{\omega_{J_i}}{C_{J_i}}$ where $J_i$ finishes at $f^\sigma_{J_i}$ and $J_j$ at $f^\sigma_{J_j} = f^\sigma_{J_i} + C_{J_j}$.
+If we switch the execution of these two tasks in the schedule without doing anything else, the value of $T_\omega$ decreases, as:
+\begin{align*}
+\omega_{J_i} \cdot f^\sigma_{J_i} + \omega_{J_j} \cdot (f^\sigma_{J_i} + C_{J_i}) &> \omega_{J_i} \cdot (f^\sigma_{J_i} + C_{J_j}) + \omega_{J_j} \cdot (f^\sigma_{J_i} + C_{J_j} - C_{J_i} ) \\
+\omega_{J_i} \cdot f^\sigma_{J_i} + \omega_{J_j} \cdot f^\sigma_{J_i} + \omega_{J_j} \cdot C_{J_i} &> \omega_{J_i} \cdot f^\sigma_{J_i} + \omega_{J_i} \cdot C_{J_j} + \omega_{J_j} \cdot f^\sigma_{J_i} + \omega_{J_j} \cdot C_{J_j} - \omega_{J_j} \cdot C_{J_i} \\
+\omega_{J_j} \cdot C_{J_i} &> \omega_{J_i} \cdot C_{J_j} + \omega_{J_j} \cdot C_{J_j} - \omega_{J_j} \cdot C_{J_i} \\
+2 \cdot \omega_{J_j} \cdot C_{J_i} &> ( \omega_{J_i} +  \omega_{J_j} ) \cdot C_{J_j} \\
+\frac{\omega_{J_j}}{C_{J_j}} - \frac{\omega_{J_j}}{C_{J_i}} &> 0 \\
+\end{align*}
 
+Therefore our algorithm just needs to schedule the tasks in decreasing order of the ratio $\frac{\omega_{J_i}}{C_{J_i}}$. Since sorting is solved in polynomial time, our algorithm is also in polynomial time. 
+
+\begin{itemize}
+\item Algorithm to find optimal schedule for tasks $\mathcal{J}$:
+\item For every task $J_i$, calculate $\frac{\omega_{J_i}}{C_{J_i}}$. \textit{(linear)}
+\item Sort tasks in descending order w.r.t. this ratio. \textit{(polynomial)}
+\item Return schedule.
+\end{itemize}
 
 
 \section*{Problem C4}
