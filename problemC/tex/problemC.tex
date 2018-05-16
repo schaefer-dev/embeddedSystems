@@ -92,12 +92,73 @@ I selected the LDF (Latest Deadline First) scheduler to schedule this task with 
 		\includegraphics[scale = 0.15]{figures/c2_5}
 		\caption{The EDF-Schedule for $\Lambda$}
 		\end{figure}
-
+\end{itemize}
 
 \section*{Problem C3}
 % TODO
 
 \section*{Problem C4}
-% TODO
+\begin{itemize}
+\item[a)] 
+	\begin{itemize}
+	\item When a task is selected for execution, the corresponding token will move 1 unit down. This is because the remaining computation decreases by 1, however the slack time stays the same because both the time progressed and the remaining computation has been decreased. 
+	\item When a task is not selected for execution, the corresponding token will move 1 unit to the left. This is beacuse the remaining cost stays the same but the slack time decreases because time has passed.
+	\item Tasks that are already finished will not be moved any further.
+	\end{itemize}
+	
+\item[b)] 
+	\begin{itemize}
+	\item A game is won when all tokens have a y-value of 0 and a positive x-value, meaning they are located on the positive x-axis. Note that the origin (0, 0) is also fine. In this case, all task will have completed their execution and no task has a negative slack time, i.e. they are on time. Hence, such a schedule would be feasible.
+	\item A game is lost when at least one token has an x-value < 0 and a y-value >= 0. This means that during execution a task that has not yet finished got a negative slack time and was late. 
+	\end{itemize}
+	
+\item[c)] Always execute the leftmost task, i.e. the one with the smalles slack time.  This is known as least slack time (LST) scheduling.
+
+\item[d)] \begin{itemize}
+	\item The following table shows the slack times for each task $\Xi$ of  and each processor cycle.
+	
+	\begin{tabular}{ l | c | c | c | c | c | c | c | c | c}
+  		\hline			
+  		$\Xi$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\
+  		\hline
+  		T1 & 0 	& / 	& / 	& / 	& / 	& / & / & / \\
+  		T2 & 1 	& 1 	& / 	& / 	& / 	& / & / & / \\
+  		T3 & 3 	& 2 	& / 	& / 	& / 	& / & / & / \\
+  		T4 & 4 	& 3 	& 2 	& / 	& / 	& / & / & / \\
+  		T5 & (5) 	& (4) 	& 3 	& 3 	& 3 	& / & / & / \\
+  		T6 & (5) 	& (4) 	& (3) 	& 2 	& 2 	& / & / & / \\
+  		T7 & (7) 	& (6) 	& (5) 	& 4 	& 3 	& 2 & 2 & / \\
+  		\hline  
+	\end{tabular}
+	
+	The resulting scheduling diagram:
+	\begin{figure}[h]
+	\centering
+	\includegraphics[scale = 2]{figures/c4_xi}\\
+	\end{figure}
+	\item The following table shows the slack times for each task $\Omega$ of  and each processor cycle.
+	
+	\begin{tabular}{ l | c | c | c | c | c | c | c | c | c}
+  		\hline			
+  		$\Omega$ & 1 & 2 & 3 & 4 & 5 & 6 & 7 \\
+  		\hline
+  		T1 & 2 	& 1 	& / 	& / 	& / 	& / & / \\
+  		T2 & 1 	& 1 	& 1 	& 0 	& / 	& / & / \\
+  		T3 & 3 	& 2 	& 1 	& 0 	& / 	& / & / \\
+  		T4 & 1 	& 1 	& 0 	& 0 	& -1 	& -1 & / \\
+  		T5 & (3) 	& 2 	& 1 	& 0 	& -1 	& / & / \\
+  		T6 & (2) 	& 1 	& 0 	& 0 	& -1 	& -2 & / \\
+  		\hline  
+	\end{tabular}
+	
+	The resulting scheduling diagram:\\
+	\begin{figure}[h]
+	\centering
+	\includegraphics[scale = 2]{figures/c4_omega}\\
+	\end{figure}
+	
+	As we can see, this set of tasks cannot be executed in a feasible schedule, even on a 2-core system.
+	\end{itemize}
+\end{itemize}
 
 \end{document}
