@@ -45,21 +45,26 @@
 \pagenumbering{gobble}
 \lstset{language=C++}
 
-\section{List of Tasks Scout}
+\section*{Draft: Notes which Tasks exist for both robots}
+
+\subsection*{NOTES: List of Tasks Scout}
 \begin{itemize}
-  \item Receive photosensor readings
+  \item Receive photosensor readings (periodic), might queue the task to handle high readings
   \item Handle high photosensor readings (high priority), includes communication to collector
-  \item Correct Theta to current destination
+  \item Correct Theta (by changing the current velocities of the two motors) to point towards current destination (preemptive, lowest priority, if condition for turning not true - just continue to drive straight). This tasks queries the "generate new destination" task upon reaching the current destination
+  \item Generate new Goal (medium priority), generate new destination where to drive - mainly tactic finetuning (initially will generate random value)
   \item Send collector the currently estimated scout position (low priority)
-  \item Receive Referee updates and update estimation (medium priority)
+  \item Receive Referee updates and update estimation (medium priority, triggered by interrupt)
 \end{itemize}
 
-\section{List of Tasks Collector}
+\subsection*{NOTES: List of Tasks Collector}
 \begin{itemize}
-  \item Receive proximity sensor readings
+  \item Receive proximity sensor readings, might queue the task to handle high readings (periodic)
   \item Handle high proximity readings (high priority), includes calculation if its own scout
-  \item Correct Theta to current destination
-  \item Receive Referee updates and update estimation (medium priority)
+  \item Correct Theta (by changing the current velocities of the two motors) to point towards current destination (preemptive, lowest priority, if condition for turning not true - just continue to drive straight). This tasks queries the "generate new destination" task upon reaching the current destination
+  \item Generate new Goal (medium priority), generate new destination where to drive - mainly tactic finetuning (initially will generate random value)
+  \item Receive Referee updates and update estimation (medium priority, triggered by interrupt)
+  \item Handle received harvesting position (highest priority, triggered by interrupt). Overwrites current destination regardless of roboter state
 \end{itemize}
 
 
