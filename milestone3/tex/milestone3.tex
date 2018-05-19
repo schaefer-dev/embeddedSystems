@@ -50,10 +50,11 @@
 \subsection*{NOTES: List of Tasks Scout}
 \begin{itemize}
   \item Receive photosensor readings (periodic), might queue the task to handle high readings
-  \item Handle high photosensor readings (high priority), includes communication to collector
+  \item Handle high photosensor readings (high priority), puts collector communication into task queue
+  \item communicate harvesting position to collector (high priority)
   \item Correct Theta (by changing the current velocities of the two motors) to point towards current destination (preemptive, lowest priority, if condition for turning not true - just continue to drive straight). This tasks queries the "generate new destination" task upon reaching the current destination
   \item Generate new Goal (medium priority), generate new destination where to drive - mainly tactic finetuning (initially will generate random value)
-  \item Send collector the currently estimated scout position (low priority)
+  \item Send collector the currently estimated scout position (low priority, periodic)
   \item Receive Referee updates and update estimation (medium priority, triggered by interrupt)
 \end{itemize}
 
