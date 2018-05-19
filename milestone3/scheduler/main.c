@@ -16,4 +16,6 @@ main(int argc, const char * argv[])
 
     if (compare_task != task)
       printf("WOOPS, something went wrong...\n");
+    else
+      printf("Test passed!\n");
   }

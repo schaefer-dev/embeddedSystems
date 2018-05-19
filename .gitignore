@@ -1,6 +1,10 @@
 problem?/tex/problem?.pdf
 milestone?/tex/milestone?.pdf
 
+# ignore compiled binary
+milestone3/scheduler/scheduler
+milestone3/scheduler/build
+
 
 #### joe made this: https://goel.io/joe
 
