@@ -11,6 +11,9 @@
   ensure maximum performance */
 #define DEBUG
 
+
+/* initialize_task_list has to be called on a malloc'd task_list struct to
+   set all fields to correct initial values. */
 void
 initialize_task_list (struct task_list *task_list)
   {
@@ -24,6 +27,7 @@ initialize_task_list (struct task_list *task_list)
     task_list->tail = NULL;
   }
 
+/* create a specific task */
 struct task*
 create_task (enum task_identifiers task_identifier)
   {
@@ -38,6 +42,7 @@ create_task (enum task_identifiers task_identifier)
     return task;
   }
 
+/* insert a task into an existing task list */
 void
 accept_task (struct task *task, struct task_list *task_list)
   {
@@ -92,7 +97,7 @@ accept_task (struct task *task, struct task_list *task_list)
       }
   }
 
-/* removes the head from the list and returns it, returns NULL if empty*/
+/* removes the head from the list and returns it, returns NULL if empty */
 struct task*
 pop_task (struct task_list *task_list)
   {
@@ -126,6 +131,7 @@ pop_task (struct task_list *task_list)
     return previous_head;
   }
 
+
 /* returns first task in the queue which should be the next task to be worked on */
 struct task*
 schedule (struct task_list *task_list)
@@ -138,6 +144,8 @@ schedule (struct task_list *task_list)
     return task_list->head;
   }
 
+
+/* release memory which was allocated for this specific task */
 void
 free_task (struct task *task)
   {
@@ -145,6 +153,7 @@ free_task (struct task *task)
     free(task);
     return;
   }
+
 
 struct task*
 next_task (struct task *task)
@@ -156,6 +165,7 @@ next_task (struct task *task)
 
     return task->next;
   }
+
 
 struct task*
 previous_task (struct task *task)
