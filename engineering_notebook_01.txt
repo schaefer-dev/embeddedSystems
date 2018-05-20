@@ -304,6 +304,22 @@ Daniel: Summary of stuff that is still TODO:
   
   Implemented check for Collector to not push Scout
 
-
-  TODO: Collision
-  TODO: 3 Models to demonstrate functions as mentioned on sheet
+	-------------------------- Engineering Notebook 03 --------------------------
+	---------------------------- Week 03.05 - 14.05 -----------------------------
+	-----------------------------------------------------------------------------
+	--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
+	-----------------------------------------------------------------------------
+	
+# Fr. 18.05
+- Daniel:
+  Draft: Structure of Scheduler and efficient data structure planning
+  Implemented: Data structures for scheduler
+  
+# Sa. 19.05
+- Daniel:
+  Implemented: Scheduling Library
+  
+# So. 20.05
+- Daniel:
+  Implemented: Tests for scheduler
+  Implemented: Referee updates for opponents are now being processed by randomly driving opponents. This increases their "skill" a lot!
