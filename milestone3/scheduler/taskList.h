@@ -3,7 +3,8 @@
 #include <stdint.h>
 
 
-/* lower task identifier -> lower priority */
+/* lower task identifier -> lower priority
+   New tasks are added here with INCREASING PRIORITY */
 enum task_identifiers
   {
     TASK_CORRECT_THETA = 001,
@@ -35,9 +36,9 @@ struct task
   };
 
 
-void initialize_task_list (struct task_list *);
+void initialize_task_list (struct task_list*);
 struct task* create_task (enum task_identifiers);
-void insert_task_sorted (struct task_list *, struct task *);
+void accept_task (struct task*, struct task_list*);
 void free_task (struct task*);
-struct task* pop_task (struct task_list *);
-struct task* get_list_head (struct task_list *);
+struct task* pop_task (struct task_list*);
+struct task* schedule (struct task_list*);
