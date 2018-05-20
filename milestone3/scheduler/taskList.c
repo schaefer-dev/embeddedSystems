@@ -39,7 +39,7 @@ create_task (enum task_identifiers task_identifier)
   }
 
 void
-insert_task_sorted (struct task_list *task_list, struct task *task)
+accept_task (struct task *task, struct task_list *task_list)
   {
     #ifdef DEBUG
     if(task_list == NULL || task == NULL)
@@ -60,8 +60,12 @@ insert_task_sorted (struct task_list *task_list, struct task *task)
         struct task *task_iterator = task_list->head;
 
         /* search first list element which has smaller probability, or go to last list element, if there is no such element contained */
-        while (task_iterator != NULL && task_iterator->priority > task->priority)
+        while (task_iterator != NULL && task_iterator->priority >= task->priority)
           {
+
+            if (task_iterator->priority == task->priority)
+              printf("WARNING: Task with ID %i was inserted despite being contained already!\n", task->task_identifier);
+
             task_iterator = task_iterator->next;
           }
 
@@ -74,8 +78,15 @@ insert_task_sorted (struct task_list *task_list, struct task *task)
             return;
           } else {
             task->next = task_iterator;
+
+            if (task_iterator->prev == NULL)
+              {
+                /* inserted at front sets new head value of list */
+                task_list->head = task;
+              } else {
+                task_iterator->prev->next = task;
+              }
             task->prev = task_iterator->prev;
-            task_iterator->prev->next = task;
             task_iterator->prev = task;
           }
       }
@@ -117,7 +128,7 @@ pop_task (struct task_list *task_list)
 
 /* returns first task in the queue which should be the next task to be worked on */
 struct task*
-get_list_head (struct task_list *task_list)
+schedule (struct task_list *task_list)
   {
     #ifdef DEBUG
     if (task_list == NULL)
