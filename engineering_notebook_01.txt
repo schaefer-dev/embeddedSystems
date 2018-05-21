@@ -318,8 +318,16 @@ Daniel: Summary of stuff that is still TODO:
 # Sa. 19.05
 - Daniel:
   Implemented: Scheduling Library
+- Kevin:
+  Analyzed two collector tasks according to milestone description.
   
 # So. 20.05
 - Daniel:
   Implemented: Tests for scheduler
   Implemented: Referee updates for opponents are now being processed by randomly driving opponents. This increases their "skill" a lot!
+- Kevin:
+  Implemented: Extended collision model to all robots such that every collision will have realistic effects on both robots involved.  
+
+# Mo. 21.05
+- Kevin:
+  Done: Remaining collector tasks analyzed.
