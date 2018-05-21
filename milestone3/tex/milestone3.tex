@@ -60,7 +60,7 @@
 
 \subsection*{Collector Tasks}
 \begin{enumerate}
-  \item Receive proximity sensor readings, might queue the task to handle high readings (periodic)
+  \item Receive proximity sensor readings and queue task to handle readings above the threshold.
   	\begin{itemize}
   	\item \textbf{Main properties:} Periodic, non-preemtive and not entirely known before-hand
   	\item \textbf{Release time:} Same as the period (immediately available)
@@ -70,7 +70,7 @@
   	\item \textbf{Urgency:} The worst thing that happens when the task is delayed for too long it that he robot might not see another robot nearby. This does not do any damage. However, it might also collide with its team mate which would do significant damage so this task has a (relative) urgency of 5.
   	\item \textbf{Dependencies:} No dependencies on other tasks.
   	\end{itemize}
-  \item Handle high proximity readings (high priority), includes calculation if its own scout.
+  \item Handle high proximity readings, includes calculation if its own scout.
   	\begin{itemize}
   	\item \textbf{Main properties:} Aperiodic, non-preemtive, not entirely known before-hand
   	\item \textbf{Release time:} Becomes available as soon as enqueued by other task. (= 0 or not applicable?)
@@ -81,24 +81,40 @@
    	\end{itemize} 	
   \item Correct Theta (by changing the current velocities of the two motors) to point towards current destination (preemptive, lowest priority, if condition for turning not true - just continue to drive straight). This tasks queries the "generate new destination" task upon reaching the current destination
   \begin{itemize}
-  	\item \textbf{Main properties:}
-  	\item \textbf{Release time:}
-  	\item \textbf{Relative deadline:}
-  	\item \textbf{Approximate cost:}
-  	\item \textbf{Urgency:}
-  	\item \textbf{Dependencies:}
+  	\item \textbf{Main properties:} Periodic, preemtive, not entirely known before-hand
+  	\item \textbf{Release time:} Same as the period (immediately available)
+  	\item \textbf{Relative deadline:} Does not need a deadline
+  	\item \textbf{Approximate cost:} The cost is proportional to the radius that the robot needs to turn and depends on the wheel velocities we choose. In any case, this task takes a lot longer than all other tasks because a physical motion and calculation of the new rotation needs to be done. We could set the cost of this task to be 20 per degree the robot needs to turn.
+  	\item \textbf{Urgency:} If the task gets delayed for too long we might miss the target destination and in the worst case cross the arena border. However, for this to happen the task would have to be delayed for a very long time which is why it will get a relatively low urgency of 1.
+  	\item \textbf{Dependencies:} The robot needs a destination before executing this task. Therefore, Task 5 has to finish before this task starts for the first time. This task queues Task 4 upon reaching the current destination.
    	\end{itemize} 	
   \item Generate new Goal (medium priority), generate new destination where to drive - mainly tactic finetuning (initially will generate random value)
   \begin{itemize}
-  	\item \textbf{Main properties:}
-  	\item \textbf{Release time:}
-  	\item \textbf{Relative deadline:}
-  	\item \textbf{Approximate cost:}
-  	\item \textbf{Urgency:}
-  	\item \textbf{Dependencies:}
+  	\item \textbf{Main properties:} Aperiodic, preemtive, not entirely known before-hand.
+  	\item \textbf{Release time:} Becomes available as soon as enqueued by other task. (= 0 or not applicable?)
+  	\item \textbf{Relative deadline:} Does not need a deadline.
+  	\item \textbf{Approximate cost:} The cost highly depends on the tactic implemented. Since this can possibly take a long time, the task needs to be preemtive. For not, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations with a cost of 2 x (1 + 5) = 12.
+  	\item \textbf{Urgency:} It is never a problem when the task gets delayed for some time because the robot will never drive blindly without having a destination. So, when no new destination gets generated for some time the robot will simply remain at its position. The only loss would be that we can not execute our tactic but that is not a big problem compared to hitting team mates or crossing the arena border. Therefore, just as Task 4 this task gets an urgency of 1.
+  	\item \textbf{Dependencies:} This task is executed when Task 4 is finished and the current destination is reached.
    	\end{itemize}
-  \item Receive Referee updates and update estimation (medium priority, triggered by interrupt)
-  \item Handle received harvesting position (highest priority, triggered by interrupt). Overwrites current destination regardless of roboter state
+  \item Receive Referee updates and update estimation.
+    \begin{itemize}
+  	\item \textbf{Main properties:} Aperiodic (triggered by interrupt), non-preemtive (low cost), entirely known before-hand.
+  	\item \textbf{Release time:} Immediately available after interrupt.
+  	\item \textbf{Relative deadline:} Does not need a deadline.
+  	\item \textbf{Approximate cost:} The robot needs to read the data from the RF module (1) and extract both x and y positions as well as the angle (3). It then update its internal estimated position to match the real position (3). It therefore gets a cost of 7.
+  	\item \textbf{Urgency:} Driving with an incorrent estimation of the real position is very bad. Considering that collisions occur very often, it is extremly important to update the estimation as soon as possible. It therefore gets a relatively high urgency of 10.
+  	\item \textbf{Dependencies:} No dependencies.
+   	\end{itemize}
+  \item Handle received harvesting position (highest priority, triggered by interrupt). Overwrites current destination regardless of roboter state.
+  \begin{itemize}
+  	\item \textbf{Main properties:} Aperiodic (triggered by interrupt), non-preemtive (low cost), not entirely known before-hand.
+  	\item \textbf{Release time:} Immediately available after interrupt.
+  	\item \textbf{Relative deadline:} Does not need a deadline.
+  	\item \textbf{Approximate cost:} The robot needs to read the data from the RF module (1) and extract both x and y positions of the harvest position (2). It then updates the current destination (2). Therefore, cost = 4.
+  	\item \textbf{Urgency:} Since the light moves very fast, it is important to react very fast to new harvest positions. When the collector waits for too long, the light might have moved somewhere else. It therefore gets a relatively high urgency of 10.
+  	\item \textbf{Dependencies:} No dependencies.
+   	\end{itemize}
 \end{enumerate}
 
 
