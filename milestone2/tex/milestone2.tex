@@ -36,7 +36,7 @@
 
 % Fancy Header on every Page
 \pagestyle{fancy}
-\lhead{\textbf{Embedded Systems Milestone 2}}
+\lhead{\textbf{Embedded Systems Milestone 2 (revised)}}
 \rhead{Daniel Schäfer (2549458)\\ Rafael Dewes (2548365)\\ Kevin M\"uller (2550062)}
 \renewcommand{\headrulewidth}{1.2pt}
 \setlength{\headheight}{110pt}
@@ -56,20 +56,23 @@ We decided to use a GUI built in unity, because it made it significantly easier 
 The GUI has to be started before starting the simulation (using \verb!model.slx!)
 
 \section*{Our Submission Scenarios}
-All scenarios can be observed in the first $t=10s$ of the default configuration! Our collector will push the opponent collector multiple times, causing him to drive out of bounds because he did not receive a referee update in time, to update his expected position with his real position (as his position was changed).\\
+All scenarios can be observed in the first $t=120s$ of the default configuration!\\
+
+Instead of running the simulation, you can also look at this screen capture \url{https://youtu.be/DEM3sYoaWTM}. Interresting events that occur during this simulation:
+\begin{itemize}
+  \item 3.5s collector senses scout with proximity sensor and pushes enough to lead scout out of bounds (9s)
+  \item 50s collector attacks opponent scout again, afterwards opponent collector, but stops attacks because internal coordinates get close to out of bounds
+  \item 68s collector tries to attack collector, but loses vision
+  \item 72s collector tries to attack collector, but loses vision
+  \item 77s collector pushes collector out of bounds, but due to his estimated position drives out of bounds himself
+  \item 97s scout senses good light position, but estimated position is at different location, sets destination there
+  \item 100s updates arrives just in time for the scout to set a perfect location for the real gathering point
+  \item 102s updates position again
+  \item 106s updates position again
+  \item 110s collector arrives at gathering position, but light already passed
+  \item 111s collector ignores opponent in front of him because last light update is fairly new, prioritizes gathering light
+\end{itemize}
 
 To play indefinatly just increase the $t$ value in simulink to whatever you like.
-
-\section*{Collision}
-For performance reasons only the collisions between the two collectors are currently enabled.
-
-\section*{Push conditions to avoid scout}
-The condition is implemented (and working), but because our Collision is not completely implemented yet, the impossible case of the hitboxes of collector and scout overlapping will cause our collector to not detect the scout of our team correctly.\\
-
-The detection works as shown below:\\
-\begin{center}
-\includegraphics[scale = 0.4]{pictures/scout_condition}
-\end{center}
-
 
 \end{document}
