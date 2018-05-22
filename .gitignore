@@ -1,7 +1,12 @@
 problem?/tex/problem?.pdf
 milestone?/tex/milestone?.pdf
 
-# ignore compiled binary
+#ignore simulink stuff, including cached stuff
+milestone?/simulink/slprj/
+milestone?/simulink/*.mexmaci64
+milestone?/simulink/*.slxc
+
+# ignore compiled binary for scheduler
 milestone3/scheduler/scheduler
 milestone3/scheduler/build
 
