@@ -45,17 +45,104 @@
 \pagenumbering{gobble}
 \lstset{language=C++}
 
-\section*{Draft: Notes which Tasks exist for both robots}
+%\section*{Draft: Notes which Tasks exist for both robots}
 
-\subsection*{NOTES: List of Tasks Scout}
+%\subsection*{NOTES: List of Tasks Scout}
+%\begin{itemize}
+%  \item Receive photosensor readings (periodic), might queue the task to handle high readings
+%  \item Handle high photosensor readings (high priority), puts collector communication into task queue
+%  \item communicate harvesting position to collector (high priority)
+%  \item Correct Theta (by changing the current velocities of the two motors) to point towards current destination (preemptive, lowest priority, if condition for turning not true - just continue to drive straight). This tasks queries the "generate new destination" task upon reaching the current destination
+%  \item Generate new Goal (medium priority), generate new destination where to drive - mainly tactic finetuning (initially will generate random value)
+%  \item Send collector the currently estimated scout position (low priority, periodic)
+%  \item Receive Referee updates and update estimation (medium priority, triggered by interrupt)
+%\end{itemize}
+
+\subsection*{Scout Tasks}
+
+\paragraph{Receive Photosensor Readings}
+We receive the readings of the photosensors via the ADC, and check them against a threshold.
+If treshold is met, we save current brightness value in memory; queue handling task.
 \begin{itemize}
-  \item Receive photosensor readings (periodic), might queue the task to handle high readings
-  \item Handle high photosensor readings (high priority), puts collector communication into task queue
-  \item communicate harvesting position to collector (high priority)
-  \item Correct Theta (by changing the current velocities of the two motors) to point towards current destination (preemptive, lowest priority, if condition for turning not true - just continue to drive straight). This tasks queries the "generate new destination" task upon reaching the current destination
-  \item Generate new Goal (medium priority), generate new destination where to drive - mainly tactic finetuning (initially will generate random value)
-  \item Send collector the currently estimated scout position (low priority, periodic)
-  \item Receive Referee updates and update estimation (medium priority, triggered by interrupt)
+	\item \textbf{periodic}, as we need to check if the robot is in the light in regular intervals
+	\item \textbf{non-preemptive}, dependent on current state of the robot, important for main functionality, initiates follow up task
+	\item \textbf{not known beforehand}, we can't foresee the light behaviour
+	\item \textbf{period and release time} can be the same, we assume about [10ms] but need experience with the actual hardware to fine-tune
+	\item \textbf{approximate cost}: we get 4 values for each of the sensors and need to compare each to the threshold, possibly write one value and our position into memory 
+	\item \textbf{urgency}, very urgent
+	\item \textbf{dependencies}: not dependent on other tasks
+\end{itemize}
+
+\paragraph{Handle High Readings}
+This task is generated if the value the photosensors output meets the determined threshold. It takes the current position of the robot and writes it into memory, then queues the communication.
+\begin{itemize}
+	\item \textbf{not periodic}, only triggered by preceding task
+	\item \textbf{non-preemptive}, the current position is time critical and should not be postponed to get the most accurate and direct data, essential for the functionality of the Scout
+	\item \textbf{not known beforehand}, as it is queued by other task
+	\item \textbf{release time}: since the earliest we can get a new position that we want to send is after [10ms], our release time can be that also
+	\item \textbf{approximate cost}: get current coordinates and write them into a secure memory
+	\item \textbf{urgency}, very urgent
+	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" task for adding it to the schedule; also dependent on the basic driving task "Orientation Theta Correction"
+\end{itemize}
+
+\paragraph{Communicate Harvest Coordinates}
+This task is generated after the photosensor values meet the threshold and the current position is saved. It takes the saved position in the memory and communicates it to the Collector via the RF module.
+\begin{itemize}
+	\item \textbf{not periodic}, only triggered by preceding task
+	\item \textbf{non-preemptive}, the communication of this position is important and should not be postponed, essential for the functionality of the Scout
+	\item \textbf{not known beforehand}, as it is queued by other task
+	\item \textbf{release time}: since the earliest we can get a new position that we want to send is after [10ms], our release time can be that also
+	\item \textbf{approximate cost}: read coordinates from memory and instruct RF module with communication 
+	\item \textbf{urgency}, very urgent
+	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" and "Handle High Readings" tasks for adding it to the schedule and saving the position coordinates
+\end{itemize}
+
+\paragraph{Orientation Theta Correction}
+The main task concerning movement of the robot. We adjust the orientation of our robot by changing the current velocities of the two motors, to point towards current destination. If no adjustment is required we drive straight. This tasks queries the "generate new destination" task upon reaching the current destination or if there is none.
+\begin{itemize}
+	\item \textbf{not periodic}, only one instance of this task is ever created
+	\item \textbf{preemptive}, very basic task with lengthy execution. Must be preemptive for the robot to do anything but drive around. 
+	\item \textbf{not known beforehand}, destinations are generated by other task
+	\item \textbf{release time}:task is immediately available 
+	\item \textbf{approximate cost}: this task is greatly dependent on the physical properties of the robot, and as such is very slow and very costly time wise. 
+	\item \textbf{urgency}, lowest urgency. The only risk of this task being delayed would be leaving the arena after missing the destination, but that would mean an extreme delay which seems unlikely considering the other tasks.
+	\item \textbf{dependencies}: dependent on the "Generate New Goal" task to define the destination position.
+\end{itemize}
+
+\paragraph{Generate New Goal}
+Generates a new destination on where to drive - mainly tactic finetuning (initially will generate random value)
+\begin{itemize}
+	\item \textbf{aperiodic}, only generated by other task
+	\item \textbf{preemptive}, not critical for time constraints, can be postponed for more urgent tasks
+	\item \textbf{not known beforehand}, we don't know when the robot reaches its destination
+	\item \textbf{release time} immediately available after it is added to the schedule by other task
+	\item \textbf{approximate cost}: Either generate random coordinates (OR look up next destination for strategy), very low cost
+	\item \textbf{urgency}, medium urgency as we don't want the robot to idle too long, but need other functionalities quicker under stricter time constraints. Exact urgency is dependent on the strategy as we could have a very narrow path to follow where accuracy is essential.
+	\item \textbf{dependencies}:dependent on "Orientation Theta Correction" to be queued up
+\end{itemize}
+
+\paragraph{Communicate Own Position}
+The Scout communicates its own position to the Collector in regular intervals as to not get pushed by its teammate. 
+\begin{itemize}
+	\item \textbf{periodic}, because we need to let our teammate know where we are regularly
+	\item \textbf{non-preemptive}, dependent on current state of the robot, important for communication
+	\item \textbf{not known beforehand}, we can't know positions
+	\item \textbf{period and release time} can be the same, as we want to communicate in a regular interval. We assume about [0.5s] is enough but need experience with the actual hardware to fine-tune
+	\item \textbf{approximate cost}: we get the current position coordinates and initiate communication of these via the RF module, low cost
+	\item \textbf{urgency}: this task is relatively urgent to prevent our Collector from pushing the Scout.
+	\item \textbf{dependencies}: It is dependent on the current position, so "Orientation Theta Correction".
+\end{itemize}
+
+\paragraph{Receive Referee Communication}
+The robot can receive its correct position in the arena from the referee. If a message was received the RF module sends an interrupt to trigger this task. The Scout handles this information by updating the internal records and continuing with the updated coordinates.
+\begin{itemize}
+	\item \textbf{not periodic}, triggered by interrupt from the RF module
+	\item \textbf{non-preemptive}, to be completed as soon as possible, s.t. the internal coordinates are accurate. Also very short task, so little delay for other tasks.
+	\item \textbf{not known beforehand}, triggered by external source
+	\item \textbf{release time}: Immediately available after interrupt
+	\item \textbf{approximate cost}: Receiving the correct coordinate data and updating them internally has a very low cost.
+	\item \textbf{urgency}:extremely urgent, we want to minimise the time we are using inaccurate coordinates for our postion calculation.
+	\item \textbf{dependencies}: no dependencies
 \end{itemize}
 
 \subsection*{Collector Tasks}
