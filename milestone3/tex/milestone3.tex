@@ -167,7 +167,7 @@ Reads the readings of the sensors via the ADC and compares them to the defined t
   	\begin{itemize}
   	\item \textbf{Periodic:} We have to read the sensors on a regular basis. Since this tasks is not spawned by some other task, we can execute it in regular intervals with a fixed period.
 	\item \textbf{Non-Preepmtive:} The whole execution, including the queueing of the next task depends on the state of the robot at the exact moment where the sensor readings surpass the threshold. It is therefore important to finish the task in one go to send very up-to-date data to the follow-up task.
-  	\item \textbf{Not Known Before-hand:} The tasks takes longer when the sensor readings surpass the threshold.
+  	\item \textbf{Not Known Before-hand:} The tasks takes longer when the sensor readings surpass the threshold for which we do not know when it happens statically before-hand.
   	\item \textbf{Release time:} Same as the period (immediately available).
   	\item \textbf{Period:} Since this task can be handled very fast, the period can also be very fast. We will start with a period of 10ms and later fine-tune it using the hardware.
   	\item \textbf{Relative deadline:} Does not need a deadline
@@ -194,7 +194,7 @@ The tasks adjusts the engine velocities in order for the robot to point towards 
   \begin{itemize}
   	\item \textbf{Aperiodic:} There is only one permanent instance of this task running at any time.
 	\item \textbf{Preepmtive:} This should be the default task which is executed when no other task needs to be executed. This task will be preemted whenever another more important task needs to be executed. We assume here that even with all other period tasks running, there will still be enough time left for the execution of this task.
-  	\item \textbf{Not Known Before-hand:} Depends on the generated destinations which are not known before-hand.
+  	\item \textbf{Not Known Before-hand:} Execution depends on the generated destinations which are not known before-hand.
   	\item \textbf{Release time:} Same as the period (immediately available).
   	\item \textbf{Relative deadline:} Does not need a deadline.
   	\item \textbf{Approximate cost:} The cost is proportional to the radius that the robot needs to turn and depends on the wheel velocities we choose. In any case, this task takes a lot longer than all other tasks because a physical motion and calculation of the new rotation needs to be done. We could set the cost of this task to be 20 per degree the robot needs to turn.
