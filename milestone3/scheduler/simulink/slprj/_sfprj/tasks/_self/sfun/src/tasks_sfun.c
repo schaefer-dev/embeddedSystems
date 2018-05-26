@@ -127,7 +127,7 @@ unsigned int sf_tasks_autoinheritance_info( int nlhs, mxArray * plhs[], int nrhs
     switch (chartFileNumber) {
      case 2:
       {
-        if (strcmp(aiChksum, "awV8o4jZ1srBlgUhpg2l1F") == 0) {
+        if (strcmp(aiChksum, "KMqp1jJqy2pthUmDbsLaJD") == 0) {
           extern mxArray *sf_c2_tasks_get_autoinheritance_info(void);
           plhs[0] = sf_c2_tasks_get_autoinheritance_info();
           break;
@@ -177,7 +177,7 @@ unsigned int sf_tasks_get_eml_resolved_functions_info( int nlhs, mxArray * plhs[
     switch (chartFileNumber) {
      case 2:
       {
-        if (strcmp(instanceChksum, "sNwSrb4p7BpNsAyb6wLrDmH") == 0) {
+        if (strcmp(instanceChksum, "sjJbkKmYihNBoqBEsMBuwfF") == 0) {
           extern const mxArray *sf_c2_tasks_get_eml_resolved_functions_info(void);
           mxArray *persistentMxArray = (mxArray *)
             sf_c2_tasks_get_eml_resolved_functions_info();
@@ -224,7 +224,7 @@ unsigned int sf_tasks_third_party_uses_info( int nlhs, mxArray * plhs[], int
     switch (chartFileNumber) {
      case 2:
       {
-        if (strcmp(tpChksum, "sNwSrb4p7BpNsAyb6wLrDmH") == 0) {
+        if (strcmp(tpChksum, "sjJbkKmYihNBoqBEsMBuwfF") == 0) {
           extern mxArray *sf_c2_tasks_third_party_uses_info(void);
           plhs[0] = sf_c2_tasks_third_party_uses_info();
           break;
@@ -261,7 +261,7 @@ unsigned int sf_tasks_jit_fallback_info( int nlhs, mxArray * plhs[], int nrhs,
     switch (chartFileNumber) {
      case 2:
       {
-        if (strcmp(tpChksum, "sNwSrb4p7BpNsAyb6wLrDmH") == 0) {
+        if (strcmp(tpChksum, "sjJbkKmYihNBoqBEsMBuwfF") == 0) {
           extern mxArray *sf_c2_tasks_jit_fallback_info(void);
           plhs[0] = sf_c2_tasks_jit_fallback_info();
           break;
@@ -298,7 +298,7 @@ unsigned int sf_tasks_updateBuildInfo_args_info( int nlhs, mxArray * plhs[], int
     switch (chartFileNumber) {
      case 2:
       {
-        if (strcmp(tpChksum, "sNwSrb4p7BpNsAyb6wLrDmH") == 0) {
+        if (strcmp(tpChksum, "sjJbkKmYihNBoqBEsMBuwfF") == 0) {
           extern mxArray *sf_c2_tasks_updateBuildInfo_args_info(void);
           plhs[0] = sf_c2_tasks_updateBuildInfo_args_info();
           break;
