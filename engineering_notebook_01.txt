@@ -331,3 +331,17 @@ Daniel: Summary of stuff that is still TODO:
 # Mo. 21.05
 - Kevin:
   Done: Remaining collector tasks analyzed.
+  
+# Fr. 25.05
+- Kevin:
+  Done: Completed task list with all costs and urgencies etc.
+  
+# Sa. 26.05
+- Kevin:
+  Implemented: Tried out C integration into Matlat. There are two ways to do it: with SFunction-Blocks or with Matlab Function Blcoks.
+	The latter is more easy (and also metioned in the milestone) but both seem to work.
+	In the matlab function we can set the properties of the coder (i.e. which files to use) and then call
+	the functions using coder.ceval(). This works with simple C functions, however, when integrating the already-implemented scheduler Matlab
+	always crashes with a fatal abnormal error. Not sure if just on my machine or any.
+  Implemented: Very basic stateflow chart to model the transition between active tasks.
+	
