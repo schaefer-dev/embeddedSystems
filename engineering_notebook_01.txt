@@ -249,7 +249,7 @@ Daniel: Summary of stuff that is still TODO:
   Implemented: Collector receives good coordinates from scout and drives there immediately
   Implemented: Collector tries to push opponent whenever proximity sensors indicate the eixtance of an opponent
   TODO: check for scout when pushing, check for out of bounds
-- Kevin: 
+- Kevin:
   Implemented: Engine noise and real position calculation
 - Rafael:
   mostly cleanup in god model
@@ -275,7 +275,7 @@ Daniel: Summary of stuff that is still TODO:
 	send ray from robot position to the left, front, right
 	check for intersection with bounding boxes in range of 30cm
     initial implementation of proximity sensor data generation
-	
+
 
 
 # Sun. 13.05
@@ -296,12 +296,12 @@ Daniel: Summary of stuff that is still TODO:
   Implemented: Collector A pushes Collector B upon collision in the direction A is driving
   Fix: Sensor noise stays within value domain boundaries
   Fix: Bounding box calculation when rotated
-   
+
 - Rafael:
   Fix: Bounding rectangles/ hitbox calculation
   Fix: proximity sensor orientation
   Converted proximity calculation to seperate model
-  
+
   Implemented check for Collector to not push Scout
 
 	-------------------------- Engineering Notebook 03 --------------------------
@@ -309,33 +309,33 @@ Daniel: Summary of stuff that is still TODO:
 	-----------------------------------------------------------------------------
 	--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
 	-----------------------------------------------------------------------------
-	
+
 # Fr. 18.05
 - Daniel:
   Draft: Structure of Scheduler and efficient data structure planning
   Implemented: Data structures for scheduler
-  
+
 # Sa. 19.05
 - Daniel:
   Implemented: Scheduling Library
 - Kevin:
   Analyzed two collector tasks according to milestone description.
-  
+
 # So. 20.05
 - Daniel:
-  Implemented: Tests for scheduler
-  Implemented: Referee updates for opponents are now being processed by randomly driving opponents. This increases their "skill" a lot!
+  Implemented: Tests for scheduler which can be enabled and disabled using C macro
+  Implemented: Referee updates for opponents are now being processed by randomly driving opponents. This increases their "skill" a lot and overall improves the usefullness of milestone2!
 - Kevin:
-  Implemented: Extended collision model to all robots such that every collision will have realistic effects on both robots involved.  
+  Implemented: Extended collision model to all robots such that every collision will have realistic effects on both robots involved.
 
 # Mo. 21.05
 - Kevin:
   Done: Remaining collector tasks analyzed.
-  
+
 # Fr. 25.05
 - Kevin:
   Done: Completed task list with all costs and urgencies etc.
-  
+
 # Sa. 26.05
 - Kevin:
   Implemented: Tried out C integration into Matlat. There are two ways to do it: with SFunction-Blocks or with Matlab Function Blcoks.
@@ -344,4 +344,8 @@ Daniel: Summary of stuff that is still TODO:
 	the functions using coder.ceval(). This works with simple C functions, however, when integrating the already-implemented scheduler Matlab
 	always crashes with a fatal abnormal error. Not sure if just on my machine or any.
   Implemented: Very basic stateflow chart to model the transition between active tasks.
-	
+
+# So. 27.05
+- Daniel:
+	Done: Scheduler implements functions to demonstrate the scheduling in c coder
+	Done: Scheduler improvements documented

@@ -97,7 +97,8 @@ accept_task (struct task *task, struct task_list *task_list)
       }
   }
 
-/* removes the head from the list and returns it, returns NULL if empty */
+/* removes the head from the list and returns it, returns NULL if empty
+   does NOT free the returned task */
 struct task*
 pop_task (struct task_list *task_list)
   {
