@@ -1,17 +1,79 @@
 #include "taskList.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
+
+//#define TESTING
+
+void
+execute_task(struct task *task)
+  {
+    switch(task->task_identifier) {
+      case TASK_CORRECT_THETA:
+          usleep(500 * 1000);
+          printf("Task finished execution after 500ms\n");
+          break;
+      case TASK_RECEIVE_SENSOR_READINGS:
+          usleep(200 * 1000);
+          printf("Task finished execution after 200ms\n");
+          break;
+      case TASK_HANDLE_HIGH_SENSOR_READINGS:
+          usleep(1000 * 1000);
+          printf("Task finished execution after 1000ms\n");
+          break;
+      case TASK_GENERATE_NEW_GOAL:
+          usleep(2000 * 1000);
+          printf("Task finished execution after 2000ms\n");
+          break;
+      case TASK_COMMUNICATE_CURRENT_POSITION:
+          usleep(200 * 1000);
+          printf("Task finished execution after 200ms\n");
+          break;
+      case TASK_HANDLE_REFEREE_UPDATE:
+          usleep(300 * 1000);
+          printf("Task finished execution after 300ms\n");
+          break;
+      case TASK_RECEIVE_HARVESTING_POSITION:
+          usleep(200 * 1000);
+          printf("Task finished execution after 200ms\n");
+          break;
+    }
+  }
+
+void
+interrupt_add_task(enum task_identifiers task_identifier, struct task_list *task_list)
+  {
+    struct task *task = create_task(task_identifier);
+    accept_task(task,task_list);
+    printf("interrupt -> task with id %i was added\n", task->task_identifier);
+    usleep(10 * 1000);
+  }
+
+void
+schedule_next_task(struct task_list *task_list)
+  {
+    struct task *next_task = schedule(task_list);
+    printf("scheduling called -> task with id %i was scheduled\n", next_task->task_identifier);
+    if (next_task->task_identifier != TASK_CORRECT_THETA){
+      pop_task(task_list);
+      execute_task(next_task);
+      free(next_task);
+    } else {
+      execute_task(next_task);
+    }
+  }
+
 
 
 int
 main(int argc, const char * argv[])
   {
+    struct task_list *task_list = malloc (sizeof (struct task_list));
+    initialize_task_list(task_list);
+    #ifdef TESTING
     printf("-------------------------------------- \n");
     printf("----------- STARTING TESTS ----------- \n");
     printf("-------------------------------------- \n");
-    struct task_list *task_list = malloc (sizeof (struct task_list));
-    initialize_task_list(task_list);
-
 
     /* test insertion in increasing priority order */
     struct task *task1 = create_task(TASK_CORRECT_THETA);
@@ -116,13 +178,28 @@ main(int argc, const char * argv[])
     free_task(compare_task);
     test_counter += 1;
 
-
-
-
-
-
-
     printf("-------------------------------------- \n");
     printf("------------ ENDING TESTS ------------ \n");
     printf("-------------------------------------- \n");
+    #endif
+
+    /* add task which will always be contained to list */
+    struct task *default_task = create_task(TASK_CORRECT_THETA);
+    accept_task (default_task, task_list);
+
+    schedule_next_task(task_list);
+    interrupt_add_task(TASK_GENERATE_NEW_GOAL, task_list);
+    interrupt_add_task(TASK_RECEIVE_SENSOR_READINGS, task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
+    interrupt_add_task(TASK_RECEIVE_SENSOR_READINGS, task_list);
+    interrupt_add_task(TASK_HANDLE_REFEREE_UPDATE, task_list);
+    interrupt_add_task(TASK_COMMUNICATE_CURRENT_POSITION, task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
+    schedule_next_task(task_list);
   }
