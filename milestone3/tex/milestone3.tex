@@ -28,6 +28,8 @@
 \newcommand{\Bcal}{\mathcal{B}}
 \newcommand{\Acal}{\mathcal{A}}
 
+\usepackage[parfill]{parskip}
+
 % formating
 \topmargin -3.5cm
 \textheight 22cm
@@ -46,25 +48,32 @@
 \lstset{language=C++}
 
 
-\subsection*{General Idea}
+\section*{Scheduler: Decisions and Optimizations}
+Currently the scheduler is implemented using a doubly linked list mainly for conveniance reasons and its flexibiliy.
+
+An optimization that would be applicable in the current task structure is to replace the entire linked list by an 8bit integer using binary encoding. This is possible because our current scheduling plan will assure, that every task will be contained in the queue at most once. The task with the highest priority contained in the list would set the most significant bit to 1, not contained would set it to 0. The task with the second highest priority would set the second most significant bit to 1 if contained, 0 otherwise etc. The 'default task' (correct theta and drive) would not have to be contained in the list, as it will always be contained in the current model. This approach would work for up to 9 Tasks (including the default task), which makes it applicable to our currently planned structure.
+
+Replacing the linked list structure with an 8 bit would significantly decrease the costs of all procedures on the structure, as every procedure would be posible with a single binary operation instead of keeping the list sorted and moving references etc.
+
+\section*{General Scheduling Approach}
 The underlying task of both robots in our model is going to be the task "Orientation and Drive". It is responsible for the robots' movement and will be running whenever there is no other task in the queue. Every $\mathcal{X}$ time units this queue is checked. If there is a more urgent task present, we preempt into this new task. We assume most of our tasks are very light with respect to computation costs, thus this task will be run most of the time.
 
 \newpage
-\subsection*{Scout Tasks}
-The Scout robot has 7 distinct tasks as seen below. We chose a strict ordering of priorities depending on the urgency of each task. This will make it easier for the scheduler to choose the next task to be performed. Most tasks are not preemptive because they have very short runtime and a preemption would cause unnecessary overhead. The following table shows urgency in descending order and cost of each task, cost being a rough estimation of required operations. 
+\section*{Scout Tasks}
+The Scout robot has 7 distinct tasks as seen below. We chose a strict ordering of priorities depending on the urgency of each task. This will make it easier for the scheduler to choose the next task to be performed. Most tasks are not preemptive because they have very short runtime and a preemption would cause unnecessary overhead. The following table shows urgency in descending order and cost of each task, cost being a rough estimation of required operations.
 \begin{center}
 \begin{tabular}{| l | | c | c |}
-  \hline			
+  \hline
 	& Urgency & Cost \\
-  \hline		
+  \hline
   Task 7: Receive Referee Communication & 7 & 7 \\
   Task 3: Communicate Harvest Coordinates & 6 & 5 \\
   Task 2: Handle High Readings & 5 & 4 \\
   Task 1: Receive Photosensor Readings & 4 & 10 \\
-  Task 6: Communicate Own Position &  3 & 5 \\ 
+  Task 6: Communicate Own Position &  3 & 5 \\
   Task 5: Generate New Goal &  2 & 12\\
-  Task 4: Orientation and Drive &  1 & inf \\ 
-  \hline  
+  Task 4: Orientation and Drive &  1 & inf \\
+  \hline
 \end{tabular}
 \end{center}
 \vspace*{1cm}
@@ -76,7 +85,7 @@ If treshold is met, we save current brightness value in memory; queue handling t
 	\item \textbf{non-preemptive}, dependent on current state of the robot, important for main functionality, initiates follow up task, so its completion should not be postponed
 	\item \textbf{not known beforehand}, we can't foresee the light behaviour, therefore the cost of this task can change depending on the brightness value perceived by the sensor. The release time and period will stay the same either way.
 	\item \textbf{period and release time} can be the same, we assume about [10ms] but need experience with the actual hardware to fine-tune
-	\item \textbf{approximate cost}: we get 4 values for each of the sensors (4) and need to compare each to the threshold (4), possibly write one value into memory and queue additional handling task (2). 10  
+	\item \textbf{approximate cost}: we get 4 values for each of the sensors (4) and need to compare each to the threshold (4), possibly write one value into memory and queue additional handling task (2). 10
 	\item \textbf{urgency}, very urgent, should only be delayed if a dependent task is currently queued or if communication is being received
 	\item \textbf{dependencies}: not dependent on other tasks
 \end{itemize}
@@ -88,7 +97,7 @@ This task is generated if the value the photosensors output meets the determined
 	\item \textbf{non-preemptive}, the current position is time critical and should not be postponed to get the most accurate and direct data, essential for the functionality of the Scout
 	\item \textbf{not known beforehand}, as it is queued by other task we can't know exact when this task will occur
 	\item \textbf{release time}: since the earliest we can get a new position that we want to send is after [10ms], our release time is at least that
-	\item \textbf{approximate cost}: get current coordinates (2) and write them into a secure memory (2). 4 
+	\item \textbf{approximate cost}: get current coordinates (2) and write them into a secure memory (2). 4
 	\item \textbf{urgency}, very urgent, should again only be delayed if dependent task is
 	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" task for adding it to the schedule; also dependent on the basic driving task "Orientation and Driving"
 \end{itemize}
@@ -109,9 +118,9 @@ This task is generated after the photosensor values meet the threshold and the c
 The main task concerning movement of the robot. We adjust the orientation of our robot by changing the current velocities of the two motors, to point towards current destination. If no adjustment is required we drive straight. When "out of bounds" is received, both motors are turned to zero for the required time. This tasks queries the "generate new destination" task upon reaching the current destination or if there is none.
 \begin{itemize}
 	\item \textbf{aperiodic}, only one instance of this task is ever created
-	\item \textbf{preemptive}, very basic task with lengthy execution. Must be preemptive for the robot to do anything but drive around. 
+	\item \textbf{preemptive}, very basic task with lengthy execution. Must be preemptive for the robot to do anything but drive around.
 	\item \textbf{not known beforehand}, arguably not entirely known as destinations are generated by other task
-	\item \textbf{release time}:task is immediately available 
+	\item \textbf{release time}:task is immediately available
 	\item \textbf{approximate cost}: this task is greatly dependent on the physical properties of the robot, and as such is very slow and very costly time wise. We assign infinite time for this task as it will be running indefinitely, being interrupted by other tasks as needed.
 	\item \textbf{urgency}, lowest urgency. The only risk of this task being delayed would be leaving the arena after missing the destination, but that would mean an extreme delay which seems unlikely considering the other tasks.
 	\item \textbf{dependencies}: dependent on the "Generate New Goal" task to define the destination position.
@@ -124,13 +133,13 @@ Generate new destination where to drive, depending on the implemented strategy. 
 	\item \textbf{preemptive:} Since this task depends on the tactic we implement, it could be arbitrarily long. At the same time, it is not critical for time constraints and can thus be preemted to execute other more urgent tasks.
   	\item \textbf{Not Known Before-hand:} We neither know when the task will be triggered nor how long it will run before outputting a new destination.
   	\item \textbf{release time:} Becomes available as soon as enqueued by other task.
-  	\item \textbf{approximate cost:} The cost highly depends on the tactic implemented. For now, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations for each x and y. 12 
+  	\item \textbf{approximate cost:} The cost highly depends on the tactic implemented. For now, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations for each x and y. 12
   	\item \textbf{urgency:} It is never a problem when the task gets delayed for some time because the robot will never drive blindly without having a destination. So, when no new destination gets generated for some time the robot will simply remain at its position. The only loss would be that we can not execute our tactic but that is not a big problem compared to hitting team mates or crossing the arena border. Therefore, just as Task 4 this task gets an urgency of 2.
   	\item \textbf{Dependencies:} This task is executed when the current destination is reached and enqueued by Task 4.
    	\end{itemize}
 
 \paragraph{Task 6: Communicate Own Position}
-The Scout communicates its own position to the Collector in regular intervals as to not get pushed by its teammate. 
+The Scout communicates its own position to the Collector in regular intervals as to not get pushed by its teammate.
 \begin{itemize}
 	\item \textbf{periodic}, because we need to let our teammate know where we are regularly
 	\item \textbf{non-preemptive}, dependent on current state of the robot, important for communication
@@ -148,27 +157,27 @@ The robot can receive its correct position in the arena from the referee. If a m
 	\item \textbf{non-preemptive}, to be completed as soon as possible, s.t. the internal coordinates are accurate. Also very short task, so little delay for other tasks.
 	\item \textbf{not known beforehand}, triggered by external source
 	\item \textbf{release time}: Immediately available after interrupt
-	\item \textbf{approximate cost}: Receiving the correct coordinate data (x,y,angle; 3) from RF module (1) and updating them internally (3) has a low cost of 7. 
+	\item \textbf{approximate cost}: Receiving the correct coordinate data (x,y,angle; 3) from RF module (1) and updating them internally (3) has a low cost of 7.
 	\item \textbf{urgency}:extremely urgent, we want to minimise the time we are using inaccurate coordinates for our position calculation. Since it is triggered by hardware interrupt we can make it the most urgent task.
 	\item \textbf{dependencies}: no dependencies
 \end{itemize}
 
 \newpage
-\subsection*{Collector Tasks}
+\section*{Collector Tasks}
 We divided the job of the collector into six tasks that need to be executed at different times during the game. We assigned each of them a distinct urgency which is a value between 1 and 6, 6 being the task with the highest urgency. Costs are approximated as instructions needed to do the calculations. Those might be very rough estimated but the ordering of the tasks given by the cost values should be correct and proportional to the cost of the final implementations of the tasks.
 The task list, ordererd by urgency:\\
 \begin{center}
 \begin{tabular}{| l | | c | c |}
-  \hline			
+  \hline
 	& Urgency & Cost \\
-  \hline		
+  \hline
   Task 5: Receive Referee Communication & 6 & 5 \\
   Task 6: Receive Harvesting Position & 5 & 5 \\
   Task 2: Handle High Readings & 4 & 10 \\
   Task 1: Receive Proximity Sensor Readings & 3 & 8 \\
   Task 4: Generate New Goal &  2 & 12\\
-  Task 3: Orientation and Drive &  1 & inf \\  
-  \hline  
+  Task 3: Orientation and Drive &  1 & inf \\
+  \hline
 \end{tabular}
 \end{center}
 \paragraph{Task 1: Receive Proximity Sensor Readings}
@@ -188,17 +197,17 @@ Reads the readings of the sensors via the ADC and compares them to the defined t
 \paragraph{Task 2: Handle High Readings}
 Receives the sensor direction and value of the last reading that was above the threshold (not that this task is spawned by Task 1). It tries to estimate the position of the team mate and decide whether the sensor reading could be created by the team mate. If yes, it continues with the current destination, otherwise it will try to hit the sensed target by updating the destination value.
   	\begin{itemize}
-	\item \textbf{Aperiodic:} This task is only triggered after an above-threshold proximity sensor reading is sensed in Task 1. 
+	\item \textbf{Aperiodic:} This task is only triggered after an above-threshold proximity sensor reading is sensed in Task 1.
 	\item \textbf{Non-Preepmtive:} The current sensor readings depend on the current position of the collector and the nearby robots. Therefore, if the task is delayed, the values will quickly become useless. Furthermore, from our simulation we already noticed that it is important to react to proximity readings very fast in order to have a chance to hit the opponent and avoid hitting our team mate. Therefore, this task should be executed in one go.
   	\item \textbf{Not Known Before-hand:} We can not know when the task is triggered in the previous task and also the runtime will depend on the system state.
   	\item \textbf{Release time:} Becomes available as soon as enqueued by other task.
   	\item \textbf{Relative deadline:} Depending on the threshold, this task should get a deadline that ensures that the collector will never push its team mate. Since we have not fixed the threshold proximity and maximum driving speed, the exact deadline can only be calculated later when working with the real hardware.
-  	\item \textbf{Approximate cost:} The following operations need to be executed: Retrieve last scout position (2), retrieve time and calculate elapsed time since last scout position update (3), calculate the distance that he scout has traveled since (i.e. the radius where scout might be) (2), compare current proximity value with possible scout position (3) and make decision whether to hit or not and depending on the result set the current destination value (1). Therefore we assign this task a (relative) cost of 1+3+2+3+1=10. 
+  	\item \textbf{Approximate cost:} The following operations need to be executed: Retrieve last scout position (2), retrieve time and calculate elapsed time since last scout position update (3), calculate the distance that he scout has traveled since (i.e. the radius where scout might be) (2), compare current proximity value with possible scout position (3) and make decision whether to hit or not and depending on the result set the current destination value (1). Therefore we assign this task a (relative) cost of 1+3+2+3+1=10.
   	\item \textbf{Urgency:} This task has about he same reasoning for urgency as Task 1. However, since this task will be triggered rather rarely, we want to make sure to act on the new data very quickly so it also gets urgency of 4.
   	\item \textbf{Dependencies:} This task can only be executed after Task 1. This is ensured because this task is scheduled at the end of Task 1 when all read-write operations to the shared global memory are done and the task is finished.
-   	\end{itemize} 
-   	
-\paragraph{Task 3: Orientation and Drive} 
+   	\end{itemize}
+
+\paragraph{Task 3: Orientation and Drive}
 The tasks adjusts the engine velocities in order for the robot to point towards the current destination. Upon reading the destination, a new task to generate a new destination is created.
   \begin{itemize}
   	\item \textbf{Aperiodic:} There is only one permanent instance of this task running at any time.
@@ -209,9 +218,9 @@ The tasks adjusts the engine velocities in order for the robot to point towards 
   	\item \textbf{Approximate cost:} The cost is proportional to the radius that the robot needs to turn and depends on the wheel velocities we choose. In any case, this task takes a lot longer than all other tasks because a physical motion and calculation of the new rotation needs to be done. We could set the cost of this task to be 20 per degree the robot needs to turn.
   	\item \textbf{Urgency:} If the task gets delayed for too long we might miss the target destination and in the worst case cross the arena border. However, for this to happen the task would have to be delayed for a very long time (which is unlikely given the other tasks) which is why it will get a relatively low urgency of 1.
   	\item \textbf{Dependencies:} The robot needs a destination before executing this task. Therefore, Task 4 has to finish before this task starts for the first time. This task queues Task 4 upon reaching the current destination.
-   	\end{itemize} 
-   	
-\paragraph{Task 4: Generate New Goal}   
+   	\end{itemize}
+
+\paragraph{Task 4: Generate New Goal}
 Generate new destination where to drive (which is subject to tactic finetuning). Initially, we will use random coordinates within the arena instead of an elaborate tactic. The destination could also follow a pattern or be somehow randomized when idly driving around.
   \begin{itemize}
 	\item \textbf{Aperiodic:} This task is executed once in the beginning and then gets triggered by Task 3.
@@ -219,12 +228,12 @@ Generate new destination where to drive (which is subject to tactic finetuning).
   	\item \textbf{Not Known Before-hand:} We neither know when the task will be triggered nor how long it will run before outputting a new destination.
   	\item \textbf{Release time:} Becomes available as soon as enqueued by other task.
   	\item \textbf{Relative deadline:} Does not need a deadline.
-  	\item \textbf{Approximate cost:} The cost highly depends on the tactic implemented. For now, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations with a cost of 2 x (1 + 5) = 12. 
+  	\item \textbf{Approximate cost:} The cost highly depends on the tactic implemented. For now, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations with a cost of 2 x (1 + 5) = 12.
   	\item \textbf{Urgency:} It is never a problem when the task gets delayed for some time because the robot will never drive blindly without having a destination. So, when no new destination gets generated for some time the robot will simply remain at its position. The only loss would be that we can not execute our tactic but that is not a big problem compared to hitting team mates or crossing the arena border. Therefore, just as Task 4 this task gets an urgency of 2.
   	\item \textbf{Dependencies:} This task is executed when the current destination is reached and enqueued by Task 3.
    	\end{itemize}
-   	
-\paragraph{Task 5: Receive Referee Communication} 
+
+\paragraph{Task 5: Receive Referee Communication}
 The robot can receive its correct position in the arena from the referee. If a message was received the RF module sends an interrupt to trigger this task. The Scout handles this information by updating the internal records and continuing with the updated coordinates.
     \begin{itemize}
 	\item \textbf{Aperiodic:} Gets triggered by an interrupt from the RF module.
@@ -237,7 +246,7 @@ The robot can receive its correct position in the arena from the referee. If a m
   	\item \textbf{Dependencies:} No dependencies.
    	\end{itemize}
 
-\paragraph{Task 6: Receive Harvesting Position}   	   		
+\paragraph{Task 6: Receive Harvesting Position}
 The robot reads a new harvesting position from the RF module and updates its current destination accordingly.
   \begin{itemize}
 	\item \textbf{Aperiodic:} Gets triggered by an interrupt from the RF module.
@@ -249,4 +258,6 @@ The robot reads a new harvesting position from the RF module and updates its cur
   	\item \textbf{Urgency:} Since the light might move very fast, it is important to react to new harvest positions as soon as possible. When the collector waits for too long, the light might have moved somewhere else. It therefore gets a relatively high urgency of 5.
   	\item \textbf{Dependencies:} No dependencies.
    	\end{itemize}
+
+
 \end{document}
