@@ -370,3 +370,12 @@ No success in intergrating our implementation.
 - Daniel:
 	Done: Scheduler implements functions to demonstrate the scheduling in c coder
 	Done: Scheduler improvements documented
+
+# Mo. 28.05
+- Daniel:
+		Scheduler finetuning, small bug fixes, separate collector tasks
+- Rafael:
+		Completed stateflow chart with correct task costs
+- Kevin:
+		Bugfixing, Matlab function
+		
