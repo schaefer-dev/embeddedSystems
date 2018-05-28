@@ -43,9 +43,3 @@ void free_task (struct task*);
 struct task* pop_task (struct task_list*);
 struct task* schedule (struct task_list*);
 double get_task_id (struct task*);
-
-void initialize_task_list_matlab();
-int create_task_matlab(int);
-void accept_task_matlab (int);
-int pop_task_matlab ();
-

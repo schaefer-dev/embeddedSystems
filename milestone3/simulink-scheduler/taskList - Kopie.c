@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-struct task_list *task_list;
+
 /* DEBUG Macro enables Debugging mode, which includes error 'catching' prints
   and various additional output, which should be disabled once fully working to
   ensure maximum performance */
@@ -181,20 +181,4 @@ previous_task (struct task *task)
 double get_task_id (struct task* task)
 {
     return task->priority;
-}
-
-void initialize_task_list_matlab() {
-  task_list = malloc (sizeof (struct task_list));
-}
-int create_task_matlab(int id) {
-  return create_task(id)->task_identifier;
-}
-
-void accept_task_matlab (int id){
-  struct task *task1 = create_task_matlab(id);
-  accept_task(task1, task_list);
-}
-
-int pop_task_matlab () {
-    return pop_task(task_list)->task_identifier;
 }
