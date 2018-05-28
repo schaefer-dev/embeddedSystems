@@ -8,7 +8,11 @@
 int tasklist[8] = { 0 };
 
 void initialize_tasklist() {
-	tasklist[1] = 1;
+    int i = 0;
+    for (i = 0; i < 8; i++) {
+        tasklist[i] = 0;
+    }
+	//tasklist[1] = 1;
 }
 
 void accept_task(int task) {

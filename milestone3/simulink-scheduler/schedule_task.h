@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 
-void initialize_task_list();
+void initialize_tasklist();
 
 void accept_task(int task);
 

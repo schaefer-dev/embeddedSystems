@@ -26,7 +26,8 @@ struct SfDebugInstanceStruct;
 extern struct SfDebugInstanceStruct* sfGlobalDebugInstanceStruct;
 
 /* Auxiliary Header Files */
-#include "taskList.h"
+#include "schedule_task.h"
+#include "schedule_task_c.h"
 
 /* Type Definitions */
 

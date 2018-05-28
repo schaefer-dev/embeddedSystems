@@ -3,6 +3,7 @@
 #include "tasks_sfun.h"
 #include "tasks_sfun_debug_macros.h"
 #include "c1_tasks.h"
+#include "c3_tasks.h"
 
 /* Type Definitions */
 
@@ -30,6 +31,11 @@ unsigned int sf_tasks_method_dispatcher(SimStruct *simstructPtr, unsigned int
 {
   if (chartFileNumber==1) {
     c1_tasks_method_dispatcher(simstructPtr, method, data);
+    return 1;
+  }
+
+  if (chartFileNumber==3) {
+    c3_tasks_method_dispatcher(simstructPtr, method, data);
     return 1;
   }
 
@@ -68,6 +74,13 @@ unsigned int sf_tasks_process_check_sum_call( int nlhs, mxArray * plhs[], int
         {
           extern void sf_c1_tasks_get_check_sum(mxArray *plhs[]);
           sf_c1_tasks_get_check_sum(plhs);
+          break;
+        }
+
+       case 3:
+        {
+          extern void sf_c3_tasks_get_check_sum(mxArray *plhs[]);
+          sf_c3_tasks_get_check_sum(plhs);
           break;
         }
 
@@ -127,9 +140,21 @@ unsigned int sf_tasks_autoinheritance_info( int nlhs, mxArray * plhs[], int nrhs
     switch (chartFileNumber) {
      case 1:
       {
-        if (strcmp(aiChksum, "v4aD8M2xKwvPOE3wPvUZNE") == 0) {
+        if (strcmp(aiChksum, "gIc82QX6WALL5HAvH6mxr") == 0) {
           extern mxArray *sf_c1_tasks_get_autoinheritance_info(void);
           plhs[0] = sf_c1_tasks_get_autoinheritance_info();
+          break;
+        }
+
+        plhs[0] = mxCreateDoubleMatrix(0,0,mxREAL);
+        break;
+      }
+
+     case 3:
+      {
+        if (strcmp(aiChksum, "4DGW2taPr2DZSIQZyzCY3D") == 0) {
+          extern mxArray *sf_c3_tasks_get_autoinheritance_info(void);
+          plhs[0] = sf_c3_tasks_get_autoinheritance_info();
           break;
         }
 
@@ -177,10 +202,22 @@ unsigned int sf_tasks_get_eml_resolved_functions_info( int nlhs, mxArray * plhs[
     switch (chartFileNumber) {
      case 1:
       {
-        if (strcmp(instanceChksum, "sKksE9qDr64aJwQr9JgFfW") == 0) {
+        if (strcmp(instanceChksum, "sQ3J5jBPf5l7vyKATgENVWF") == 0) {
           extern const mxArray *sf_c1_tasks_get_eml_resolved_functions_info(void);
           mxArray *persistentMxArray = (mxArray *)
             sf_c1_tasks_get_eml_resolved_functions_info();
+          plhs[0] = mxDuplicateArray(persistentMxArray);
+          mxDestroyArray(persistentMxArray);
+          break;
+        }
+      }
+
+     case 3:
+      {
+        if (strcmp(instanceChksum, "sQsG6tcHpvohNl2Sn3tb0nD") == 0) {
+          extern const mxArray *sf_c3_tasks_get_eml_resolved_functions_info(void);
+          mxArray *persistentMxArray = (mxArray *)
+            sf_c3_tasks_get_eml_resolved_functions_info();
           plhs[0] = mxDuplicateArray(persistentMxArray);
           mxDestroyArray(persistentMxArray);
           break;
@@ -224,9 +261,18 @@ unsigned int sf_tasks_third_party_uses_info( int nlhs, mxArray * plhs[], int
     switch (chartFileNumber) {
      case 1:
       {
-        if (strcmp(tpChksum, "sKksE9qDr64aJwQr9JgFfW") == 0) {
+        if (strcmp(tpChksum, "sQ3J5jBPf5l7vyKATgENVWF") == 0) {
           extern mxArray *sf_c1_tasks_third_party_uses_info(void);
           plhs[0] = sf_c1_tasks_third_party_uses_info();
+          break;
+        }
+      }
+
+     case 3:
+      {
+        if (strcmp(tpChksum, "sQsG6tcHpvohNl2Sn3tb0nD") == 0) {
+          extern mxArray *sf_c3_tasks_third_party_uses_info(void);
+          plhs[0] = sf_c3_tasks_third_party_uses_info();
           break;
         }
       }
@@ -261,9 +307,18 @@ unsigned int sf_tasks_jit_fallback_info( int nlhs, mxArray * plhs[], int nrhs,
     switch (chartFileNumber) {
      case 1:
       {
-        if (strcmp(tpChksum, "sKksE9qDr64aJwQr9JgFfW") == 0) {
+        if (strcmp(tpChksum, "sQ3J5jBPf5l7vyKATgENVWF") == 0) {
           extern mxArray *sf_c1_tasks_jit_fallback_info(void);
           plhs[0] = sf_c1_tasks_jit_fallback_info();
+          break;
+        }
+      }
+
+     case 3:
+      {
+        if (strcmp(tpChksum, "sQsG6tcHpvohNl2Sn3tb0nD") == 0) {
+          extern mxArray *sf_c3_tasks_jit_fallback_info(void);
+          plhs[0] = sf_c3_tasks_jit_fallback_info();
           break;
         }
       }
@@ -298,9 +353,18 @@ unsigned int sf_tasks_updateBuildInfo_args_info( int nlhs, mxArray * plhs[], int
     switch (chartFileNumber) {
      case 1:
       {
-        if (strcmp(tpChksum, "sKksE9qDr64aJwQr9JgFfW") == 0) {
+        if (strcmp(tpChksum, "sQ3J5jBPf5l7vyKATgENVWF") == 0) {
           extern mxArray *sf_c1_tasks_updateBuildInfo_args_info(void);
           plhs[0] = sf_c1_tasks_updateBuildInfo_args_info();
+          break;
+        }
+      }
+
+     case 3:
+      {
+        if (strcmp(tpChksum, "sQsG6tcHpvohNl2Sn3tb0nD") == 0) {
+          extern mxArray *sf_c3_tasks_updateBuildInfo_args_info(void);
+          plhs[0] = sf_c3_tasks_updateBuildInfo_args_info();
           break;
         }
       }

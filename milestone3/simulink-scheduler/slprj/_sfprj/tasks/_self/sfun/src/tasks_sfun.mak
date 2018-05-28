@@ -6,7 +6,7 @@ CPU = AMD64
 
 MODEL     = tasks
 TARGET      = sfun
-MODULE_SRCS   = c1_tasks.c
+MODULE_SRCS   = c1_tasks.c c3_tasks.c
 MODEL_SRC  = tasks_sfun.c
 MODEL_REG = tasks_sfun_registry.c
 MAKEFILE    = tasks_sfun.mak
@@ -55,7 +55,8 @@ AUX_ABS_OBJS =
 
 THIRD_PARTY_OBJS     = \
      "c_mexapi_version.obj" \
-     "taskList.obj" \
+     "schedule_task.obj" \
+     "schedule_task_c.obj" \
 
 REQ_OBJS = $(REQ_SRCS:.cpp=.obj)
 REQ_OBJS2 = $(REQ_OBJS:.c=.obj)
@@ -92,6 +93,9 @@ $(MEX_FILE_NAME) : $(MAKEFILE) $(OBJS) $(SFCLIB) $(AUX_LNK_OBJS) $(USER_LIBS) $(
 c_mexapi_version.obj :  "C:\Program Files\MATLAB\R2018a\extern\version\c_mexapi_version.c"
 	@echo ### Compiling "C:\Program Files\MATLAB\R2018a\extern\version\c_mexapi_version.c"
 	$(CC) $(CFLAGS) $(INCLUDE_PATH) "C:\Program Files\MATLAB\R2018a\extern\version\c_mexapi_version.c"
-taskList.obj :  "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\taskList.c"
-	@echo ### Compiling "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\taskList.c"
-	$(CC) $(CFLAGS) $(INCLUDE_PATH) "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\taskList.c"
+schedule_task.obj :  "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\schedule_task.c"
+	@echo ### Compiling "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\schedule_task.c"
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\schedule_task.c"
+schedule_task_c.obj :  "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\schedule_task_c.c"
+	@echo ### Compiling "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\schedule_task_c.c"
+	$(CC) $(CFLAGS) $(INCLUDE_PATH) "c:\users\u500304\development\uni\embedded-systems\milestone3\simulink-scheduler\schedule_task_c.c"

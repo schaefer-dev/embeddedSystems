@@ -14,7 +14,9 @@ typedef struct {
   boolean_T c1_doneDoubleBufferReInit;
   uint8_T c1_is_active_c1_tasks;
   void *c1_fEmlrtCtx;
-  real_T *c1_finished_prev_task;
+  real_T *c1_clock;
+  real_T *c1_running_task;
+  boolean_T *c1_finished_prev_task;
   real_T *c1_current_task_id;
   real_T *c1_task_to_add_id;
 } SFc1_tasksInstanceStruct;

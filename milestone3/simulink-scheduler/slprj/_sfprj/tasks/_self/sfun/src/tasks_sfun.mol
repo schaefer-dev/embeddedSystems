@@ -1,8 +1,10 @@
 tasks_sfun.obj
 c1_tasks.obj
+c3_tasks.obj
 tasks_sfun_registry.obj
 c_mexapi_version.obj
-taskList.obj
+schedule_task.obj
+schedule_task_c.obj
 
 "C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\sf_runtime.lib"
 "C:\Program Files\MATLAB\R2018a\extern\lib\win64\microsoft\libmx.lib"
