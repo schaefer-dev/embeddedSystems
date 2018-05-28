@@ -99,7 +99,7 @@ This task is generated if the value the photosensors output meets the determined
 	\item \textbf{release time}: since the earliest we can get a new position that we want to send is after [10ms], our release time is at least that
 	\item \textbf{approximate cost}: get current coordinates (2) and write them into a secure memory (2). 4
 	\item \textbf{urgency}, very urgent, should again only be delayed if dependent task is
-	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" task for adding it to the schedule; also dependent on the basic driving task "Orientation and Driving"
+	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" task for adding it to the schedule; also dependent on the basic driving task "Orientation and Driving" for position data
 \end{itemize}
 
 \paragraph{Task 3: Communicate Harvest Coordinates}
@@ -131,11 +131,11 @@ Generate new destination where to drive, depending on the implemented strategy. 
   \begin{itemize}
 	\item \textbf{aperiodic:} This task is executed once in the beginning and then gets triggered by Task 4.
 	\item \textbf{preemptive:} Since this task depends on the tactic we implement, it could be arbitrarily long. At the same time, it is not critical for time constraints and can thus be preemted to execute other more urgent tasks.
-  	\item \textbf{Not Known Before-hand:} We neither know when the task will be triggered nor how long it will run before outputting a new destination.
+  	\item \textbf{not known beforehand:} We neither know when the task will be triggered nor how long it will run before outputting a new destination.
   	\item \textbf{release time:} Becomes available as soon as enqueued by other task.
   	\item \textbf{approximate cost:} The cost highly depends on the tactic implemented. For now, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations for each x and y. 12
   	\item \textbf{urgency:} It is never a problem when the task gets delayed for some time because the robot will never drive blindly without having a destination. So, when no new destination gets generated for some time the robot will simply remain at its position. The only loss would be that we can not execute our tactic but that is not a big problem compared to hitting team mates or crossing the arena border. Therefore, just as Task 4 this task gets an urgency of 2.
-  	\item \textbf{Dependencies:} This task is executed when the current destination is reached and enqueued by Task 4.
+  	\item \textbf{Dependencies:} This task is executed when the current destination is reached and enqueued by Task 4 "Orientation and Drive".
    	\end{itemize}
 
 \paragraph{Task 6: Communicate Own Position}
