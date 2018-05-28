@@ -315,6 +315,9 @@ Daniel: Summary of stuff that is still TODO:
   Draft: Structure of Scheduler and efficient data structure planning
   Implemented: Data structures for scheduler
 
+- Rafael:
+  Draft for Scout tasks
+
 # Sa. 19.05
 - Daniel:
   Implemented: Scheduling Library
@@ -325,16 +328,28 @@ Daniel: Summary of stuff that is still TODO:
 - Daniel:
   Implemented: Tests for scheduler which can be enabled and disabled using C macro
   Implemented: Referee updates for opponents are now being processed by randomly driving opponents. This increases their "skill" a lot and overall improves the usefullness of milestone2!
+
 - Kevin:
   Implemented: Extended collision model to all robots such that every collision will have realistic effects on both robots involved.
+
+- Rafael: 
+  Specification for most Scout task in draft form
 
 # Mo. 21.05
 - Kevin:
   Done: Remaining collector tasks analyzed.
 
+# Do. 24.05
+- Rafael:
+  Extended task list for Scout with preliminary costs and urgencies
+
 # Fr. 25.05
 - Kevin:
   Done: Completed task list with all costs and urgencies etc.
+
+- Rafael:
+  Finished task list for Scout including descriptions for all properties
+  Read into C integration for Simulink
 
 # Sa. 26.05
 - Kevin:
@@ -345,7 +360,13 @@ Daniel: Summary of stuff that is still TODO:
 	always crashes with a fatal abnormal error. Not sure if just on my machine or any.
   Implemented: Very basic stateflow chart to model the transition between active tasks.
 
+- Rafael: Including our C implemented scheduler into simulink generates "fatal error" and causes matlab to crash. Trying different approaches to avoid this behaviour. Was able to make small C functions work in matlab as well as example code from external resources.
+No success in intergrating our implementation.
+
 # So. 27.05
+- Rafael: Continue tries to work our scheduler implementation into stateflow. 
+	Created stateflow framework sans our implementation for demonstration purposes.
+
 - Daniel:
 	Done: Scheduler implements functions to demonstrate the scheduling in c coder
 	Done: Scheduler improvements documented
