@@ -29,7 +29,7 @@ initialize_task_list (struct task_list *task_list)
 
 /* create a specific task */
 struct task*
-create_task (enum task_identifiers task_identifier)
+create_task (enum task_identifiers_collector task_identifier)
   {
     struct task *task = malloc (sizeof (struct task));
     task->task_identifier = task_identifier;

@@ -3,37 +3,33 @@
 #include <stdio.h>
 #include <unistd.h>
 
-//#define TESTING
+#define TESTING
 
 void
 execute_task(struct task *task)
   {
     switch(task->task_identifier) {
-      case TASK_CORRECT_THETA:
+      case COLLECTOR_CORRECT_THETA:
           usleep(500 * 1000);
           printf("Task finished execution after 500ms\n");
           break;
-      case TASK_RECEIVE_SENSOR_READINGS:
+      case COLLECTOR_RECEIVE_SENSOR_READINGS:
           usleep(200 * 1000);
           printf("Task finished execution after 200ms\n");
           break;
-      case TASK_HANDLE_HIGH_SENSOR_READINGS:
+      case COLLECTOR_HANDLE_HIGH_SENSOR_READINGS:
           usleep(1000 * 1000);
           printf("Task finished execution after 1000ms\n");
           break;
-      case TASK_GENERATE_NEW_GOAL:
+      case COLLECTOR_GENERATE_NEW_GOAL:
           usleep(2000 * 1000);
           printf("Task finished execution after 2000ms\n");
           break;
-      case TASK_COMMUNICATE_CURRENT_POSITION:
-          usleep(200 * 1000);
-          printf("Task finished execution after 200ms\n");
-          break;
-      case TASK_HANDLE_REFEREE_UPDATE:
+      case COLLECTOR_HANDLE_REFEREE_UPDATE:
           usleep(300 * 1000);
           printf("Task finished execution after 300ms\n");
           break;
-      case TASK_RECEIVE_HARVESTING_POSITION:
+      case COLLECTOR_RECEIVE_HARVESTING_POSITION:
           usleep(200 * 1000);
           printf("Task finished execution after 200ms\n");
           break;
@@ -41,7 +37,7 @@ execute_task(struct task *task)
   }
 
 void
-interrupt_add_task(enum task_identifiers task_identifier, struct task_list *task_list)
+interrupt_add_task(enum task_identifiers_collector task_identifier, struct task_list *task_list)
   {
     struct task *task = create_task(task_identifier);
     accept_task(task,task_list);
@@ -54,7 +50,7 @@ schedule_next_task(struct task_list *task_list)
   {
     struct task *next_task = schedule(task_list);
     printf("scheduling called -> task with id %i was scheduled\n", next_task->task_identifier);
-    if (next_task->task_identifier != TASK_CORRECT_THETA){
+    if (next_task->task_identifier != COLLECTOR_CORRECT_THETA){
       pop_task(task_list);
       execute_task(next_task);
       free(next_task);
@@ -76,10 +72,10 @@ main(int argc, const char * argv[])
     printf("-------------------------------------- \n");
 
     /* test insertion in increasing priority order */
-    struct task *task1 = create_task(TASK_CORRECT_THETA);
+    struct task *task1 = create_task(COLLECTOR_CORRECT_THETA);
     accept_task (task1, task_list);
 
-    struct task *task2 = create_task(TASK_CORRECT_THETA);
+    struct task *task2 = create_task(COLLECTOR_CORRECT_THETA);
     printf("creating second task worked\n");
 
     accept_task (task2, task_list);
@@ -129,20 +125,20 @@ main(int argc, const char * argv[])
     test_counter += 1;
 
     /* test insertion in decreasing priority order */
-    struct task *task3 = create_task(TASK_GENERATE_NEW_GOAL);
+    struct task *task3 = create_task(COLLECTOR_GENERATE_NEW_GOAL);
     accept_task (task3, task_list);
 
-    struct task *task4 = create_task(TASK_RECEIVE_SENSOR_READINGS);
+    struct task *task4 = create_task(COLLECTOR_RECEIVE_SENSOR_READINGS);
     accept_task (task4, task_list);
 
-    struct task *task5 = create_task(TASK_RECEIVE_SENSOR_READINGS);
+    struct task *task5 = create_task(COLLECTOR_RECEIVE_SENSOR_READINGS);
     accept_task (task5, task_list);
 
-    struct task *task6 = create_task(TASK_CORRECT_THETA);
+    struct task *task6 = create_task(COLLECTOR_CORRECT_THETA);
     accept_task (task6, task_list);
 
     compare_task = pop_task(task_list);
-    if (compare_task != task3)
+    if (compare_task != task4)
       printf("Test %i FAILED!\n", test_counter);
     else
       printf("Test %i passed!\n", test_counter);
@@ -151,7 +147,7 @@ main(int argc, const char * argv[])
     test_counter += 1;
 
     compare_task = pop_task(task_list);
-    if (compare_task->priority != 2)
+    if (compare_task->priority != 3)
       printf("Test %i FAILED!\n", test_counter);
     else
       printf("Test %i passed!\n", test_counter);
@@ -184,20 +180,19 @@ main(int argc, const char * argv[])
     #endif
 
     /* add task which will always be contained to list */
-    struct task *default_task = create_task(TASK_CORRECT_THETA);
+    struct task *default_task = create_task(COLLECTOR_CORRECT_THETA);
     accept_task (default_task, task_list);
 
     schedule_next_task(task_list);
-    interrupt_add_task(TASK_GENERATE_NEW_GOAL, task_list);
-    interrupt_add_task(TASK_RECEIVE_SENSOR_READINGS, task_list);
+    interrupt_add_task(COLLECTOR_GENERATE_NEW_GOAL, task_list);
+    interrupt_add_task(COLLECTOR_RECEIVE_SENSOR_READINGS, task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
-    interrupt_add_task(TASK_RECEIVE_SENSOR_READINGS, task_list);
-    interrupt_add_task(TASK_HANDLE_REFEREE_UPDATE, task_list);
-    interrupt_add_task(TASK_COMMUNICATE_CURRENT_POSITION, task_list);
+    interrupt_add_task(COLLECTOR_RECEIVE_SENSOR_READINGS, task_list);
+    interrupt_add_task(COLLECTOR_HANDLE_REFEREE_UPDATE, task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
