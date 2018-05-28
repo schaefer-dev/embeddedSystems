@@ -311,10 +311,12 @@ We decided against this change for now, as our scheduling is already very low-co
 \subsection*{Testing and Specifics}
 Our C implementation currently works on \verb!task_identifiers_collector! as explained below. The implemenation which would be used on the scout is exactly the same, one would simply replace all occurances of \verb!task_identifiers_collector! with \verb!task_identifiers_scout!
 
-Compiling the scheduler using \verb!make! will create a binary called \verb!scheduler!, which can be run using \verb!./scheduler!. This per default runs all tests (which can be enabled using the C Macro testing defined in \verb!main.c!) and a short demonstration how this works in practice. One can change this demonstration to test any arbitrary scenario, by changing the insertions and schedule calls at the very bottom of the \verb!main()! function in \verb!main.c!. Instead of executing the tasks it used suited values for sleeptime.
+Compiling the scheduler using \verb!make! will create a binary called \verb!scheduler!, which can be run using \verb!./scheduler!. This per default runs all tests (which can be disabled using the C Macro testing defined in \verb!main.c!) and a short demonstration how this works in practice. One can change this demonstration to test any arbitrary scenario, by changing the insertions and schedule calls at the very bottom of the \verb!main()! function in \verb!main.c!. Instead of executing the tasks it uses suited values for sleeptime.
 
 \newpage
 \subsection*{The task enums}
+
+Below you will find the possible values for all task identifiers of both scout and collector
 
 \begin{lstlisting}[]
 /* lower task identifier -> lower priority
