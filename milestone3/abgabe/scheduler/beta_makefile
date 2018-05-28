@@ -1,0 +1,23 @@
+CC = gcc
+CFLAGS = -g -O2
+
+SOURCEDIR = .
+BUILDDIR = build
+
+EXECUTABLE = scheduler
+SOURCES = $(wildcard $(SOURCEDIR)/*.c)
+OBJECTS = $(patsubst $(SOURCEDIR)/%.c,$(BUILDDIR)/%.o,$(SOURCES))
+
+all: dir $(BUILDDIR)/$(EXECUTABLE)
+
+dir:
+	mkdir -p $(BUILDDIR)
+
+$(BUILDDIR)/$(EXECUTABLE): $(OBJECTS)
+	$(CC) $^ -o $@
+
+$(OBJECTS): $(BUILDDIR)/%.o : $(SOURCEDIR)/%.c
+	$(CC) $(FLAGS) $< -o $@
+
+clean:
+	rm -f $(BUILDDIR)/*o $(BUILDDIR)/$(EXECUTABLE)
