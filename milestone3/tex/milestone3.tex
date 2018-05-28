@@ -45,15 +45,25 @@
 
 \begin{document}
 \pagenumbering{gobble}
-\lstset{language=C++}
 
+\lstdefinelanguage{C}{
+	keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+	backgroundcolor = \color{lightgray},
+	numbers = left,
+	keywordstyle=\color{blue}\bfseries,
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	ndkeywordstyle=\color{darkgray}\bfseries,
+	identifierstyle=\color{black},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color{purple}\ttfamily,
+	stringstyle=\color{red}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+\lstset{language=C}
 
-\section*{Scheduler: Decisions and Optimizations}
-Currently the scheduler is implemented using a doubly linked list mainly for conveniance reasons and its flexibiliy.
-
-An optimization that would be applicable in the current task structure is to replace the entire linked list by an 8bit integer using binary encoding. This is possible because our current scheduling plan will assure, that every task will be contained in the queue at most once. The task with the highest priority contained in the list would set the most significant bit to 1, not contained would set it to 0. The task with the second highest priority would set the second most significant bit to 1 if contained, 0 otherwise etc. The 'default task' (correct theta and drive) would not have to be contained in the list, as it will always be contained in the current model. This approach would work for up to 9 Tasks (including the default task), which makes it applicable to our currently planned structure.
-
-Replacing the linked list structure with an 8 bit would significantly decrease the costs of all procedures on the structure, as every procedure would be posible with a single binary operation instead of keeping the list sorted and moving references etc.
 
 \section*{General Scheduling Approach}
 The underlying task of both robots in our model is going to be the task "Orientation and Drive". It is responsible for the robots' movement and will be running whenever there is no other task in the queue. Every $\mathcal{X}$ time units this queue is checked. If there is a more urgent task present, we preempt into this new task. We assume most of our tasks are very light with respect to computation costs, thus this task will be run most of the time.
@@ -99,7 +109,7 @@ This task is generated if the value the photosensors output meets the determined
 	\item \textbf{release time}: since the earliest we can get a new position that we want to send is after [10ms], our release time is at least that
 	\item \textbf{approximate cost}: get current coordinates (2) and write them into a secure memory (2). 4
 	\item \textbf{urgency}, very urgent, should again only be delayed if dependent task is
-	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" task for adding it to the schedule; also dependent on the basic driving task "Orientation and Driving"
+	\item \textbf{dependencies}: dependent on the "Receive Photosensor Readings" task for adding it to the schedule; also dependent on the basic driving task "Orientation and Driving" for position data
 \end{itemize}
 
 \paragraph{Task 3: Communicate Harvest Coordinates}
@@ -131,11 +141,11 @@ Generate new destination where to drive, depending on the implemented strategy. 
   \begin{itemize}
 	\item \textbf{aperiodic:} This task is executed once in the beginning and then gets triggered by Task 4.
 	\item \textbf{preemptive:} Since this task depends on the tactic we implement, it could be arbitrarily long. At the same time, it is not critical for time constraints and can thus be preemted to execute other more urgent tasks.
-  	\item \textbf{Not Known Before-hand:} We neither know when the task will be triggered nor how long it will run before outputting a new destination.
+  	\item \textbf{not known beforehand:} We neither know when the task will be triggered nor how long it will run before outputting a new destination.
   	\item \textbf{release time:} Becomes available as soon as enqueued by other task.
   	\item \textbf{approximate cost:} The cost highly depends on the tactic implemented. For now, we will just randomly generate valid destinations. A simple implementation using the clock (1) and some arithmetic operations (5) could generate such destinations for each x and y. 12
   	\item \textbf{urgency:} It is never a problem when the task gets delayed for some time because the robot will never drive blindly without having a destination. So, when no new destination gets generated for some time the robot will simply remain at its position. The only loss would be that we can not execute our tactic but that is not a big problem compared to hitting team mates or crossing the arena border. Therefore, just as Task 4 this task gets an urgency of 2.
-  	\item \textbf{Dependencies:} This task is executed when the current destination is reached and enqueued by Task 4.
+  	\item \textbf{Dependencies:} This task is executed when the current destination is reached and enqueued by Task 4 "Orientation and Drive".
    	\end{itemize}
 
 \paragraph{Task 6: Communicate Own Position}
@@ -259,5 +269,80 @@ The robot reads a new harvesting position from the RF module and updates its cur
   	\item \textbf{Dependencies:} No dependencies.
    	\end{itemize}
 
+
+\newpage
+\section*{Scheduler: Decisions and Optimizations}
+
+\begin{lstlisting}[]
+/* Struct to maintain references to the entire List */
+struct task_list
+  {
+    struct task *head;
+    struct task *tail;
+    bool is_empty;
+  };
+
+/* element contained in taskList, doubly linked
+   priority will be = task_identifier for now */
+struct task
+  {
+    struct task *prev;
+    struct task *next;
+    enum task_identifiers_collector task_identifier;
+    short priority;
+  };
+\end{lstlisting}
+
+Currently the scheduler is implemented using a sorted doubly linked list mainly for conveniance reasons and its flexibiliy. It does not strictly resemble any scheduler that was presented in the lecutre, as we expect a simple priority sorted queue to be more efficient in our scenario. Every task except for the 'default task' (orient into direction and drive) will have very small cost and very small runtime. This allows us to only schedule whenever a task has finished (except for the default task, which will be interrupted every x timeunits).
+
+Insertion into the tasklist will always happen in a decreasing-priority sorted way (which is very conveniant for the double linked structure). This means that scheduling simply has to take the head of the list. All tasks except for default task will be removed from the tasklist, which means that the scheduling will always schedule the 'default task' if and only if nothing else is contained (as the default task has the lowest priority for both collector and scout).
+
+Every task contains an identifier, which specifies which job it represents as an enum value (different jobs for scout and collector respectively). They are sorted in increasing priority, which makes it possible to additionally use the enum values as priority. These enum values could be replaced by C macros to compiler insert the identifiers as integer, which reduces the neccessary code-base.
+
+We still decided to use a priority field for each task seperate to the idenfier to allow changing of priorities of the same task. This is currently not planned, but we decided to keep this field for now and set it equal to the identifier enum value.
+
+An optimization that would be applicable in the current task structure is to replace the entire linked list by an 8bit integer using binary encoding. This is possible because our current scheduling plan will assure, that every task will be contained in the queue at most once. The task with the highest priority contained in the list would set the most significant bit to 1, not contained would set it to 0. The task with the second highest priority would set the second most significant bit to 1 if contained, 0 otherwise etc. The 'default task' (correct theta and drive) would not have to be contained in the list, as it will always be contained in the current model. This approach would work for up to 9 Tasks (including the default task, as we do not have to track if it is contained or not), which makes it applicable to our currently planned structure.
+
+Replacing the linked list structure with an 8 bit would significantly decrease the costs of all procedures on the structure, as every procedure would be posible with a single binary operation instead of keeping the list sorted and moving references etc.
+
+We decided against this change for now, as our scheduling is already very low-cost and we have to test on the hardware first wether or not it is feasible to guarantee that no task will be contained in the list twice at any point and also how long all the non-default-tasks really take.
+
+
+\subsection*{Testing and Specifics}
+Our C implementation currently works on \verb!task_identifiers_collector! as explained below. The implemenation which would be used on the scout is exactly the same, one would simply replace all occurances of \verb!task_identifiers_collector! with \verb!task_identifiers_scout!
+
+Compiling the scheduler using \verb!make! will create a binary called \verb!scheduler!, which can be run using \verb!./scheduler!. This per default runs all tests (which can be disabled using the C Macro testing defined in \verb!main.c!) and a short demonstration how this works in practice. One can change this demonstration to test any arbitrary scenario, by changing the insertions and schedule calls at the very bottom of the \verb!main()! function in \verb!main.c!. Instead of executing the tasks it uses suited values for sleeptime.
+
+\newpage
+\subsection*{The task enums}
+
+Below you will find the possible values for all task identifiers of both scout and collector
+
+\begin{lstlisting}[]
+/* lower task identifier -> lower priority
+   New tasks are added here with INCREASING PRIORITY */
+enum task_identifiers_collector
+  {
+    COLLECTOR_CORRECT_THETA = 001,
+    COLLECTOR_GENERATE_NEW_GOAL = 002,
+    COLLECTOR_RECEIVE_SENSOR_READINGS = 003,
+    COLLECTOR_HANDLE_HIGH_SENSOR_READINGS = 004,
+    COLLECTOR_RECEIVE_HARVESTING_POSITION = 005,
+    COLLECTOR_HANDLE_REFEREE_UPDATE = 006,
+  };
+
+/* lower task identifier -> lower priority
+   New tasks are added here with INCREASING PRIORITY */
+enum task_identifiers_scout
+  {
+    SCOUT_ORIENTATION_AND_DRIVE = 001,
+    SCOUT_GENERATE_NEW_GOAL = 002,
+    SCOUT_COMMUNICATE_OWN_POSITION = 003,
+    SCOUT_RECEIVE_SENSOR_READINGS = 004,
+    SCOUT_HANDLE_HIGH_SENSOR_READINGS = 005,
+    SCOUT_COMMUNICATE_HARVEST_COORDINATES = 006,
+    SCOUT_HANDLE_REFEREE_UPDATE = 007,
+  };
+\end{lstlisting}
 
 \end{document}
