@@ -10,11 +10,11 @@ execute_task(struct task *task)
   {
     switch(task->task_identifier) {
       case COLLECTOR_CORRECT_THETA:
-          usleep(500 * 1000);
+          usleep(700 * 1000);
           printf("Task finished execution after 500ms\n");
           break;
       case COLLECTOR_RECEIVE_SENSOR_READINGS:
-          usleep(200 * 1000);
+          usleep(800 * 1000);
           printf("Task finished execution after 200ms\n");
           break;
       case COLLECTOR_HANDLE_HIGH_SENSOR_READINGS:
@@ -22,15 +22,15 @@ execute_task(struct task *task)
           printf("Task finished execution after 1000ms\n");
           break;
       case COLLECTOR_GENERATE_NEW_GOAL:
-          usleep(2000 * 1000);
+          usleep(1200 * 1000);
           printf("Task finished execution after 2000ms\n");
           break;
       case COLLECTOR_HANDLE_REFEREE_UPDATE:
-          usleep(300 * 1000);
+          usleep(500 * 1000);
           printf("Task finished execution after 300ms\n");
           break;
       case COLLECTOR_RECEIVE_HARVESTING_POSITION:
-          usleep(200 * 1000);
+          usleep(500 * 1000);
           printf("Task finished execution after 200ms\n");
           break;
     }
@@ -67,7 +67,7 @@ main(int argc, const char * argv[])
     struct task_list *task_list = malloc (sizeof (struct task_list));
     initialize_task_list(task_list);
     #ifdef TESTING
-    printf("-------------------------------------- \n");
+    printf("\n-------------------------------------- \n");
     printf("----------- STARTING TESTS ----------- \n");
     printf("-------------------------------------- \n");
 
@@ -176,13 +176,19 @@ main(int argc, const char * argv[])
 
     printf("-------------------------------------- \n");
     printf("------------ ENDING TESTS ------------ \n");
-    printf("-------------------------------------- \n");
+    printf("-------------------------------------- \n\n");
     #endif
+
+
+    printf("\n-------------------------------------- \n");
+    printf("----------- STARTING DEMO ------------ \n");
+    printf("-------------------------------------- \n");
 
     /* add task which will always be contained to list */
     struct task *default_task = create_task(COLLECTOR_CORRECT_THETA);
     accept_task (default_task, task_list);
 
+    /* Demonstration Code */
     schedule_next_task(task_list);
     interrupt_add_task(COLLECTOR_GENERATE_NEW_GOAL, task_list);
     interrupt_add_task(COLLECTOR_RECEIVE_SENSOR_READINGS, task_list);
@@ -197,4 +203,8 @@ main(int argc, const char * argv[])
     schedule_next_task(task_list);
     schedule_next_task(task_list);
     schedule_next_task(task_list);
+
+    printf("-------------------------------------- \n");
+    printf("------------ ENDING DEMO ------------- \n");
+    printf("-------------------------------------- \n");
   }
