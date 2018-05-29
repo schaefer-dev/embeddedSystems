@@ -50,7 +50,49 @@
 // TODO
 
 \section*{Problem C2}
-// TODO
+\subsection*{a)}
+Ideas for this exercise come from The Byzantine Generals Problem by Marshall Pease and Robert Shostak.
+We can generalize the A(1) algorithm to A(m) by keeping the behaviour for A(0) and defining A(m) recursively on a decreasing m. In particular we define:
+
+$A(0)$:
+\begin{enumerate}
+\item General sends message to all lieutenants.
+\item Lieutenant acts according to the generals command.
+\end{enumerate}
+
+$A(m)$, for $m>0$:
+\begin{enumerate}
+\item General sends message to all lieutenants.
+\item Each lieutenant acts as general in $A(m-1)$ and distributes the command he received in step 1 to the remaining n-2 lieutenants.
+\item Each lieutenant uses the majority of the commands he received from the other lieutenants.
+\end{enumerate}
+We can think of this propagation of messages as a tree where each rank corresponds to one recursion of the algorithm with the root being the initial general. This general propagates the message to all n-1 lieutenants (step 1.) each represented as a child of the root. Each of them again propagates the message to the remaining $n-2$ lieutenants. This continues recursively until the lieutenants are no longer acting as commander but rather just receive the message and save it. In the last iteration, each commander will receive a message by $n-m$ commanders and decide on the majority of them (step 2). In the second to last recursion, those $n-m+1$ values will be passed on and again evaluated by the majority function. Finally, in the last iteration of this procedure each lieutenant will find the final decision to act on and each of the lieutenants will have the same decision as long as $m < \frac{n}{3}$. See part b) for a correctness argument.
+
+\subsection*{b)}
+We want to prove that for $m < \frac{n}{3}$ the above algorithm guarantees that:
+\begin{enumerate}
+\item If the commander is loyal, the generals should follow the commander's decision.
+\item If the commander is a traitor, all loyal generals should decide on the same plan of action, regardless of whether this means attacking or retreating.
+\end{enumerate}
+Given the recursive definition of the problem/algorithm, it would make sense to do a proof by induction.\\
+
+\textbf{Base case for $m=0$:} 
+
+Algorithm $A(0)$ satisfies the assumption that $0 < \frac{n}{3}$ for all $n>0$ and satisfies both conditions because there is no traitor and each lieutenant will do what the commander says which will be the same for all lieutenants.
+
+\textbf{Inductive step:}
+
+\textit{Condition 1:} As per definition, assume $A(m-1)$ satisfies condition 1 if $n > 3m$.\\
+A loyal general would run $A(m)$ and send the command to all lieutenants.\\
+They would again act as (loyal) general and run $A(m-1)$ and send the command to n-1 lieutenants.\\
+$n>3m\\
+\implies n-1>3m-1 \\
+\implies n-1\geq3m \\
+\implies n-1>2m$ for $m\geq1$.
+
+\textit{Condition 2:} Since each lieutenant uses the majority of the commands he receives from the other lieutenants and n-1 of them are loyal, every lieutenant will use the same command.\\
+For condition 2 we know that the general is a traitor and $m-1$ lieutenants are traitors.\\
+So, the general sends the message to at least $3m-1$ loyal generals of which at most $m-1$ are traitors. However, $3m-1 > 3(m-1)$. 
 
 \section*{Problem C3}
 // TODO
