@@ -47,8 +47,21 @@
 \lstset{language=C++}
 
 \section*{Problem C1}
-// TODO
+\subsection*{a)}
+\begin{itemize}
+\item \textbf{Static hardware redundancy:} Multiple identical modules run in parallel and produce outputs. A voter takes the outputs from the modules and produces a majority value which is good for fault masking. The key difference to dynamic hardware redundancy is that all modules constantly run and produce an output (hot standby) and the fault is not detected but only masked. 
 
+\item \textbf{Dynamic hardware redundancy:} There is one default module that produces an output and several identical ''backup'' modules. A fault detector monitors the output of the currently active module. Upon detecting a fault, a switch is activated and the signal of one of the other modules is used providing a recovery from the error. This allows a detection and localisation of the fault. The main difference to static hardware redundancy is that only the output of one module is used. Therefore, it is possible that all the redundant modules are inactive as long as they are not needed (cold standby).
+\end{itemize}
+\subsection*{b)}
+\begin{itemize}
+\item \textbf{Reconnaissance Drone:} The module fails with a chance of $2\%$ which in one year is equivalent to failing $\frac{2}{17520} = 0.00005\%$ in 30 minutes if the module was used for a whole year. However, it is replaced after each flight so the chance of failing is even lower. Since the module is very expensive (and military spending is high enough already) we do not need hardware redundancy in this case.\\
+Another reason against redundancy here is that drones have to be very light and oftentimes run on limited energy (batery or solar) which means we have to keep weight and energy consumption of our hardware to a minimum.
+\item \textbf{Satellite:} In this case, the probablitity of a single module failing during the mission is quite high (about 22\%). Although the module is expensive it might make sense to order three of them because the cost when the mission fails due to a fault might be a lot higher. A hybrid redundancy approach would be most reliable but we don't have enough modules and spares for that.\\
+Whether we choose a dynamic or static approach really depends on the system and the module. If the module is very time critical, a fault detector might be too slow. \\
+On the other hand, a TMR has higher energy consumption which might also be problematic for a satelite. Still, the biggest advantage which is why I would choose a dynamic approach with a fault detector with 1 or 2 spares is that we will actually detect the fault and not only mask it. This way, we can report the fault and take actions to fix it. This would not be possible with a TMR.
+\item \textbf{Reading-Light:} Since the module is checked daily it is not necessary to use a fault detector. Of course it depends on the budget of the airline but considering the high reliability, probably low weight and the fact that it is not immediately replaced we should buy three units. Using them in a TMR circuit it does not matter if one module fails because the voter will output the value of the two working modules.
+\end{itemize}
 \section*{Problem C2}
 \subsection*{a)}
 Ideas for this exercise come from The Byzantine Generals Problem by Marshall Pease and Robert Shostak.
