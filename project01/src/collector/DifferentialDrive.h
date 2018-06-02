@@ -5,14 +5,22 @@
 
 class DifferentialDrive : public Zumo32U4Motors {
 public:
-    float mPosX;
-    float mPosY;
-    float mAngle;
-    float mWheelRadius;
-    float mWheelDistance;
-    DifferentialDrive(float wheelRadius, float wheelDistance, float x,float y, float angle);
-    void drive (float ul, float ur);
-    void reset(float x,float y, float angle);
+    static constexpr float WHEEL_RADIUS = 10;
+    static constexpr float WHEEL_DISTANCE = 10;
+    static float posX;
+    static float posY ;
+    static float angle;
+    static int16_t leftSpeed;
+    static int16_t rightSpeed;
+    static void setLeftSpeed(int16_t speed);
+    static void setRightSpeed(int16_t speed);
+    static void flipLeftMotor(bool flip);
+    static void flipRightMotor(bool flip);
+    static void drive ();
+    static void reset(float x,float y, float angle);
+
+private:
+    DifferentialDrive();
 };
 
 
