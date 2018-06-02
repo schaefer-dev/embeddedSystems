@@ -1,11 +1,22 @@
 #include <Arduino.h>
-#include "../../libs/libzumo/Zumo32U4Motors.h"
+#include "DifferentialDrive.h"
+
+DifferentialDrive motor = DifferentialDrive(10, 10, 0, 0, 0);
+int16_t leftSpeed = 50;
+int16_t rightSpeed = -50;
+
+void drive() {
+    motor.drive(leftSpeed, rightSpeed);
+}
 
 void setup() {
-
+    DifferentialDrive::setLeftSpeed(leftSpeed);
+    DifferentialDrive::setRightSpeed(rightSpeed);
 }
 
 void loop() {
-    Zumo32U4Motors test = Zumo32U4Motors();
-    test.setLeftSpeed(0);
+    drive();
+    delay(1000);
 }
+
+
