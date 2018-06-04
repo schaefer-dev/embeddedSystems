@@ -1,55 +1,13 @@
 #include <Arduino.h>
 #include "DifferentialDrive.h"
+#include "Collector_state.h"
 #include "Coordinates.h"
-#include <math.h>
-
-const int16_t baseSpeed = 50;
-int16_t leftSpeed = baseSpeed;
-int16_t rightSpeed = -baseSpeed;
-
-float destinationX;
-float destinationY;
 
 int ByteReceived;
 
 Coordinate_queue *c_queue;
 
-
-
-float getAngle(float currentX, float currentY) {
-    float vecX = destinationY - currentX;
-    float vecY = destinationY - currentY;
-    float angle = atan(vecY / vecX);
-    if (vecX < 0) angle += 180;
-    if (angle > 180) angle = angle - 360;
-    if (angle < - 180) angle = 360 - angle;
-    return angle;
-}
-
-void thetaCorrection() {
-    float currentX = DifferentialDrive::posX;
-    float currentY = DifferentialDrive::posY;
-
-    // check if destination reached
-    if (currentX == destinationX && currentY == destinationY) {
-        DifferentialDrive::setRightSpeed(0);
-        DifferentialDrive::setLeftSpeed(0);
-        return;
-    }
-
-    // turn towards destination
-    float angle = getAngle(currentX, currentY);
-    float deltaAngle = angle - DifferentialDrive::angle;
-    if (deltaAngle > 0) {
-        // turn left
-        DifferentialDrive::setRightSpeed(baseSpeed);
-        DifferentialDrive::setRightSpeed(-baseSpeed);
-    } else {
-        // turn right
-        DifferentialDrive::setRightSpeed(-baseSpeed);
-        DifferentialDrive::setRightSpeed(baseSpeed);
-    }
-}
+Collector_state *c_state;
 
 void setup() {
     // initialize differential drive
@@ -57,12 +15,14 @@ void setup() {
     DifferentialDrive::setLeftSpeed(leftSpeed);
     DifferentialDrive::setRightSpeed(rightSpeed);
 
+    c_state = new Collector_state();
+
     c_queue = new Coordinate_queue();
     c_queue->append(50,50);
 
     // initialize destination
-    destinationX = 50;
-    destinationY = 50;
+    c_state->destination_x = 50;
+    c_state->destinationY = 50;
 
     // initialize serial connection
     Serial1.begin(9600);
