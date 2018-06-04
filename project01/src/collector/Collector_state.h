@@ -22,7 +22,7 @@ public:
     int left_speed;
     int right_speed;
 
-    const int baseSpeed = 50;
+    const int baseSpeed = 100;
 
 
     float getAngle();
@@ -34,7 +34,7 @@ public:
     void drive();
 
 private:
-    static constexpr float WHEEL_RADIUS = 1.7f;
+    static constexpr float WHEEL_RADIUS = 1.75f;
     static constexpr float WHEEL_DISTANCE = 9.3f;
 
 };

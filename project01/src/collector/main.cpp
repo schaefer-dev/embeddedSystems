@@ -21,8 +21,8 @@ void setup() {
     c_state->setRightSpeed(c_state->right_speed);
 
     // initialize destination
-    c_state->destination_x = 50;
-    c_state->destination_y = 50;
+    c_state->destination_x = 30;
+    c_state->destination_y = 30;
 
     // initialize serial connection
     Serial1.flush();
@@ -38,9 +38,10 @@ void loop() {
     // drive to destination
     c_state->thetaCorrection();
 
+    delay(100);
+
     // Some problem with diff drive?
     c_state->drive();
-    delay(100);
 
     // read new destination entry
     if (Serial1.available() > 0)

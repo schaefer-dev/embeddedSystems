@@ -5,9 +5,13 @@
 #include <stdlib.h>
 #include <Arduino.h>
 
+// 0,0 is top left corner
+// degrees grow in clockwise rotation
 
 const float theta_rotation_threshhold = 10.0f;
-const float destination_reached_threshhold = 1.0f;
+const float destination_reached_threshhold = 2.0f;
+const float timefactor = 0.10f;
+const float rotation_imprecision = 0.7f;
 
 //constructor
 Collector_state::Collector_state(){
@@ -25,15 +29,8 @@ Collector_state::Collector_state(){
 float Collector_state::getAngle() {
     float vecX = destination_x - current_x;
     float vecY = destination_y - current_y;
-    float angle = atan(vecY / vecX);
-    /*if (vecX < 0) angle += 180;
-    if (angle > 180) angle = angle - 360;
-    if (angle < - 180) angle = 360 - angle;*/
+    float angle = atan2(vecY, vecX);
 
-    /* for some reason this blows up program space on roboter */
-    //String text = "Required angle: ";
-    //text += String(angle);
-    //Serial1.println(text);
 
     return angle;
 }
@@ -80,15 +77,15 @@ void Collector_state::thetaCorrection() {
         return;
     }
 
-    if (deltaAngle > 0) {
+    if (deltaAngle < 0) {
         // turn left
-        setRightSpeed(baseSpeed);
-        setLeftSpeed(-baseSpeed);
+        setRightSpeed(1.5 * baseSpeed);
+        setLeftSpeed(0);
         Serial1.println("turning left!");
     } else {
         // turn right
-        setRightSpeed(-baseSpeed);
-        setLeftSpeed(baseSpeed);
+        setRightSpeed(0);
+        setLeftSpeed(1.5 * baseSpeed);
         Serial1.println("turning right!");
     }
 }
@@ -111,8 +108,6 @@ void Collector_state::setRightSpeed(int speed) {
 }
 
 void Collector_state::drive() {
-    float timefactor = 0.1f;
-
     float leftSpeedScaled = (50.0f / WHEEL_RADIUS) * (left_speed / 255.0f);
     float rightSpeedScaled = (50.0f / WHEEL_RADIUS) * (right_speed / 255.0f);
 
@@ -124,7 +119,7 @@ void Collector_state::drive() {
 
     current_x += x_dot * timefactor;
     current_y += y_dot * timefactor;
-    current_angle += angle_dot * timefactor;
+    current_angle += angle_dot * timefactor * rotation_imprecision;
 
     /* TODO
      * this is not working, needs to know time since last call
