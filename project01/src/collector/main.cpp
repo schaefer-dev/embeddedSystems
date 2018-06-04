@@ -16,6 +16,8 @@ void setup() {
     c_queue = new Coordinate_queue();
     c_queue->append(50,50);
 
+    DifferentialDrive::initialize_diff_drive(c_state);
+
     // initialize differential drive
     DifferentialDrive::reset(0,0,0);
     DifferentialDrive::setLeftSpeed(c_state->left_speed);
@@ -26,19 +28,24 @@ void setup() {
     c_state->destination_y = 50;
 
     // initialize serial connection
+    Serial1.flush();
     Serial1.begin(9600);
+    Serial1.flush();
     Serial1.println("--- Start Serial Monitor ---");
     Serial1.println("(Decimal)(Hex)(Character)");
     Serial1.println();
 }
 
 void loop() {
+
     // drive to destination
     c_state->thetaCorrection();
-    // Some problem with diff drive?
-    //DifferentialDrive::drive();
 
-    // read communication
+    // Some problem with diff drive?
+    DifferentialDrive::drive();
+    delay(100);
+
+    // read new destination entry
     if (Serial1.available() > 0)
     {
         ByteReceived = Serial1.read();

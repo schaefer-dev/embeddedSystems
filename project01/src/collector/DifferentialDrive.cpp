@@ -1,47 +1,51 @@
 #include "DifferentialDrive.h"
 #include <math.h>
 
-float DifferentialDrive::posX;
-float DifferentialDrive::posY;
-float DifferentialDrive::angle;
-int16_t DifferentialDrive::leftSpeed;
-int16_t DifferentialDrive::rightSpeed;
+Collector_state *collector_state;
+
+void DifferentialDrive::initialize_diff_drive(Collector_state *collector_state){
+    collector_state = collector_state;
+}
 
 void DifferentialDrive::reset(float x, float y, float a) {
-    posX = x;
-    posY = y;
-    angle = a;
+    collector_state->current_x = x;
+    collector_state->current_y = y;
+    collector_state->current_angle = a;
 }
 
-void DifferentialDrive::setLeftSpeed(int16_t speed) {
+void DifferentialDrive::setLeftSpeed(int speed) {
     Zumo32U4Motors::setLeftSpeed(speed);
-    leftSpeed = speed;
+    collector_state->left_speed = speed;
 }
 
-void DifferentialDrive::setRightSpeed(int16_t speed) {
+void DifferentialDrive::setRightSpeed(int speed) {
     Zumo32U4Motors::setRightSpeed(speed);
-    rightSpeed = speed;
+    collector_state->right_speed = speed;
 }
 
 void DifferentialDrive::flipLeftMotor(bool flip) {
     Zumo32U4Motors::flipLeftMotor(flip);
-    leftSpeed *= -1;
+    collector_state->left_speed *= -1;
 }
 
 void DifferentialDrive::flipRightMotor(bool flip) {
     Zumo32U4Motors::flipRightMotor(flip);
-    rightSpeed *= -1;
+    collector_state->right_speed *= -1;
 }
 
 void DifferentialDrive::drive() {
-    float z = (WHEEL_RADIUS * (leftSpeed + rightSpeed) / 2);
-    float x_dot = z * cos(angle);
-    float y_dot = z * sin(angle);
-    float angle_dot = (WHEEL_RADIUS * (leftSpeed - rightSpeed) / WHEEL_DISTANCE);
+    float z = (WHEEL_RADIUS * (collector_state->left_speed + collector_state->left_speed) / 2);
+    float x_dot = z * cos(collector_state->current_angle);
+    float y_dot = z * sin(collector_state->current_angle);
+    float angle_dot = (WHEEL_RADIUS * (collector_state->left_speed - collector_state->right_speed) / WHEEL_DISTANCE);
 
-    posX += x_dot;
-    posY += y_dot;
-    angle += angle_dot;
+    collector_state->current_x += x_dot;
+    collector_state->current_y += y_dot;
+    collector_state->current_angle += angle_dot;
+
+    collector_state->current_x *= 0.1f;
+    collector_state->current_y *= 0.1f;
+    collector_state->current_angle *= 0.1f;
 
     /* TODO
      * this is not working, needs to know time since last call
