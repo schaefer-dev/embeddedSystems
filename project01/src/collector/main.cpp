@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "DifferentialDrive.h"
+#include "Coordinates.h"
 #include <math.h>
 
 const int16_t baseSpeed = 50;
@@ -10,6 +11,10 @@ float destinationX;
 float destinationY;
 
 int ByteReceived;
+
+Coordinate_queue *c_queue;
+
+
 
 float getAngle(float currentX, float currentY) {
     float vecX = destinationY - currentX;
@@ -51,6 +56,9 @@ void setup() {
     DifferentialDrive::reset(0,0,0);
     DifferentialDrive::setLeftSpeed(leftSpeed);
     DifferentialDrive::setRightSpeed(rightSpeed);
+
+    c_queue = new Coordinate_queue();
+    c_queue->append(50,50);
 
     // initialize destination
     destinationX = 50;
