@@ -10,19 +10,20 @@ Coordinate_queue *c_queue;
 Collector_state *c_state;
 
 void setup() {
-    // initialize differential drive
-    DifferentialDrive::reset(0,0,0);
-    DifferentialDrive::setLeftSpeed(leftSpeed);
-    DifferentialDrive::setRightSpeed(rightSpeed);
 
     c_state = new Collector_state();
 
     c_queue = new Coordinate_queue();
     c_queue->append(50,50);
 
+    // initialize differential drive
+    DifferentialDrive::reset(0,0,0);
+    DifferentialDrive::setLeftSpeed(c_state->left_speed);
+    DifferentialDrive::setRightSpeed(c_state->right_speed);
+
     // initialize destination
     c_state->destination_x = 50;
-    c_state->destinationY = 50;
+    c_state->destination_y = 50;
 
     // initialize serial connection
     Serial1.begin(9600);
@@ -33,8 +34,9 @@ void setup() {
 
 void loop() {
     // drive to destination
-    thetaCorrection();
-    DifferentialDrive::drive();
+    c_state->thetaCorrection();
+    // Some problem with diff drive?
+    //DifferentialDrive::drive();
 
     // read communication
     if (Serial1.available() > 0)

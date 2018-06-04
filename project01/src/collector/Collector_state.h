@@ -19,10 +19,10 @@ public:
     float destination_x;
     float destination_y;
 
-    float left_speed;
-    float right_speed;
+    int left_speed;
+    int right_speed;
 
-    const int16_t baseSpeed = 50;
+    const int baseSpeed = 50.0f;
 
     float getAngle();
 

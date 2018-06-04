@@ -19,4 +19,4 @@ add_pi_executable(scout
 
 # Collector Executable
 add_zumo_executable(collector
-        src/collector/main.cpp src/collector/DifferentialDrive.cpp src/collector/Coordinates.cpp)
+        src/collector/main.cpp src/collector/DifferentialDrive.cpp src/collector/Coordinates.cpp src/collector/Collector_state.cpp)
