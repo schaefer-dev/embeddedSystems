@@ -24,11 +24,18 @@ public:
 
     const int baseSpeed = 50.0f;
 
+
     float getAngle();
 
     void thetaCorrection();
+    void diff_drive_reset(float x, float y, float a);
+    void setLeftSpeed(int speed);
+    void setRightSpeed(int speed);
+    void drive();
 
 private:
+    static constexpr float WHEEL_RADIUS = 10;
+    static constexpr float WHEEL_DISTANCE = 10;
 
 };
 
