@@ -6,8 +6,8 @@
 #include <Arduino.h>
 
 
-const float theta_rotation_threshhold = 4.0f;
-const float destination_reached_threshhold = 7.0f;
+const float theta_rotation_threshhold = 10.0f;
+const float destination_reached_threshhold = 1.0f;
 
 //constructor
 Collector_state::Collector_state(){
@@ -26,9 +26,9 @@ float Collector_state::getAngle() {
     float vecX = destination_x - current_x;
     float vecY = destination_y - current_y;
     float angle = atan(vecY / vecX);
-    if (vecX < 0) angle += 180;
+    /*if (vecX < 0) angle += 180;
     if (angle > 180) angle = angle - 360;
-    if (angle < - 180) angle = 360 - angle;
+    if (angle < - 180) angle = 360 - angle;*/
 
     /* for some reason this blows up program space on roboter */
     //String text = "Required angle: ";
@@ -40,16 +40,6 @@ float Collector_state::getAngle() {
 
 
 void Collector_state::thetaCorrection() {
-
-    Serial1.print("current angle: ");
-    Serial1.println(current_angle);
-    Serial1.print("current position: (");
-    Serial1.print(current_x);
-    Serial1.print(", ");
-    Serial1.print(current_y);
-    Serial1.println(")");
-
-
     // check if destination reached
     if (abs(current_x - destination_x) < destination_reached_threshhold
         && abs(current_y - destination_y) < destination_reached_threshhold) {
@@ -63,9 +53,25 @@ void Collector_state::thetaCorrection() {
     float angle = getAngle();
     float deltaAngle = angle - current_angle;
     int help_angle = ((180 / M_PI) * deltaAngle);
+
+    float currentAnglePrint = current_angle;
+
+    while (currentAnglePrint < 0) currentAnglePrint += 2 * M_PI;
+    while (help_angle < 0) help_angle += 360;
     int deltaDegrees = help_angle % 360;
 
 
+    Serial1.print("current angle: ");
+    Serial1.println(((180 / M_PI) * currentAnglePrint));
+    Serial1.print("soll angle: ");
+    Serial1.println(angle);
+    Serial1.print("deltaAngle angle: ");
+    Serial1.println(deltaAngle);
+    Serial1.print("current position: (");
+    Serial1.print(current_x);
+    Serial1.print(", ");
+    Serial1.print(current_y);
+    Serial1.println(")");
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setRightSpeed(baseSpeed);
@@ -105,18 +111,20 @@ void Collector_state::setRightSpeed(int speed) {
 }
 
 void Collector_state::drive() {
-    float z = (WHEEL_RADIUS * (left_speed + left_speed) / 2);
+    float timefactor = 0.1f;
+
+    float leftSpeedScaled = (50.0f / WHEEL_RADIUS) * (left_speed / 255.0f);
+    float rightSpeedScaled = (50.0f / WHEEL_RADIUS) * (right_speed / 255.0f);
+
+
+    float z = (WHEEL_RADIUS * (leftSpeedScaled + rightSpeedScaled) / 2);
     float x_dot = z * cos(current_angle);
     float y_dot = z * sin(current_angle);
-    float angle_dot = (WHEEL_RADIUS * (left_speed - right_speed) / WHEEL_DISTANCE);
+    float angle_dot = (WHEEL_RADIUS * (leftSpeedScaled - rightSpeedScaled) / WHEEL_DISTANCE);
 
-    current_x += x_dot;
-    current_y += y_dot;
-    current_angle += angle_dot;
-
-    current_x *= 0.1f;
-    current_y *= 0.1f;
-    current_angle *= 0.1f;
+    current_x += x_dot * timefactor;
+    current_y += y_dot * timefactor;
+    current_angle += angle_dot * timefactor;
 
     /* TODO
      * this is not working, needs to know time since last call
