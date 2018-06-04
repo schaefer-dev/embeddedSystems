@@ -3,32 +3,32 @@
 #ifndef Coordinate_queue_H
 #define Coordinate_queue_H
 
-class Coordinate_queue
+class CoordinateQueue
 {
     // internal structure for coordinate nodes
-    struct Coordinate_node
+    struct CoordinateNode
     {
         public:
         int x;
         int y;
-        struct Coordinate_node *next;
+        struct CoordinateNode *next;
     };
 
 public:
     //constructor
-    Coordinate_queue();
+    CoordinateQueue();
 
     //deconstructor
-    ~Coordinate_queue();
+    ~CoordinateQueue();
 
     void append(int x, int y);
 
-    struct Coordinate_node* pop();
+    struct CoordinateNode* pop();
 
 
 private:
-    struct Coordinate_node *head;
-    struct Coordinate_node *tail;
+    struct CoordinateNode *head;
+    struct CoordinateNode *tail;
 };
 
 #endif

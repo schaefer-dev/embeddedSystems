@@ -3,32 +3,25 @@
 #ifndef Collector_state_H
 #define Collector_state_H
 
-class Collector_state
+class CollectorState
 {
 
 public:
-    //constructor
-    Collector_state();
+    CollectorState();
 
-    //deconstructor?
-
-    float current_x;
-    float current_y;
-    float current_angle;
-
-    float destination_x;
-    float destination_y;
-
-    int left_speed;
-    int right_speed;
+    float currentX;
+    float currentY;
+    float currentAngle;
+    float destinationX;
+    float destinationY;
+    int leftSpeed;
+    int rightSpeed;
 
     const int baseSpeed = 100;
 
-
     float getAngle();
-
     void thetaCorrection();
-    void diff_drive_reset(float x, float y, float a);
+    void resetDifferentialDrive(float x, float y, float a);
     void setLeftSpeed(int speed);
     void setRightSpeed(int speed);
     void drive();

@@ -2,42 +2,42 @@
 #include "Coordinates.h"
 
 //constructor
-Coordinate_queue::Coordinate_queue(){
-    head = NULL;
+CoordinateQueue::CoordinateQueue(){
+    head = nullptr;
 }
 
 //deconstructor
-Coordinate_queue::~Coordinate_queue(){
-    Coordinate_node *next_node = head;
-    while (next_node){
-        struct Coordinate_node *delete_node = next_node;
-        next_node = next_node->next;
-        delete delete_node;
+CoordinateQueue::~CoordinateQueue(){
+    CoordinateNode *nextNode = head;
+    while (nextNode){
+        struct CoordinateNode *deleteNode = nextNode;
+        nextNode = nextNode->next;
+        delete deleteNode;
     }
 }
 
 //append to queue
-void Coordinate_queue::append(int x, int y){
-    struct Coordinate_node *coordinate_node = new Coordinate_node();
-    coordinate_node->x = x;
-    coordinate_node->y = y;
-    coordinate_node->next = NULL;
-    if (head == NULL){
-        head = coordinate_node;
-        tail = coordinate_node;
+void CoordinateQueue::append(int x, int y){
+    auto *coordinateNode = new CoordinateNode();
+    coordinateNode->x = x;
+    coordinateNode->y = y;
+    coordinateNode->next = nullptr;
+    if (head == nullptr){
+        head = coordinateNode;
+        tail = coordinateNode;
     } else {
-        tail->next = coordinate_node;
-        tail = coordinate_node;
+        tail->next = coordinateNode;
+        tail = coordinateNode;
     }
 }
 
 //pop queue head
-struct Coordinate_queue::Coordinate_node* Coordinate_queue::pop(){
-    if (head == NULL){
-        return NULL;
+struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(){
+    if (head == nullptr){
+        return nullptr;
     }
-    struct Coordinate_node *return_node = head;
+    struct CoordinateNode *returnNode = head;
 
     head = head->next;
-    return return_node;
+    return returnNode;
 }

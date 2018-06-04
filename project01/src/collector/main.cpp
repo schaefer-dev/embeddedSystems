@@ -1,47 +1,44 @@
 #include <Arduino.h>
-#include "Collector_state.h"
+#include "CollectorState.h"
 #include "Coordinates.h"
 
 int ByteReceived;
 
-Coordinate_queue *c_queue;
-
-Collector_state *c_state;
+CoordinateQueue *coordinateQueue;
+CollectorState *collectorState;
 
 void setup() {
 
-    c_state = new Collector_state();
-
-    c_queue = new Coordinate_queue();
-    c_queue->append(50,50);
+    collectorState = new CollectorState();
+    coordinateQueue = new CoordinateQueue();
+    coordinateQueue->append(50,50);
 
     // initialize differential drive
-    c_state->diff_drive_reset(0,0,0);
-    c_state->setLeftSpeed(c_state->left_speed);
-    c_state->setRightSpeed(c_state->right_speed);
+    collectorState->resetDifferentialDrive(0, 0, 0);
+    collectorState->setLeftSpeed(collectorState->leftSpeed);
+    collectorState->setRightSpeed(collectorState->rightSpeed);
 
     // initialize destination
-    c_state->destination_x = 30;
-    c_state->destination_y = 30;
+    collectorState->destinationX = 30;
+    collectorState->destinationY = 30;
 
     // initialize serial connection
     Serial1.flush();
     Serial1.begin(9600);
     Serial1.flush();
     Serial1.println("--- Start Serial Monitor ---");
-    Serial1.println("(Decimal)(Hex)(Character)");
     Serial1.println();
 }
 
 void loop() {
 
     // drive to destination
-    c_state->thetaCorrection();
+    collectorState->thetaCorrection();
 
     delay(100);
 
     // Some problem with diff drive?
-    c_state->drive();
+    collectorState->drive();
 
     // read new destination entry
     if (Serial1.available() > 0)
