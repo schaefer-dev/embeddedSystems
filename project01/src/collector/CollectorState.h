@@ -22,12 +22,12 @@ public:
 
     /* for base speed 100, 0.47f perfect */
     const float rotationImprecision = 0.55f;     // simple approximation for friction when turning
+    const float straightImprecision = 0.665f;     // simple approximation for friction when driving straight
 
     float getAngle();
     void navigateToDestination();
     void resetDifferentialDrive(float x, float y, float a);
-    void setLeftSpeed(int speed);
-    void setRightSpeed(int speed);
+    void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
 
 private:

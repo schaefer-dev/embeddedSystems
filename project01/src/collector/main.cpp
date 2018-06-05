@@ -17,9 +17,8 @@ void setup() {
     rotationCounter = 0;
 
     // initialize differential updateRoboterPositionAndAngles
+    collectorState->setSpeeds(0,0);
     collectorState->resetDifferentialDrive(0, 0, 0);
-    collectorState->setLeftSpeed(collectorState->leftSpeed);
-    collectorState->setRightSpeed(collectorState->rightSpeed);
 
     // initialize serial connection
     Serial1.flush();
@@ -38,11 +37,9 @@ void setup() {
 }
 
 void loop() {
-
-    if (rotationCounter < 4) {
-        performRotation();
-        rotationCounter += 1;
-    }
+    if(rotationCounter == 0)
+        performStraightDrive(60);
+    rotationCounter = 1;
 
 }
 
@@ -77,8 +74,7 @@ void performRotation(){
     while(loopCondition){
 
         // turn right
-        collectorState->setRightSpeed(-collectorState->baseSpeed);
-        collectorState->setLeftSpeed(collectorState->baseSpeed);
+        collectorState->setSpeeds(collectorState->baseSpeed, -collectorState->baseSpeed);
 
         delay(10);
 
@@ -88,11 +84,37 @@ void performRotation(){
         if (collectorState->currentAngle > startAngle + 2 * M_PI || collectorState->currentAngle < startAngle - 2 * M_PI) {
             loopCondition = false;
             Serial1.println("one rotation performed!");
-            collectorState->setRightSpeed(0);
-            collectorState->setLeftSpeed(0);
+            collectorState->setSpeeds(0, 0);
 
         } else {
             Serial1.println(collectorState->currentAngle);
+        }
+    }
+}
+
+/* perform 1 rotation */
+void performStraightDrive(int cmLength){
+    float startX = collectorState->currentX;
+    float targetX = startX + cmLength;
+    bool loopCondition = true;
+
+    while(loopCondition){
+
+        // drive straight
+        collectorState->setSpeeds(collectorState->baseSpeed, collectorState->baseSpeed);
+
+        delay(10);
+
+        collectorState->updateRoboterPositionAndAngles();
+
+        /* rotation completed condition */
+        if (collectorState->currentX > targetX) {
+            loopCondition = false;
+            Serial1.println("Driving performed!");
+            collectorState->setSpeeds(0, 0);
+
+        } else {
+            Serial1.println(collectorState->currentX);
         }
     }
 }

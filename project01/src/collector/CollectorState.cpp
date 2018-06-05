@@ -41,8 +41,7 @@ void CollectorState::navigateToDestination() {
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
-        setRightSpeed(0);
-        setLeftSpeed(0);
+        setSpeeds(0,0);
         Serial1.println("Destination Reached!");
         return;
     }
@@ -71,21 +70,18 @@ void CollectorState::navigateToDestination() {
     Serial1.println(")");
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
-        setRightSpeed(baseSpeed);
-        setLeftSpeed(baseSpeed);
+        setSpeeds(baseSpeed, baseSpeed);
         Serial1.println("straight ahead!");
         return;
     }
 
     if (deltaAngle < 0) {
         // turn left
-        setRightSpeed(baseSpeed);
-        setLeftSpeed(-baseSpeed);
+        setSpeeds(-baseSpeed, baseSpeed);
         Serial1.println("turning left!");
     } else {
         // turn right
-        setRightSpeed(-baseSpeed);
-        setLeftSpeed(baseSpeed);
+        setSpeeds(baseSpeed, -baseSpeed);
         Serial1.println("turning right!");
     }
 }
@@ -97,20 +93,13 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
     currentAngle = a;
 }
 
-void CollectorState::setLeftSpeed(int speed) {
-    if (leftSpeed == speed)
+void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
-    Zumo32U4Motors::setLeftSpeed(speed);
-    leftSpeed = speed;
-}
-
-void CollectorState::setRightSpeed(int speed) {
-    if (rightSpeed == speed)
-        return;
-    updateRoboterPositionAndAngles();
-    Zumo32U4Motors::setRightSpeed(speed);
-    rightSpeed = speed;
+    Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
+    leftSpeed = newLeftSpeed;
+    rightSpeed = newRightSpeed;
 }
 
 /* this function should be called BEFORE any changes to motors!
@@ -134,8 +123,8 @@ void CollectorState::updateRoboterPositionAndAngles() {
 
     /* TODO use millis here to calculate exact timedifference since last call */
     /* should be (msSinceLastUpdate / 1000) as factor */
-    currentX += x_dot * timefactor;
-    currentY += y_dot * timefactor;
+    currentX += x_dot * timefactor * straightImprecision;
+    currentY += y_dot * timefactor * straightImprecision;
     currentAngle += angle_dot * timefactor * rotationImprecision;
 
     /* TODO

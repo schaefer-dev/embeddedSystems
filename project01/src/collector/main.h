@@ -12,3 +12,4 @@ void loop();
 void driveToDestination();
 void readNewDestinations();
 void performRotation();
+void performStraightDrive(int cmLength);
