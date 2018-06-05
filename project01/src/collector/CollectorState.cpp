@@ -8,11 +8,11 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 10.0f;
-const float destination_reached_threshhold = 3.0f;
+const float theta_rotation_threshhold = 12.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
-CollectorState::CollectorState(){
+CollectorState::CollectorState() {
     currentX = 0.0f;
     currentY = 0.0f;
     currentAngle = 0.0f;
@@ -39,11 +39,19 @@ float CollectorState::getAngle() {
 
 /* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
 bool CollectorState::navigateToDestination() {
+    Serial1.print("POS: (");
+    Serial1.print(currentX);
+    Serial1.print(", ");
+    Serial1.print(currentY);
+    Serial1.print(")");
+    Serial1.flush();
+
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
-        setSpeeds(0,0);
-        Serial1.println("Destination Reached!");
+        setSpeeds(0, 0);
+        Serial1.println("\nDestination Reached!");
+        Serial1.flush();
         destinationReached = true;
         return true;
     }
@@ -51,41 +59,55 @@ bool CollectorState::navigateToDestination() {
     // turn towards destination
     float angle = getAngle();                               // angle of vec from current pos to destination
     float deltaAngle = angle - currentAngle;                // angle we have to turn
-    double deltaAngleDeg = ((180 / M_PI) * deltaAngle);     // deltaAngle in degrees
 
+    /* BEGIN variables only for debug purpose */
     float currentAnglePrint = currentAngle;
-
+    float anglePrint = angle;
     while (currentAnglePrint < 0) currentAnglePrint += 2 * M_PI;
-    while (deltaAngleDeg < 0) deltaAngleDeg += 360;
-    int deltaDegrees = (int)deltaAngleDeg % 360;
+    while (currentAnglePrint > 2 * M_PI) currentAnglePrint -= 2 * M_PI;
+    while (anglePrint < 0) anglePrint += 2 * M_PI;
+    while (anglePrint > 2 * M_PI) anglePrint -= 2 * M_PI;
+    /* END */
 
-    /*
-    Serial1.print("current angle: ");
-    Serial1.println(((180 / M_PI) * currentAnglePrint));
-    Serial1.print("soll angle: ");
-    Serial1.println(angle);
-    Serial1.print("deltaAngle angle: ");
-    Serial1.println(deltaAngle);
-    Serial1.print("current position: (");
-    Serial1.print(currentX);
-    Serial1.print(", ");
-    Serial1.print(currentY);
+    // make sure he always turns in the shortest direction
+    while (deltaAngle > M_PI) deltaAngle -= 2 * M_PI;
+    while (deltaAngle < -M_PI) deltaAngle += 2 * M_PI;
+
+    // calculate current delta in positive degrees
+    double deltaAngleDeg = ((180 / M_PI) * deltaAngle);     // deltaAngle in degrees
+    while (deltaAngleDeg < 0) deltaAngleDeg += 360;
+    double deltaDegrees = deltaAngleDeg;
+
+    Serial1.print("\t IST: ");
+    Serial1.print(currentAnglePrint);
+    Serial1.print(" (");
+    Serial1.print(((180 / M_PI) * currentAnglePrint));
+    Serial1.print(")");
+    Serial1.print("\t SOLL: ");
+    Serial1.print(angle);
+    Serial1.print(" (");
+    Serial1.print(((180 / M_PI) * anglePrint));
+    Serial1.print(")");
+    Serial1.print("\t DELTA : ");
+    Serial1.print(deltaAngle);
+    Serial1.print(" (");
+    Serial1.print(((180 / M_PI) * deltaAngle));
     Serial1.println(")");
-     */
+    Serial1.flush();
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
-        setSpeeds(baseSpeed, baseSpeed);
+        setSpeeds(forwardSpeed, forwardSpeed);
         //Serial1.println("straight ahead!");
         return false;
     }
 
     if (deltaAngle < 0) {
         // turn left
-        setSpeeds(-0.5 * baseSpeed, 0.5 * baseSpeed);
+        setSpeeds(-turningSpeed, turningSpeed);
         //Serial1.println("turning left!");
     } else {
         // turn right
-        setSpeeds(0.5 * baseSpeed, -0.5 * baseSpeed);
+        setSpeeds(turningSpeed, -turningSpeed);
         //Serial1.println("turning right!");
     }
     return false;
@@ -116,23 +138,16 @@ void CollectorState::updateRoboterPositionAndAngles() {
 
 
     float z = (WHEEL_RADIUS * (leftSpeedScaled + rightSpeedScaled) / 2);
-    float x_dot = z * cos((double)currentAngle);
-    float y_dot = z * sin((double)currentAngle);
+    float x_dot = z * cos((double) currentAngle);
+    float y_dot = z * sin((double) currentAngle);
     float angle_dot = (WHEEL_RADIUS * (leftSpeedScaled - rightSpeedScaled) / WHEEL_DISTANCE);
 
     long lastDiffDriveTime = lastDiffDriveCall;
     lastDiffDriveCall = millis();
     long msSinceLastUpdate = lastDiffDriveCall - lastDiffDriveTime;
 
-    float timefactor = msSinceLastUpdate / 1000.0f;
-
-    /* TODO use millis here to calculate exact timedifference since last call */
-    /* should be (msSinceLastUpdate / 1000) as factor */
-    currentX += x_dot * timefactor * straightImprecision;
-    currentY += y_dot * timefactor * straightImprecision;
-    currentAngle += angle_dot * timefactor * rotationImprecision;
-
-    /* TODO
-     * this is not working, needs to know time since last call
-     * such that concrete differntial equation is correct */
+    float timeFactor = msSinceLastUpdate / 1000.0f;
+    currentX += x_dot * timeFactor * straightImprecision;
+    currentY += y_dot * timeFactor * straightImprecision;
+    currentAngle += angle_dot * timeFactor * rotationImprecision;
 }

@@ -19,7 +19,8 @@ public:
     long lastDiffDriveCall;
     bool destinationReached;
 
-    const int baseSpeed = 200;
+    const int forwardSpeed = 200;
+    const int turningSpeed = 100;
 
     /* for base speed rotation of 100, 0.47f perfect */
     /* for base speed rotation of 200, 0.55f perfect */
