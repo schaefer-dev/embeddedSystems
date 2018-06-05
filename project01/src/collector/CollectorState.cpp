@@ -79,13 +79,13 @@ void CollectorState::navigateToDestination() {
 
     if (deltaAngle < 0) {
         // turn left
-        setRightSpeed((int)1.5 * baseSpeed);
-        setLeftSpeed(0);
+        setRightSpeed(baseSpeed);
+        setLeftSpeed(-baseSpeed);
         Serial1.println("turning left!");
     } else {
         // turn right
-        setRightSpeed(0);
-        setLeftSpeed((int)1.5 * baseSpeed);
+        setRightSpeed(-baseSpeed);
+        setLeftSpeed(baseSpeed);
         Serial1.println("turning right!");
     }
 }
@@ -98,11 +98,17 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void CollectorState::setLeftSpeed(int speed) {
+    if (leftSpeed == speed)
+        return;
+    updateRoboterPositionAndAngles();
     Zumo32U4Motors::setLeftSpeed(speed);
     leftSpeed = speed;
 }
 
 void CollectorState::setRightSpeed(int speed) {
+    if (rightSpeed == speed)
+        return;
+    updateRoboterPositionAndAngles();
     Zumo32U4Motors::setRightSpeed(speed);
     rightSpeed = speed;
 }
@@ -122,7 +128,9 @@ void CollectorState::updateRoboterPositionAndAngles() {
 
     long lastDiffDriveTime = lastDiffDriveCall;
     lastDiffDriveCall = millis();
-    long msSinceLastUpdate = lastDiffDriveTime - lastDiffDriveCall;
+    long msSinceLastUpdate = lastDiffDriveCall - lastDiffDriveTime;
+
+    float timefactor = msSinceLastUpdate / 1000.0f;
 
     /* TODO use millis here to calculate exact timedifference since last call */
     /* should be (msSinceLastUpdate / 1000) as factor */

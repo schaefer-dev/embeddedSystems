@@ -18,9 +18,10 @@ public:
     int rightSpeed;
     long lastDiffDriveCall;
 
-    const int baseSpeed = 100;
-    const float timefactor = 0.10f;             // linear scale for differential equation
-    const float rotationImprecision = 0.7f;     // simple approximation for friction when turning
+    const int baseSpeed = 200;
+
+    /* for base speed 100, 0.47f perfect */
+    const float rotationImprecision = 0.55f;     // simple approximation for friction when turning
 
     float getAngle();
     void navigateToDestination();

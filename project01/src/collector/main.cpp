@@ -39,7 +39,7 @@ void setup() {
 
 void loop() {
 
-    if (rotationCounter < 1) {
+    if (rotationCounter < 4) {
         performRotation();
         rotationCounter += 1;
     }
@@ -77,10 +77,10 @@ void performRotation(){
     while(loopCondition){
 
         // turn right
-        collectorState->setRightSpeed(0);
-        collectorState->setLeftSpeed((int)1.5 * collectorState->baseSpeed);
+        collectorState->setRightSpeed(-collectorState->baseSpeed);
+        collectorState->setLeftSpeed(collectorState->baseSpeed);
 
-        delay(collectorState->timefactor * 1000);
+        delay(10);
 
         collectorState->updateRoboterPositionAndAngles();
 
