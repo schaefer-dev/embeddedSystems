@@ -30,18 +30,18 @@ void setup() {
     Serial1.println();
 
 
-    // initialize destination
-    coordinateQueue->append(30,30);
-    coordinateQueue->append(0,0);
-
     collectorState->lastDiffDriveCall = millis();
 }
 
 void loop() {
 
+    /* Default roboter code */
+    readNewDestinations();
     driveToDestination();
-
     collectorState->updateRoboterPositionAndAngles();
+
+
+    /* Testing Code: */
 }
 
 
@@ -56,6 +56,7 @@ bool driveToDestination(){
             collectorState->setSpeeds(0,0);
             return false;
         }
+
         collectorState->destinationX = node->x;
         collectorState->destinationY = node->y;
         collectorState->destinationReached = false;
@@ -65,15 +66,23 @@ bool driveToDestination(){
 
 void readNewDestinations(){
     // read new destination entry
-    if (Serial1.available() > 0)
+    if (Serial1.available() > 2)
     {
-        ByteReceived = Serial1.read();
-        Serial1.print(ByteReceived);
-        Serial1.print("        ");
-        Serial1.print(ByteReceived, HEX);
-        Serial1.print("       ");
-        Serial1.print(char(ByteReceived));
-        Serial1.println();
+        int xDestination = 0;
+        int yDestination = 0;
+
+        xDestination = Serial1.parseInt();
+        yDestination = Serial1.parseInt();
+
+        Serial1.print("NEW DESTINATION IN QUEUE: (");
+        Serial1.print(xDestination);
+        Serial1.print(", ");
+        Serial1.print(yDestination);
+        Serial1.println(")");
+        Serial1.flush();
+
+        coordinateQueue->append(xDestination,yDestination);
+
     }
 }
 

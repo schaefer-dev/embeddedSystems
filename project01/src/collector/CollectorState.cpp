@@ -59,6 +59,7 @@ bool CollectorState::navigateToDestination() {
     while (deltaAngleDeg < 0) deltaAngleDeg += 360;
     int deltaDegrees = (int)deltaAngleDeg % 360;
 
+    /*
     Serial1.print("current angle: ");
     Serial1.println(((180 / M_PI) * currentAnglePrint));
     Serial1.print("soll angle: ");
@@ -70,21 +71,22 @@ bool CollectorState::navigateToDestination() {
     Serial1.print(", ");
     Serial1.print(currentY);
     Serial1.println(")");
+     */
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setSpeeds(baseSpeed, baseSpeed);
-        Serial1.println("straight ahead!");
+        //Serial1.println("straight ahead!");
         return false;
     }
 
     if (deltaAngle < 0) {
         // turn left
         setSpeeds(-0.5 * baseSpeed, 0.5 * baseSpeed);
-        Serial1.println("turning left!");
+        //Serial1.println("turning left!");
     } else {
         // turn right
         setSpeeds(0.5 * baseSpeed, -0.5 * baseSpeed);
-        Serial1.println("turning right!");
+        //Serial1.println("turning right!");
     }
     return false;
 }

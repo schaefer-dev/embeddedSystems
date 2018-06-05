@@ -405,4 +405,6 @@ No success in intergrating our implementation.
       const float timefactor = 0.10f;             // linear scale for differential equation
       const float rotationImprecision = 0.7f;     // simple approximation for friction when turning
   for now, but this should be improved by running specific tests
+
+  BUG ENCOUNTERED: Rotation condition if driving from 0,0 to 10,0 to 0,0 broken. After reaching 10,0 - turns back and forth and never drives towards 0,0
     
