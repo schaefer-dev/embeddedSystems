@@ -5,16 +5,18 @@
 
 class CoordinateQueue
 {
+
+public:
+
     // internal structure for coordinate nodes
     struct CoordinateNode
     {
-        public:
+    public:
         int x;
         int y;
         struct CoordinateNode *next;
     };
 
-public:
     //constructor
     CoordinateQueue();
 

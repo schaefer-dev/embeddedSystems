@@ -9,7 +9,7 @@
 
 void setup();
 void loop();
-void driveToDestination();
+bool driveToDestination();
 void readNewDestinations();
 void performRotation();
 void performStraightDrive(int cmLength);

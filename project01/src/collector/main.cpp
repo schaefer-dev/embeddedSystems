@@ -8,6 +8,7 @@ int ByteReceived;
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 int rotationCounter;
+bool endProgram;
 
 void setup() {
 
@@ -19,6 +20,7 @@ void setup() {
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0,0);
     collectorState->resetDifferentialDrive(0, 0, 0);
+    endProgram = false;
 
     // initialize serial connection
     Serial1.flush();
@@ -29,18 +31,17 @@ void setup() {
 
 
     // initialize destination
-    collectorState->destinationX = 30;
-    collectorState->destinationY = 30;
-    coordinateQueue->append(50,50);
+    coordinateQueue->append(30,30);
+    coordinateQueue->append(0,0);
 
     collectorState->lastDiffDriveCall = millis();
 }
 
 void loop() {
-    if(rotationCounter == 0)
-        performStraightDrive(60);
-    rotationCounter = 1;
 
+    driveToDestination();
+
+    collectorState->updateRoboterPositionAndAngles();
 }
 
 
@@ -48,8 +49,18 @@ void loop() {
 /* ----------------- HELPER FUNCTIONS -------------------------*/
 /* ------------------------------------------------------------*/
 
-void driveToDestination(){
-    performRotation();
+bool driveToDestination(){
+    if (collectorState->destinationReached) {
+        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop();
+        if (node == nullptr){
+            collectorState->setSpeeds(0,0);
+            return false;
+        }
+        collectorState->destinationX = node->x;
+        collectorState->destinationY = node->y;
+        collectorState->destinationReached = false;
+    }
+    return collectorState->navigateToDestination();
 }
 
 void readNewDestinations(){

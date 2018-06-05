@@ -17,15 +17,17 @@ public:
     int leftSpeed;
     int rightSpeed;
     long lastDiffDriveCall;
+    bool destinationReached;
 
     const int baseSpeed = 200;
 
-    /* for base speed 100, 0.47f perfect */
-    const float rotationImprecision = 0.55f;     // simple approximation for friction when turning
+    /* for base speed rotation of 100, 0.47f perfect */
+    /* for base speed rotation of 200, 0.55f perfect */
+    const float rotationImprecision = 0.47f;     // simple approximation for friction when turning
     const float straightImprecision = 0.665f;     // simple approximation for friction when driving straight
 
     float getAngle();
-    void navigateToDestination();
+    bool navigateToDestination();
     void resetDifferentialDrive(float x, float y, float a);
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();

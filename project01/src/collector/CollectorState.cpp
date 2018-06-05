@@ -9,7 +9,7 @@
 // degrees grow in clockwise rotation
 
 const float theta_rotation_threshhold = 10.0f;
-const float destination_reached_threshhold = 2.0f;
+const float destination_reached_threshhold = 3.0f;
 
 //constructor
 CollectorState::CollectorState(){
@@ -21,6 +21,7 @@ CollectorState::CollectorState(){
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
+    destinationReached = true;
 }
 
 /*
@@ -37,13 +38,14 @@ float CollectorState::getAngle() {
 
 
 /* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
-void CollectorState::navigateToDestination() {
+bool CollectorState::navigateToDestination() {
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0,0);
         Serial1.println("Destination Reached!");
-        return;
+        destinationReached = true;
+        return true;
     }
 
     // turn towards destination
@@ -72,18 +74,19 @@ void CollectorState::navigateToDestination() {
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setSpeeds(baseSpeed, baseSpeed);
         Serial1.println("straight ahead!");
-        return;
+        return false;
     }
 
     if (deltaAngle < 0) {
         // turn left
-        setSpeeds(-baseSpeed, baseSpeed);
+        setSpeeds(-0.5 * baseSpeed, 0.5 * baseSpeed);
         Serial1.println("turning left!");
     } else {
         // turn right
-        setSpeeds(baseSpeed, -baseSpeed);
+        setSpeeds(0.5 * baseSpeed, -0.5 * baseSpeed);
         Serial1.println("turning right!");
     }
+    return false;
 }
 
 
