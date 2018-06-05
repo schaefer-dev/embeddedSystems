@@ -16,15 +16,18 @@ public:
     float destinationY;
     int leftSpeed;
     int rightSpeed;
+    long lastDiffDriveCall;
 
     const int baseSpeed = 100;
+    const float timefactor = 0.10f;             // linear scale for differential equation
+    const float rotationImprecision = 0.7f;     // simple approximation for friction when turning
 
     float getAngle();
-    void thetaCorrection();
+    void navigateToDestination();
     void resetDifferentialDrive(float x, float y, float a);
     void setLeftSpeed(int speed);
     void setRightSpeed(int speed);
-    void drive();
+    void updateRoboterPositionAndAngles();
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;

@@ -432,7 +432,7 @@ void QTRSensorsRC::readPrivate(unsigned int *sensor_values)
     {
         sensor_values[i] = _maxValue;
         digitalWrite(_pins[i], HIGH);   // make sensor line an output
-        pinMode(_pins[i], OUTPUT);      // drive sensor line high
+        pinMode(_pins[i], OUTPUT);      // updateRoboterPositionAndAngles sensor line high
     }
 
     delayMicroseconds(10);              // charge lines for 10 us

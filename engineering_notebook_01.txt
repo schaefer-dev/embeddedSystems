@@ -379,3 +379,30 @@ No success in intergrating our implementation.
 - Kevin:
 		Bugfixing, Matlab function
 		
+
+-------------------------- Engineering Notebook 04 --------------------------
+---------------------------- Week 01.06 - 11.06 -----------------------------
+-----------------------------------------------------------------------------
+--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
+-----------------------------------------------------------------------------
+
+# Fr. 01.06
+- Group Meeting:
+    Motor testing with robots, reading into libraries + datasheet
+    Serial Communication + setup
+
+- Daniel: 
+    Driver issue with serial detection, fixed using `CH34x_Install_V1.3.pkg`
+
+# Mon. 04.06
+- Daniel:
+  Implemented Queue for Destinations
+  Implemented Class which observes and changes physical roboter state
+
+- Group Meeting:
+  Differential Drive Problems encountered, very imprecise. For Collector we used 
+      
+      const float timefactor = 0.10f;             // linear scale for differential equation
+      const float rotationImprecision = 0.7f;     // simple approximation for friction when turning
+  for now, but this should be improved by running specific tests
+    

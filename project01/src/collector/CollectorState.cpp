@@ -10,8 +10,6 @@
 
 const float theta_rotation_threshhold = 10.0f;
 const float destination_reached_threshhold = 2.0f;
-const float timefactor = 0.10f;             // linear scale for differential equation
-const float rotationImprecision = 0.7f;     // simple approximation for friction when turning
 
 //constructor
 CollectorState::CollectorState(){
@@ -22,6 +20,7 @@ CollectorState::CollectorState(){
     destinationY = 0.0f;
     leftSpeed = 0;
     rightSpeed = 0;
+    lastDiffDriveCall = 0;
 }
 
 /*
@@ -37,7 +36,8 @@ float CollectorState::getAngle() {
 }
 
 
-void CollectorState::thetaCorrection() {
+/* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
+void CollectorState::navigateToDestination() {
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
@@ -107,7 +107,10 @@ void CollectorState::setRightSpeed(int speed) {
     rightSpeed = speed;
 }
 
-void CollectorState::drive() {
+/* this function should be called BEFORE any changes to motors!
+ * TODO: might be worth to call this function at the start of setLeft/Right speed to avoid any imprecisions,
+ * if implemented properly using millis */
+void CollectorState::updateRoboterPositionAndAngles() {
     float leftSpeedScaled = (50.0f / WHEEL_RADIUS) * (leftSpeed / 255.0f);
     float rightSpeedScaled = (50.0f / WHEEL_RADIUS) * (rightSpeed / 255.0f);
 
@@ -117,6 +120,12 @@ void CollectorState::drive() {
     float y_dot = z * sin((double)currentAngle);
     float angle_dot = (WHEEL_RADIUS * (leftSpeedScaled - rightSpeedScaled) / WHEEL_DISTANCE);
 
+    long lastDiffDriveTime = lastDiffDriveCall;
+    lastDiffDriveCall = millis();
+    long msSinceLastUpdate = lastDiffDriveTime - lastDiffDriveCall;
+
+    /* TODO use millis here to calculate exact timedifference since last call */
+    /* should be (msSinceLastUpdate / 1000) as factor */
     currentX += x_dot * timefactor;
     currentY += y_dot * timefactor;
     currentAngle += angle_dot * timefactor * rotationImprecision;

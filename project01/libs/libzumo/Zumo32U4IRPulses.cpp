@@ -73,13 +73,13 @@ void Zumo32U4IRPulses::start(Direction direction, uint16_t brightness, uint16_t 
 
 void Zumo32U4IRPulses::stop()
 {
-    // Prepare the PWM pin to drive low.  We don't want to just set it as an
+    // Prepare the PWM pin to updateRoboterPositionAndAngles low.  We don't want to just set it as an
     // input because then it might decay from high to low gradually and the
     // LEDs would not turn off immediately.
     PORTC &= ~(1 << 6);
     DDRC |= (1 << 6);
 
-    // Disconnect the PWM signal from the pin, causing it to drive low.  We must
+    // Disconnect the PWM signal from the pin, causing it to updateRoboterPositionAndAngles low.  We must
     // do this before stopping the timer to avoid glitches.
     TCCR3A = (1 << WGM31);
 
