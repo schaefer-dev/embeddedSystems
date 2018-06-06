@@ -9,6 +9,14 @@ CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
+const uint8_t PROXIMITY_THRESHOLD = 6;   // (10-6) * 5cm = 20cm
+
+/* used for demonstration and testing of individual functionalities */
+const uint8_t MODE_DESTINATION = 1;
+const uint8_t MODE_HUNT_OBJECT = 2;
+const uint8_t MODE_COMMUNICATION = 3;
+uint8_t modeOfOperation = MODE_DESTINATION;
+
 void setup() {
 
     proximitySensors = new Zumo32U4ProximitySensors();
@@ -54,14 +62,21 @@ void setup() {
 void loop() {
 
     /* Default roboter code */
-    //readNewDestinations();
-    //if (driveToDestination()) {
-    //    performRotation();
-    //}
-    //collectorState->updateRoboterPositionAndAngles();
+    if (modeOfOperation == MODE_DESTINATION) {
+        readNewDestinations();
+        if (driveToDestination()) {
+            performRotation();
+        }
+        collectorState->updateRoboterPositionAndAngles();
+    }
+    else if (modeOfOperation == MODE_HUNT_OBJECT) {
+        huntObject();
+    }
+    else if (modeOfOperation == MODE_COMMUNICATION) {
+        // TODO
+    }
 
     /* Testing code */
-    huntObject();
 }
 
 
@@ -73,14 +88,11 @@ void loop() {
 void huntObject(){
     proximitySensors->read();
 
-    delay(5);
+    // delay(5);
 
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
-
     uint8_t frontRightSensorValue = proximitySensors->countsFrontWithRightLeds();
-
     uint8_t leftSensorValue = proximitySensors->countsLeftWithLeftLeds();
-
     uint8_t rightSensorValue = proximitySensors->countsRightWithRightLeds();
 
     float averageFrontSensorValue = (frontLeftSensorValue + frontRightSensorValue) / 2.0f;
@@ -96,29 +108,33 @@ void huntObject(){
     Serial1.println("");
 #endif
 
-    return;
-    if (frontLeftSensorValue > 5 && frontRightSensorValue > 5){
+    
+
+    if (frontLeftSensorValue > PROXIMITY_THRESHOLD && frontRightSensorValue > PROXIMITY_THRESHOLD){
         collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
         return;
     }
 
-    if (frontLeftSensorValue > 5){
+    if (frontLeftSensorValue > PROXIMITY_THRESHOLD){
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
     }
 
-    if (frontRightSensorValue > 5){
-        collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
-    }
-
-    if (leftSensorValue > 4 && averageFrontSensorValue < leftSensorValue){
-        collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
-    }
-
-    if (rightSensorValue > 4 && averageFrontSensorValue < rightSensorValue){
+    if (frontRightSensorValue > PROXIMITY_THRESHOLD){
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
     }
 
 
+    /* TODO @Daniel ich glaube die unteren beiden conditions sollten vor die vorheringen beiden
+     * sonst könnte es sein dass wir nach rechts drehen (frontRightSensor = 7) und dann sofort wieder nach rechts weil 
+     * rightSensor = 10. Und in jede condition sollte ein return. Bin mir aber nicht sicher.
+     */
+    if (leftSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < leftSensorValue){
+        collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
+    }
+
+    if (rightSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < rightSensorValue){
+        collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
+    }
 }
 
 

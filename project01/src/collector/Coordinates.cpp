@@ -48,7 +48,7 @@ struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, flo
     auto *nextNode = head;
     while (nextNode){
         float distance = sqrt(pow(currentX - nextNode->x, 2) + pow(currentY - nextNode->y, 2));
-        if (distance < bestDistance) {
+        if (distance <= bestDistance) {
             bestDistance = distance;
             bestNode = nextNode;
         }
