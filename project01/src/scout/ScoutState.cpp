@@ -1,8 +1,10 @@
 #include "ScoutState.h"
 #include "OrangutanMotors.h"
 #include "OrangutanTime.h"
+#include <OrangutanSerial.h>
 #include <math.h>
 #include <stdlib.h>
+#include "main.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -39,11 +41,11 @@ float ScoutState::getAngle() {
 /* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
 bool ScoutState::navigateToDestination() {
 #ifdef DEBUG
-    Serial1.print("POS: (");
-    Serial1.print(currentX);
-    Serial1.print(", ");
-    Serial1.print(currentY);
-    Serial1.print(")");
+    //Serial1.print("POS: (");
+    //Serial1.print(currentX);
+    //Serial1.print(", ");
+    //Serial1.print(currentY);
+    //Serial1.print(")");
 #endif
 
     // check if destination reached
@@ -51,7 +53,7 @@ bool ScoutState::navigateToDestination() {
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
 #ifdef DEBUG
-        Serial1.println("\nDestination Reached!");
+        serial_send("\nDestination Reached!\n", 22);
 #endif
         destinationReached = true;
         return true;
@@ -80,7 +82,7 @@ bool ScoutState::navigateToDestination() {
     double deltaDegrees = deltaAngleDeg;
 
 #ifdef DEBUG
-    Serial1.print("\t IST: ");
+    /*Serial1.print("\t IST: ");
     Serial1.print(currentAnglePrint);
     Serial1.print(" (");
     Serial1.print(((180 / M_PI) * currentAnglePrint));
@@ -94,7 +96,7 @@ bool ScoutState::navigateToDestination() {
     Serial1.print(deltaAngle);
     Serial1.print(" (");
     Serial1.print(((180 / M_PI) * deltaAngle));
-    Serial1.println(")");
+    Serial1.println(")");*/
 #endif
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {

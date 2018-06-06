@@ -1,9 +1,9 @@
-#include "../collector/Coordinates.h"
 #include "ScoutState.h"
 #include <OrangutanTime.h>
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
+#include "../collector/Coordinates.h"
 
 
 CoordinateQueue *coordinateQueue;
@@ -20,8 +20,8 @@ int main() {
     scoutState->setSpeeds(0, 0);
     scoutState->resetDifferentialDrive(0, 0, 0);
 
-    // initialize serial connection
 #ifdef DEBUG
+    // initialize serial connection
     serial_set_baud_rate(9600);
     serial_send("--- Start Serial Monitor ---\n", 29);
 #endif
@@ -80,9 +80,13 @@ void readNewDestinations() {
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
     if (serial_get_received_bytes() > 2) {
+
+        serial_send("--- I received something ---\n", 29);
+
         int xDestination = 0;
         int yDestination = 0;
 
+        /*
         xDestination = Serial1.parseInt();
         yDestination = Serial1.parseInt();
 
@@ -94,6 +98,7 @@ void readNewDestinations() {
         Serial1.flush();
 
         coordinateQueue->append(xDestination, yDestination);
+         */
     }
 #endif
 }
@@ -116,7 +121,7 @@ void performRotation() {
             scoutState->currentAngle < startAngle - 2 * M_PI) {
             loopCondition = false;
 #ifdef DEBUG
-            Serial1.println("One rotation performed!");
+            serial_send("One rotation performed!\n", 24);
 #endif
             scoutState->setSpeeds(0, 0);
 
@@ -142,14 +147,25 @@ void performStraightDrive(int cmLength) {
         if (scoutState->currentX > targetX) {
             loopCondition = false;
 #ifdef DEBUG
-            Serial1.println("Driving performed!");
+            serial_send("Driving performed!\n", 19);
 #endif
             scoutState->setSpeeds(0, 0);
 
         } else {
 #ifdef DEBUG
-            Serial1.println(scoutState->currentX);
+            //Serial1.println(scoutState->currentX);
 #endif
         }
     }
+}
+
+
+void operator delete(void* ptr) { free(ptr); }
+
+void *operator new(size_t size) {
+    return malloc(size);
+}
+
+void *operator new[](size_t size) {
+    return malloc(size);
 }

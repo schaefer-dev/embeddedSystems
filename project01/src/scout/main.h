@@ -7,11 +7,14 @@
 
 #endif //EMBEDDEDSYSTEMS18_MAIN_H
 
+#include <stdlib.h>
+
 /* debug define to enable serial output/inputs to save program memory */
-// #define DEBUG
+#define DEBUG
 
 int main();
 bool driveToDestination();
 void readNewDestinations();
 void performRotation();
 void performStraightDrive(int cmLength);
+
