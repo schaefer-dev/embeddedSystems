@@ -44,14 +44,12 @@ bool CollectorState::navigateToDestination() {
     Serial1.print(", ");
     Serial1.print(currentY);
     Serial1.print(")");
-    Serial1.flush();
 
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
         Serial1.println("\nDestination Reached!");
-        Serial1.flush();
         destinationReached = true;
         return true;
     }
@@ -93,7 +91,6 @@ bool CollectorState::navigateToDestination() {
     Serial1.print(" (");
     Serial1.print(((180 / M_PI) * deltaAngle));
     Serial1.println(")");
-    Serial1.flush();
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setSpeeds(forwardSpeed, forwardSpeed);

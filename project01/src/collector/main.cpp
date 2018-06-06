@@ -21,9 +21,7 @@ void setup() {
     collectorState->resetDifferentialDrive(0, 0, 0);
 
     // initialize serial connection
-    Serial1.flush();
     Serial1.begin(9600);
-    Serial1.flush();
     Serial1.println("--- Start Serial Monitor ---");
     Serial1.println();
 
