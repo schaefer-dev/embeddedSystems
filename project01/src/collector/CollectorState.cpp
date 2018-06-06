@@ -1,4 +1,3 @@
-#include <stddef.h>
 #include "CollectorState.h"
 #include "Zumo32U4Motors.h"
 #include <math.h>
@@ -39,17 +38,21 @@ float CollectorState::getAngle() {
 
 /* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
 bool CollectorState::navigateToDestination() {
+#ifdef DEBUG
     Serial1.print("POS: (");
     Serial1.print(currentX);
     Serial1.print(", ");
     Serial1.print(currentY);
     Serial1.print(")");
+#endif
 
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
+#ifdef DEBUG
         Serial1.println("\nDestination Reached!");
+#endif
         destinationReached = true;
         return true;
     }
@@ -76,6 +79,7 @@ bool CollectorState::navigateToDestination() {
     while (deltaAngleDeg < 0) deltaAngleDeg += 360;
     double deltaDegrees = deltaAngleDeg;
 
+#ifdef DEBUG
     Serial1.print("\t IST: ");
     Serial1.print(currentAnglePrint);
     Serial1.print(" (");
@@ -91,6 +95,7 @@ bool CollectorState::navigateToDestination() {
     Serial1.print(" (");
     Serial1.print(((180 / M_PI) * deltaAngle));
     Serial1.println(")");
+#endif
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setSpeeds(forwardSpeed, forwardSpeed);

@@ -1,5 +1,3 @@
-#include <stddef.h>
-
 #ifndef Coordinate_queue_H
 #define Coordinate_queue_H
 

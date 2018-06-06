@@ -3,6 +3,7 @@
 #include "CollectorState.h"
 #include "Coordinates.h"
 #include "main.h"
+#include <math.h>
 
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
@@ -21,13 +22,16 @@ void setup() {
     collectorState->resetDifferentialDrive(0, 0, 0);
 
     // initialize serial connection
+#ifdef DEBUG
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
     Serial1.println();
+#endif
 
     proximitySensors->initThreeSensors();
     //proximitySensors->initFrontSensor();
 
+    // TODO: in ARDUINO.h, might blow up programming memory
     collectorState->lastDiffDriveCall = millis();
 }
 
@@ -65,6 +69,7 @@ void huntObject(){
 
     float averageFrontSensorValue = (frontLeftSensorValue + frontRightSensorValue) / 2.0f;
 
+#ifdef DEBUG
     Serial1.print(leftSensorValue);
     Serial1.print(", ");
     Serial1.print(frontLeftSensorValue);
@@ -73,6 +78,7 @@ void huntObject(){
     Serial1.print(", ");
     Serial1.print(rightSensorValue);
     Serial1.println("");
+#endif
 
     if (frontLeftSensorValue > 5 && frontRightSensorValue > 5){
         collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
@@ -125,6 +131,7 @@ bool driveToDestination() {
  */
 void readNewDestinations() {
     // read new destination entry
+#ifdef DEBUG
     if (Serial1.available() > 2) {
         int xDestination = 0;
         int yDestination = 0;
@@ -141,6 +148,7 @@ void readNewDestinations() {
 
         coordinateQueue->append(xDestination, yDestination);
     }
+#endif
 }
 
 /**
@@ -160,7 +168,9 @@ void performRotation() {
         if (collectorState->currentAngle > startAngle + 2 * M_PI ||
             collectorState->currentAngle < startAngle - 2 * M_PI) {
             loopCondition = false;
+#ifdef DEBUG
             Serial1.println("One rotation performed!");
+#endif
             collectorState->setSpeeds(0, 0);
 
         }
@@ -184,11 +194,15 @@ void performStraightDrive(int cmLength) {
         /* rotation completed condition */
         if (collectorState->currentX > targetX) {
             loopCondition = false;
+#ifdef DEBUG
             Serial1.println("Driving performed!");
+#endif
             collectorState->setSpeeds(0, 0);
 
         } else {
+#ifdef DEBUG
             Serial1.println(collectorState->currentX);
+#endif
         }
     }
 }

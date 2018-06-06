@@ -1,5 +1,3 @@
-#include <stddef.h>
-
 #ifndef Collector_state_H
 #define Collector_state_H
 
