@@ -23,7 +23,7 @@ public:
 
     void append(int x, int y);
 
-    struct CoordinateNode* pop();
+    struct CoordinateNode* pop(float, float);
 
 
 private:

@@ -1,5 +1,5 @@
 #include "Coordinates.h"
-
+#include "math.h"
 //constructor
 CoordinateQueue::CoordinateQueue(){
     head = nullptr;
@@ -30,13 +30,30 @@ void CoordinateQueue::append(int x, int y){
     }
 }
 
-//pop queue head
-struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(){
+/**
+ * Returns the closest destination based on euclidean distance.
+ * If multiple destinations have the same distance, chooses by FIFO
+ * @param currentX
+ * @param currentY
+ * @return Pointer to the destination CoordinateNode
+ */
+struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, float currentY){
     if (head == nullptr){
         return nullptr;
     }
-    struct CoordinateNode *returnNode = head;
 
-    head = head->next;
-    return returnNode;
+    struct CoordinateNode *bestNode = nullptr;
+    float bestDistance = INFINITY;
+
+    auto *nextNode = head;
+    while (nextNode){
+        float distance = sqrt(pow(currentX - nextNode->x, 2) + pow(currentY - nextNode->y, 2));
+        if (distance < bestDistance) {
+            bestDistance = distance;
+            bestNode = nextNode;
+        }
+        nextNode = nextNode->next;
+    }
+
+    return bestNode;
 }

@@ -12,10 +12,27 @@ Zumo32U4ProximitySensors *proximitySensors;
 void setup() {
 
     proximitySensors = new Zumo32U4ProximitySensors();
+    //uint16_t defaultBrightnessLevels[] = { 5, 15, 32, 55, 85, 120 };
+    const uint16_t numBrightnessLevels = 10;
+    uint16_t defaultBrightnessLevels[numBrightnessLevels] = {};
+
+    /* generate 10 brightness values that will scale linearly for
+     * proximities from 0cm to 50cm. Anything over 50cm will return
+     * proximity 0. 25cm will return proximity of 5 etc. */
+    for (uint16_t i = 0; i < numBrightnessLevels; ++i) {
+        double magic = (2.236 + 1.0975 * (i / 2.0f));
+        defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1/4.0f);
+    }
+    proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
+
+    // TODO test if priority queue based on euclid distance works
+    coordinateQueue->append(20, 0);     // #2
+    coordinateQueue->append(10, 10);    // #1
+    coordinateQueue->append(-21, 0);    // #3
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -79,6 +96,7 @@ void huntObject(){
     Serial1.println("");
 #endif
 
+    return;
     if (frontLeftSensorValue > 5 && frontRightSensorValue > 5){
         collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
         return;
@@ -111,7 +129,7 @@ void huntObject(){
  */
 bool driveToDestination() {
     if (collectorState->destinationReached) {
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop();
+        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(collectorState->currentX, collectorState->currentY);
         if (node == nullptr) {
             collectorState->setSpeeds(0, 0);
             return false;
