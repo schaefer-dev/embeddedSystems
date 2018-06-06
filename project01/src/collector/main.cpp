@@ -31,7 +31,6 @@ void setup() {
     proximitySensors->initThreeSensors();
     //proximitySensors->initFrontSensor();
 
-    // TODO: in ARDUINO.h, might blow up programming memory
     collectorState->lastDiffDriveCall = millis();
 }
 
@@ -132,6 +131,8 @@ bool driveToDestination() {
 void readNewDestinations() {
     // read new destination entry
 #ifdef DEBUG
+/* IMPORTANT:
+ * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
     if (Serial1.available() > 2) {
         int xDestination = 0;
         int yDestination = 0;

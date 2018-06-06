@@ -8,7 +8,7 @@
 #endif //EMBEDDEDSYSTEMS18_MAIN_H
 
 /* debug define to enable serial output/inputs to save program memory */
-//#define DEBUG
+#define DEBUG
 
 void setup();
 void loop();
