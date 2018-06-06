@@ -1,8 +1,10 @@
-#include "CollectorState.h"
-#include "Zumo32U4Motors.h"
+#include "ScoutState.h"
+#include "OrangutanMotors.h"
+#include "OrangutanTime.h"
+#include <OrangutanSerial.h>
 #include <math.h>
 #include <stdlib.h>
-#include <Arduino.h>
+#include "main.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -11,7 +13,7 @@ const float theta_rotation_threshhold = 12.0f;      // for turningSpeed = 100, v
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
-CollectorState::CollectorState() {
+ScoutState::ScoutState() {
     currentX = 0.0f;
     currentY = 0.0f;
     currentAngle = 0.0f;
@@ -28,7 +30,7 @@ CollectorState::CollectorState() {
  * destination. Positive angle means clockwise turn. Angle is in
  * radians and can be > 2pi or < 0
  */
-float CollectorState::getAngle() {
+float ScoutState::getAngle() {
     double vecX = destinationX - currentX;
     double vecY = destinationY - currentY;
     float angle = atan2(vecY, vecX);
@@ -37,13 +39,13 @@ float CollectorState::getAngle() {
 
 
 /* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
-bool CollectorState::navigateToDestination() {
+bool ScoutState::navigateToDestination() {
 #ifdef DEBUG
-    Serial1.print("POS: (");
-    Serial1.print(currentX);
-    Serial1.print(", ");
-    Serial1.print(currentY);
-    Serial1.print(")");
+    //Serial1.print("POS: (");
+    //Serial1.print(currentX);
+    //Serial1.print(", ");
+    //Serial1.print(currentY);
+    //Serial1.print(")");
 #endif
 
     // check if destination reached
@@ -51,7 +53,7 @@ bool CollectorState::navigateToDestination() {
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
 #ifdef DEBUG
-        Serial1.println("\nDestination Reached!");
+        serial_send("\nDestination Reached!\n", 22);
 #endif
         destinationReached = true;
         return true;
@@ -80,7 +82,7 @@ bool CollectorState::navigateToDestination() {
     double deltaDegrees = deltaAngleDeg;
 
 #ifdef DEBUG
-    Serial1.print("\t IST: ");
+    /*Serial1.print("\t IST: ");
     Serial1.print(currentAnglePrint);
     Serial1.print(" (");
     Serial1.print(((180 / M_PI) * currentAnglePrint));
@@ -94,7 +96,7 @@ bool CollectorState::navigateToDestination() {
     Serial1.print(deltaAngle);
     Serial1.print(" (");
     Serial1.print(((180 / M_PI) * deltaAngle));
-    Serial1.println(")");
+    Serial1.println(")");*/
 #endif
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
@@ -116,24 +118,24 @@ bool CollectorState::navigateToDestination() {
 }
 
 
-void CollectorState::resetDifferentialDrive(float x, float y, float a) {
+void ScoutState::resetDifferentialDrive(float x, float y, float a) {
     currentX = x;
     currentY = y;
     currentAngle = a;
 }
 
-void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
-    Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
+    OrangutanMotors::setSpeeds(newLeftSpeed, newRightSpeed);
     leftSpeed = newLeftSpeed;
     rightSpeed = newRightSpeed;
 }
 
 
 
-void CollectorState::updateRoboterPositionAndAngles() {
+void ScoutState::updateRoboterPositionAndAngles() {
     float leftSpeedScaled = (50.0f / WHEEL_RADIUS) * (leftSpeed / 255.0f);
     float rightSpeedScaled = (50.0f / WHEEL_RADIUS) * (rightSpeed / 255.0f);
 
