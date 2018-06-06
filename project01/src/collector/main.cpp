@@ -1,12 +1,16 @@
 #include <Arduino.h>
+#include <Zumo32U4ProximitySensors.h>
 #include "CollectorState.h"
 #include "Coordinates.h"
 #include "main.h"
 
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
+Zumo32U4ProximitySensors *proximitySensors;
 
 void setup() {
+
+    proximitySensors = new Zumo32U4ProximitySensors();
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
@@ -23,22 +27,79 @@ void setup() {
     Serial1.println("--- Start Serial Monitor ---");
     Serial1.println();
 
+    proximitySensors->initThreeSensors();
+    //proximitySensors->initFrontSensor();
+
     collectorState->lastDiffDriveCall = millis();
 }
 
 void loop() {
+
     /* Default roboter code */
-    readNewDestinations();
-    if (driveToDestination()) {
-        performRotation();
-    }
-    collectorState->updateRoboterPositionAndAngles();
+    //readNewDestinations();
+    //if (driveToDestination()) {
+    //    performRotation();
+    //}
+    //collectorState->updateRoboterPositionAndAngles();
+
+    /* Testing code */
+    huntObject();
 }
 
 
 /* ------------------------------------------------------------*/
 /* ----------------- HELPER FUNCTIONS -------------------------*/
 /* ------------------------------------------------------------*/
+
+
+void huntObject(){
+    proximitySensors->read();
+
+    delay(5);
+
+    uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
+
+    uint8_t frontRightSensorValue = proximitySensors->countsFrontWithRightLeds();
+
+    uint8_t leftSensorValue = proximitySensors->countsLeftWithLeftLeds();
+
+    uint8_t rightSensorValue = proximitySensors->countsRightWithRightLeds();
+
+    float averageFrontSensorValue = (frontLeftSensorValue + frontRightSensorValue) / 2.0f;
+
+    Serial1.print(leftSensorValue);
+    Serial1.print(", ");
+    Serial1.print(frontLeftSensorValue);
+    Serial1.print(", ");
+    Serial1.print(frontRightSensorValue);
+    Serial1.print(", ");
+    Serial1.print(rightSensorValue);
+    Serial1.println("");
+
+    if (frontLeftSensorValue > 5 && frontRightSensorValue > 5){
+        collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
+        return;
+    }
+
+    if (frontLeftSensorValue > 5){
+        collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
+    }
+
+    if (frontRightSensorValue > 5){
+        collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
+    }
+
+    if (leftSensorValue > 4 && averageFrontSensorValue < leftSensorValue){
+        collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
+    }
+
+    if (rightSensorValue > 4 && averageFrontSensorValue < rightSensorValue){
+        collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
+    }
+
+
+}
+
 
 /**
  * When the current destination is reached, calls @readNewDestinations.

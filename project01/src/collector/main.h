@@ -13,3 +13,4 @@ bool driveToDestination();
 void readNewDestinations();
 void performRotation();
 void performStraightDrive(int cmLength);
+void huntObject();
