@@ -32,13 +32,13 @@ class SPIMaster
 {
 public:
 
-    void SPIMasterInit(unsigned char speed_divider, unsigned char options);
+    static void SPIMasterInit(unsigned char speed_divider, unsigned char options);
 
-    void slaveSelect(unsigned char slave);
+    static void slaveSelect(unsigned char slave);
 
-    unsigned char transmitByte(unsigned char data);
+    static unsigned char transmitByte(unsigned char data);
 
-    void set_timer(int duration);
+    static void setTimer(int duration);
 
 };
 

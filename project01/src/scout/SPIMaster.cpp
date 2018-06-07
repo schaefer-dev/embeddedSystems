@@ -45,6 +45,7 @@ void SPIMasterInit(unsigned char speed_divider, unsigned char options){
     PORTD |= ( 1 << PIN_SS_RF);
     PORTD &= ~( 1 << PIN_RF_ENABLE);
 
+
     // Initiate SPI module
             SPCR = (1 << SPE) | (1 << MSTR) | (options & ~3) | (speed_divider & 3);
             SPSR = (speed_divider & 4) ? 1 : 0;
@@ -118,7 +119,7 @@ unsigned char transmitByte(unsigned char data){
  *
  * @param duration
  */
-void set_timer(int duration){
+void setTimer(int duration){
     OCR1A = 0x3D08;
 
     TCCR1B |= (1 << WGM12);

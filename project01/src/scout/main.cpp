@@ -1,4 +1,5 @@
 #include "ScoutState.h"
+#include "SPIMaster.h"
 #include <OrangutanTime.h>
 #include <OrangutanSerial.h>
 #include "main.h"
@@ -11,42 +12,67 @@ ScoutState *scoutState;
 
 int main() {
     /* SETUP */
-
-    /* initialization of Data structures */
-    scoutState = new ScoutState();
-    coordinateQueue = new CoordinateQueue();
-
-    // initialize differential updateRoboterPositionAndAngles
-    scoutState->setSpeeds(0, 0);
-    scoutState->resetDifferentialDrive(0, 0, 0);
-
+//
+//    /* initialization of Data structures */
+//    scoutState = new ScoutState();
+//    coordinateQueue = new CoordinateQueue();
+//
+//    // initialize differential updateRoboterPositionAndAngles
+//    scoutState->setSpeeds(0, 0);
+//    scoutState->resetDifferentialDrive(0, 0, 0);
+//
 #ifdef DEBUG
     // initialize serial connection
     serial_set_baud_rate(9600);
     serial_send("--- Start Serial Monitor ---\n", 29);
 #endif
-
-    scoutState->lastDiffDriveCall = millis();
-
-
-    /* DEBUG: Testing insertions of coordinates */
-    coordinateQueue->append(30,30);
-    coordinateQueue->append(5,5);
-
-
-
-    while(1) {
-
-        /* Default roboter code */
-        readNewDestinations();
-        if (driveToDestination()) {
-            performRotation();
-        }
-        scoutState->updateRoboterPositionAndAngles();
-
+//
+//    scoutState->lastDiffDriveCall = millis();
+//
+//
+//    /* DEBUG: Testing insertions of coordinates */
+//    coordinateQueue->append(30,30);
+//    coordinateQueue->append(5,5);
+//
+//
+//
+//    while(1) {
+//
+//        /* Default roboter code */
+//        readNewDestinations();
+//        if (driveToDestination()) {
+//            performRotation();
+//        }
+//        scoutState->updateRoboterPositionAndAngles();
+//
         /* Testing code */
 
+    // initialize SPI module
+    SPIMaster::SPIMasterInit( SPI_SPEED_DIVIDER_128, 0);
+
+    char adcdata;
+    char intq;
+
+    while (1) {
+        // select ADC
+        SPIMaster::slaveSelect(SELECT_ADC);
+
+        // send data to ADC
+
+        adcdata = SPIMaster::transmitByte(1);
+        serial_send("--- ADC data ---\n", adcdata);
+
+        // deselect slave
+        SPIMaster::slaveSelect(DESELECT);
+
+        // set timer to terminate
+        intq = 0;
+        SPIMaster::setTimer(200);
+        if (intq > 0){
+            break;
+        }
     }
+
 }
 
 
@@ -57,7 +83,7 @@ int main() {
  */
 bool driveToDestination() {
     if (scoutState->destinationReached) {
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop();
+        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(scoutState->currentX, scoutState->currentY);
         if (node == nullptr) {
             scoutState->setSpeeds(0, 0);
             return false;
