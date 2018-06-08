@@ -5,8 +5,6 @@
 #ifndef EMBEDDEDSYSTEMS18_SCOUTSTATE_H
 #define EMBEDDEDSYSTEMS18_SCOUTSTATE_H
 
-#endif //EMBEDDEDSYSTEMS18_SCOUTSTATE_H
-
 class ScoutState
 {
 
@@ -42,3 +40,5 @@ private:
     static constexpr float WHEEL_DISTANCE = 9.3f;
 
 };
+
+#endif //EMBEDDEDSYSTEMS18_SCOUTSTATE_H

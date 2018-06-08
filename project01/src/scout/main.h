@@ -5,8 +5,6 @@
 #ifndef EMBEDDEDSYSTEMS18_MAIN_H
 #define EMBEDDEDSYSTEMS18_MAIN_H
 
-#endif //EMBEDDEDSYSTEMS18_MAIN_H
-
 #include <stdlib.h>
 
 /* debug define to enable serial output/inputs to save program memory */
@@ -17,4 +15,6 @@ bool driveToDestination();
 void readNewDestinations();
 void performRotation();
 void performStraightDrive(int cmLength);
+
+#endif //EMBEDDEDSYSTEMS18_MAIN_H
 

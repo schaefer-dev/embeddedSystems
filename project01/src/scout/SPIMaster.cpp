@@ -5,6 +5,9 @@
 #include "SPIMaster.h"
 #include "avr/io.h"
 #include "avr/interrupt.h"
+#include <OrangutanSerial.h>
+#include <OrangutanTime.h>
+#include "ScoutSerial.h"
 
 // define Pins
 #define PIN_SS_RF 4
@@ -30,7 +33,8 @@
  * PD4 -- RF select
  * PD7 -- RF enable
  */
-void SPIMasterInit(unsigned char speed_divider, unsigned char options){
+
+void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options){
 
     // Set MISO pin as input
     DDRB &= ~( 1 << PIN_MISO );
@@ -47,8 +51,8 @@ void SPIMasterInit(unsigned char speed_divider, unsigned char options){
 
 
     // Initiate SPI module
-            SPCR = (1 << SPE) | (1 << MSTR) | (options & ~3) | (speed_divider & 3);
-            SPSR = (speed_divider & 4) ? 1 : 0;
+    SPCR = (1 << SPE) | (1 << MSTR) | (options & ~3) | (speed_divider & 3);
+    SPSR = (speed_divider & 4) ? 1 : 0;
 
 }
 
@@ -57,7 +61,7 @@ void SPIMasterInit(unsigned char speed_divider, unsigned char options){
  * select or deselect current slave node on Scout
  * @param slave DESELECT (0), SELECT_ADC (1) or SELECT_RF (2)
  */
-void slaveSelect(unsigned char slave){
+void SPIMaster::slaveSelect(unsigned char slave){
 
     // check for selection
     if (slave < 1){
@@ -82,7 +86,7 @@ void slaveSelect(unsigned char slave){
  * @param data byte to send
  * @return data sent by slave device
  */
-unsigned char transmitByte(unsigned char data){
+unsigned char SPIMaster::transmitByte(unsigned char data){
 
     // enable SPI in default mode
     if ( !(SPCR & (1<<SPE)) )
@@ -119,7 +123,7 @@ unsigned char transmitByte(unsigned char data){
  *
  * @param duration
  */
-void setTimer(int duration){
+void SPIMaster::setTimer(int duration){
     OCR1A = 0x3D08;
 
     TCCR1B |= (1 << WGM12);
@@ -139,5 +143,5 @@ void setTimer(int duration){
 // ISR for timer1
 ISR (TIMER1_COMPA_vect)
 {
-
+    serial_send("!!\n", 3);
 }

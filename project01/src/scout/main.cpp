@@ -5,10 +5,12 @@
 #include "main.h"
 #include <math.h>
 #include "../collector/Coordinates.h"
+#include "ScoutSerial.h"
 
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
+ScoutSerial *scoutSerial;
 
 int main() {
     /* SETUP */
@@ -23,10 +25,11 @@ int main() {
 //
 #ifdef DEBUG
     // initialize serial connection
-    serial_set_baud_rate(9600);
-    serial_send("--- Start Serial Monitor ---\n", 29);
+    scoutSerial = new ScoutSerial();
+    OrangutanSerial::setBaudRate(9600);
+    scoutSerial->serialWrite("--- Start Serial Monitor ---\n", 29);
 #endif
-//
+
 //    scoutState->lastDiffDriveCall = millis();
 //
 //
@@ -48,25 +51,34 @@ int main() {
         /* Testing code */
 
     // initialize SPI module
-    SPIMaster::SPIMasterInit( SPI_SPEED_DIVIDER_128, 0);
+    SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
+    delay(200);
 
     char adcdata;
     char intq;
 
     while (1) {
+
+        /*
         // select ADC
         SPIMaster::slaveSelect(SELECT_ADC);
+
+        delay(50);
 
         // send data to ADC
 
         adcdata = SPIMaster::transmitByte(1);
-        serial_send("--- ADC data ---\n", adcdata);
+        ScoutSerial::serialWrite("-- ADC data --\n", 16);
 
         // deselect slave
         SPIMaster::slaveSelect(DESELECT);
 
         // set timer of 1s
         SPIMaster::setTimer(1000);
+         */
+
+        readNewDestinations();
+        delay(500);
 
     }
 
@@ -99,31 +111,38 @@ bool driveToDestination() {
  */
 void readNewDestinations() {
     // read new destination entry
-#ifdef DEBUG
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
-    if (serial_get_received_bytes() > 2) {
 
-        serial_send("--- I received something ---\n", 29);
+    int *coordinates;
 
-        int xDestination = 0;
-        int yDestination = 0;
+    coordinates = scoutSerial->readCoordinates();
 
-        /*
-        xDestination = Serial1.parseInt();
-        yDestination = Serial1.parseInt();
-
-        Serial1.print("NEW DESTINATION IN QUEUE: (");
-        Serial1.print(xDestination);
-        Serial1.print(", ");
-        Serial1.print(yDestination);
-        Serial1.println(")");
-        Serial1.flush();
-
-        coordinateQueue->append(xDestination, yDestination);
-         */
+    if (coordinates == nullptr) {
+        scoutSerial->serialWrite("nothing\n", 8);
+        return;
     }
+
+    scoutSerial->serialWrite("--- I received something ---\n", 29);
+
+    int xDestination = coordinates[0];
+    int yDestination = coordinates[1];
+
+#ifdef DEBUG
+    /*
+    xDestination = Serial1.parseInt();
+    yDestination = Serial1.parseInt();
+
+    Serial1.print("NEW DESTINATION IN QUEUE: (");
+    Serial1.print(xDestination);
+    Serial1.print(", ");
+    Serial1.print(yDestination);
+    Serial1.println(")");
+    Serial1.flush();
+    */
 #endif
+
+    coordinateQueue->append(xDestination, yDestination);
 }
 
 /**
