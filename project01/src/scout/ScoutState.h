@@ -21,12 +21,11 @@ public:
     long lastDiffDriveCall;
     bool destinationReached;
 
-    const int forwardSpeed = 120;
-    const int turningSpeed = 70;
+    const int forwardSpeed = 160;
+    const int turningSpeed = 100;
 
-    /* TODO */
-    const float rotationImprecision = 0.47f;     // simple approximation for friction when turning
-    const float straightImprecision = 0.665f;     // simple approximation for friction when driving straight
+    const float rotationImprecision = 0.86f;     // simple approximation for friction when turning
+    const float straightImprecision = 0.8f;     // simple approximation for friction when driving straight
 
     float getAngle();
     bool navigateToDestination();

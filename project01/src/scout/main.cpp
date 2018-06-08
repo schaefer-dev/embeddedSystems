@@ -11,18 +11,19 @@
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 ScoutSerial *scoutSerial;
+bool termination = false;
 
 int main() {
     /* SETUP */
-//
-//    /* initialization of Data structures */
-//    scoutState = new ScoutState();
-//    coordinateQueue = new CoordinateQueue();
-//
-//    // initialize differential updateRoboterPositionAndAngles
-//    scoutState->setSpeeds(0, 0);
-//    scoutState->resetDifferentialDrive(0, 0, 0);
-//
+
+    /* initialization of Data structures */
+    scoutState = new ScoutState();
+    coordinateQueue = new CoordinateQueue();
+
+    // initialize differential updateRoboterPositionAndAngles
+    scoutState->setSpeeds(0, 0);
+    scoutState->resetDifferentialDrive(0, 0, 0);
+
 #ifdef DEBUG
     // initialize serial connection
     scoutSerial = new ScoutSerial();
@@ -30,36 +31,25 @@ int main() {
     scoutSerial->serialWrite("--- Start Serial Monitor ---\n", 29);
 #endif
 
-//    scoutState->lastDiffDriveCall = millis();
-//
-//
-//    /* DEBUG: Testing insertions of coordinates */
-//    coordinateQueue->append(30,30);
-//    coordinateQueue->append(5,5);
-//
-//
-//
-//    while(1) {
-//
-//        /* Default roboter code */
-//        readNewDestinations();
-//        if (driveToDestination()) {
-//            performRotation();
-//        }
-//        scoutState->updateRoboterPositionAndAngles();
-//
-        /* Testing code */
+   scoutState->lastDiffDriveCall = millis();
+
+
+    /* DEBUG: Testing insertions of coordinates */
+    coordinateQueue->append(30,0);
+
 
     // initialize SPI module
-    SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
+    //SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
     delay(200);
 
     char adcdata;
     char intq;
 
+    int rotationcounter = 0;
+
     while (1) {
 
-        /*
+        /* SPI CODE CURRENLY DISABLED !!
         // select ADC
         SPIMaster::slaveSelect(SELECT_ADC);
 
@@ -77,8 +67,14 @@ int main() {
         SPIMaster::setTimer(1000);
          */
 
+
+        /* Roboter driving code */
         readNewDestinations();
-        delay(500);
+        if (driveToDestination()) {
+            //performRotation();
+        }
+        scoutState->updateRoboterPositionAndAngles();
+        delay(10);
 
     }
 
@@ -119,7 +115,6 @@ void readNewDestinations() {
     coordinates = scoutSerial->readCoordinates();
 
     if (coordinates == nullptr) {
-        scoutSerial->serialWrite("nothing\n", 8);
         return;
     }
 
@@ -163,7 +158,7 @@ void performRotation() {
             scoutState->currentAngle < startAngle - 2 * M_PI) {
             loopCondition = false;
 #ifdef DEBUG
-            serial_send("One rotation performed!\n", 24);
+            //serial_send("One rotation performed!\n", 24);
 #endif
             scoutState->setSpeeds(0, 0);
 
@@ -189,7 +184,7 @@ void performStraightDrive(int cmLength) {
         if (scoutState->currentX > targetX) {
             loopCondition = false;
 #ifdef DEBUG
-            serial_send("Driving performed!\n", 19);
+            //serial_send("Driving performed!\n", 19);
 #endif
             scoutState->setSpeeds(0, 0);
 

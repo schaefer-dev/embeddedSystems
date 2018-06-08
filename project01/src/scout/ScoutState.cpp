@@ -53,7 +53,7 @@ bool ScoutState::navigateToDestination() {
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
 #ifdef DEBUG
-        serial_send("\nDestination Reached!\n", 22);
+        //serial_send("\nDestination Reached!\n", 22);
 #endif
         destinationReached = true;
         return true;
