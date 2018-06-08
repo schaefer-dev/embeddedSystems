@@ -30,9 +30,9 @@ void setup() {
     coordinateQueue = new CoordinateQueue();
 
     // TODO test if priority queue based on euclid distance works
-    //coordinateQueue->append(20, 0);     // #2
-    //coordinateQueue->append(10, 10);    // #1
-    //coordinateQueue->append(-21, 0);    // #3
+    coordinateQueue->append(20, 0);     // #2
+    coordinateQueue->append(10, 10);    // #1
+    coordinateQueue->append(-21, 0);    // #3
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -58,7 +58,6 @@ void loop() {
         }
         else {
             if (driveToDestination()) {
-                Serial1.println(collectorState->destinationReached);
                 performRotation();
             }
             collectorState->updateRoboterPositionAndAngles();
@@ -100,8 +99,6 @@ void huntObject(){
     Serial1.println("");
 #endif
 
-    
-
     if (frontLeftSensorValue > PROXIMITY_THRESHOLD && frontRightSensorValue > PROXIMITY_THRESHOLD){
         collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
         return;
@@ -109,23 +106,22 @@ void huntObject(){
 
     if (frontLeftSensorValue > PROXIMITY_THRESHOLD){
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
+        return;
     }
 
     if (frontRightSensorValue > PROXIMITY_THRESHOLD){
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
+        return;
     }
 
-
-    /* TODO @Daniel ich glaube die unteren beiden conditions sollten vor die vorheringen beiden
-     * sonst könnte es sein dass wir nach rechts drehen (frontRightSensor = 7) und dann sofort wieder nach rechts weil 
-     * rightSensor = 10. Und in jede condition sollte ein return. Bin mir aber nicht sicher.
-     */
     if (leftSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < leftSensorValue){
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
+        return;
     }
 
     if (rightSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < rightSensorValue){
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
+        return;
     }
 }
 

@@ -54,6 +54,11 @@ bool CollectorState::navigateToDestination() {
         Serial1.println("\nDestination Reached!");
 #endif
         destinationReached = true;
+        Serial1.print("Destination ");
+        Serial1.print(destinationX);
+        Serial1.print(", ");
+        Serial1.print(destinationY);
+        Serial1.println(" reached!");
         return true;
     }
 
