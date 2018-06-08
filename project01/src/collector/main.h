@@ -17,3 +17,4 @@ void readNewDestinations();
 void performRotation();
 void performStraightDrive(int cmLength);
 void huntObject();
+void generateBrightnessLevels();

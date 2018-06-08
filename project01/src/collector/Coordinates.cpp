@@ -42,18 +42,29 @@ struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, flo
         return nullptr;
     }
 
+    struct CoordinateNode *bestNodePrev = nullptr;
     struct CoordinateNode *bestNode = nullptr;
+
     float bestDistance = INFINITY;
 
     auto *nextNode = head;
+    auto *prevNode = nextNode;
     while (nextNode){
         float distance = sqrt(pow(currentX - nextNode->x, 2) + pow(currentY - nextNode->y, 2));
         if (distance <= bestDistance) {
             bestDistance = distance;
             bestNode = nextNode;
+            bestNodePrev = prevNode;
         }
+        prevNode = nextNode;
         nextNode = nextNode->next;
     }
-
+    if (bestNode != nullptr) {
+        if (bestNodePrev == bestNode) {
+            head = bestNode->next;
+        } else {
+            bestNodePrev->next = bestNode->next;
+        }
+    }
     return bestNode;
 }

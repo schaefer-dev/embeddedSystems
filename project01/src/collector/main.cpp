@@ -17,34 +17,27 @@ const uint8_t MODE_HUNT_OBJECT = 2;
 const uint8_t MODE_COMMUNICATION = 3;
 uint8_t modeOfOperation = MODE_DESTINATION;
 
+boolean terminate = false;
+
 void setup() {
 
     proximitySensors = new Zumo32U4ProximitySensors();
-    //uint16_t defaultBrightnessLevels[] = { 5, 15, 32, 55, 85, 120 };
-    const uint16_t numBrightnessLevels = 10;
-    uint16_t defaultBrightnessLevels[numBrightnessLevels] = {};
-
-    /* generate 10 brightness values that will scale linearly for
-     * proximities from 0cm to 50cm. Anything over 50cm will return
-     * proximity 0. 25cm will return proximity of 5 etc. */
-    for (uint16_t i = 0; i < numBrightnessLevels; ++i) {
-        double magic = (2.236 + 1.0975 * (i / 2.0f));
-        defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1/4.0f);
-    }
-    proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
+    generateBrightnessLevels();
+    proximitySensors->initThreeSensors();
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
 
     // TODO test if priority queue based on euclid distance works
-    coordinateQueue->append(20, 0);     // #2
-    coordinateQueue->append(10, 10);    // #1
-    coordinateQueue->append(-21, 0);    // #3
+    //coordinateQueue->append(20, 0);     // #2
+    //coordinateQueue->append(10, 10);    // #1
+    //coordinateQueue->append(-21, 0);    // #3
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
+    collectorState->lastDiffDriveCall = millis();
 
     // initialize serial connection
 #ifdef DEBUG
@@ -52,11 +45,6 @@ void setup() {
     Serial1.println("--- Start Serial Monitor ---");
     Serial1.println();
 #endif
-
-    proximitySensors->initThreeSensors();
-    //proximitySensors->initFrontSensor();
-
-    collectorState->lastDiffDriveCall = millis();
 }
 
 void loop() {
@@ -64,19 +52,24 @@ void loop() {
     /* Default roboter code */
     if (modeOfOperation == MODE_DESTINATION) {
         readNewDestinations();
-        if (driveToDestination()) {
+
+        if (terminate) {
             performRotation();
         }
-        collectorState->updateRoboterPositionAndAngles();
+        else {
+            if (driveToDestination()) {
+                Serial1.println(collectorState->destinationReached);
+                performRotation();
+            }
+            collectorState->updateRoboterPositionAndAngles();
+        }
     }
     else if (modeOfOperation == MODE_HUNT_OBJECT) {
         huntObject();
     }
     else if (modeOfOperation == MODE_COMMUNICATION) {
-        // TODO
+        // TODO RF MODULE TESTS
     }
-
-    /* Testing code */
 }
 
 
@@ -87,7 +80,6 @@ void loop() {
 
 void huntObject(){
     proximitySensors->read();
-
     // delay(5);
 
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
@@ -137,7 +129,6 @@ void huntObject(){
     }
 }
 
-
 /**
  * When the current destination is reached, calls @readNewDestinations.
  * Drives to the current destination.
@@ -163,7 +154,6 @@ bool driveToDestination() {
  * New destination must be given as to integers separated by some non-numeric character
  */
 void readNewDestinations() {
-    // read new destination entry
 #ifdef DEBUG
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
@@ -171,17 +161,42 @@ void readNewDestinations() {
         int xDestination = 0;
         int yDestination = 0;
 
-        xDestination = Serial1.parseInt();
-        yDestination = Serial1.parseInt();
+        bool leftFull = false;
+        String inStringLeft = "";   // string to hold input
+        String inStringRight = "";  // string to hold input
+        String command;
+        while(Serial1.available() > 0) {
+            int inChar = Serial.read();
+            command += (char)inChar;
+            if (!isDigit(inChar)) {
+                leftFull = true;
+                continue;
+            }
+            if (isDigit(inChar)) {
+                // convert the incoming byte to a char and add it to the string:
+                if (!leftFull)
+                    inStringLeft += (char)inChar;
+                else
+                    inStringRight += (char)inChar;
+            }
+        }
+        command.toUpperCase();
 
-        Serial1.print("NEW DESTINATION IN QUEUE: (");
-        Serial1.print(xDestination);
-        Serial1.print(", ");
-        Serial1.print(yDestination);
-        Serial1.println(")");
-        Serial1.flush();
 
-        coordinateQueue->append(xDestination, yDestination);
+        if (command.equals("END")) {
+            terminate = true;
+        }
+        else if (inStringLeft.length() > 0 && inStringRight.length() > 0){
+            xDestination = (int)inStringLeft.toInt();
+            yDestination = (int)inStringRight.toInt();
+            Serial1.print("NEW DESTINATION IN QUEUE: (");
+            Serial1.print(xDestination);
+            Serial1.print(", ");
+            Serial1.print(yDestination);
+            Serial1.println(")");
+            Serial1.flush();
+            coordinateQueue->append(xDestination, yDestination);
+        }
     }
 #endif
 }
@@ -242,4 +257,17 @@ void performStraightDrive(int cmLength) {
     }
 }
 
+void generateBrightnessLevels() {
+    //uint16_t defaultBrightnessLevels[] = { 5, 15, 32, 55, 85, 120 };
+    const uint16_t numBrightnessLevels = 10;
+    uint16_t defaultBrightnessLevels[numBrightnessLevels] = {};
 
+    /* generate 10 brightness values that will scale linearly for
+     * proximities from 0cm to 50cm. Anything over 50cm will return
+     * proximity 0. 25cm will return proximity of 5 etc. */
+    for (uint16_t i = 0; i < numBrightnessLevels; ++i) {
+        double magic = (2.236 + 1.0975 * (i / 2.0f));
+        defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1/4.0f);
+    }
+    proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
+}
