@@ -65,12 +65,9 @@ int main() {
         // deselect slave
         SPIMaster::slaveSelect(DESELECT);
 
-        // set timer to terminate
-        intq = 0;
-        SPIMaster::setTimer(200);
-        if (intq > 0){
-            break;
-        }
+        // set timer of 1s
+        SPIMaster::setTimer(1000);
+
     }
 
 }

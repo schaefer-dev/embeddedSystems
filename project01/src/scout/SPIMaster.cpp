@@ -131,7 +131,13 @@ void setTimer(int duration){
     TCCR1B |= (1 << CS12) | (1 << CS10);
     // set prescalar to 1024 and start the timer
 
-
+    // enable global interrupts
     sei();
-    // enable interrupts
+
+}
+
+// ISR for timer1
+ISR (TIMER1_COMPA_vect)
+{
+
 }
