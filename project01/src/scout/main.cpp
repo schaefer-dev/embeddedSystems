@@ -35,7 +35,7 @@ int main() {
 
 
     /* DEBUG: Testing insertions of coordinates */
-    coordinateQueue->append(30,0);
+    //coordinateQueue->append(30,0);
 
 
     // initialize SPI module
@@ -71,7 +71,7 @@ int main() {
         /* Roboter driving code */
         readNewDestinations();
         if (driveToDestination()) {
-            //performRotation();
+            performRotation();
         }
         scoutState->updateRoboterPositionAndAngles();
         delay(10);

@@ -5,6 +5,7 @@
 #include <OrangutanSerial.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <OrangutanTime.h>
 
 ScoutSerial::ScoutSerial() {
     for (int i = 0; i < 99; i++){
@@ -21,11 +22,12 @@ void ScoutSerial::serialRead(char *buffer, unsigned char size) {
 
 void ScoutSerial::serialWrite(char *buffer, unsigned char size) {
 
-    OrangutanSerial::send(buffer, size);
+    OrangutanSerial::sendBlocking(buffer, size);
 }
 
 int* ScoutSerial::readCoordinates(){
 
+    delay(10);
     int newReceiveIndex = OrangutanSerial::getReceivedBytes();
     if (receiveIndex == newReceiveIndex)
         return nullptr;
@@ -35,22 +37,24 @@ int* ScoutSerial::readCoordinates(){
     char xString[4];
     char yString[4];
 
-    int iterator = receiveIndex;
-    while (receiveBuffer[iterator] != ','){
-        xString[iterator] = receiveBuffer[iterator];
-        iterator += 1;
+    for (int i = 0; i < 3; i++){
+        xString[i] = receiveBuffer[receiveIndex + i];
     }
 
-    iterator += 1;
-    int i = 0;
-    while (iterator < newReceiveIndex){
-        yString[i] = receiveBuffer[iterator];
-        iterator += 1;
-        i += 1;
+    for (int i = 0; i < 3; i++){
+        yString[i] = receiveBuffer[receiveIndex + i + 3];
     }
 
+    yString[3] = '\0';
+    xString[3] = '\0';
     returnArray[0] = atoi(xString);
     returnArray[1] = atoi(yString);
+
+    serialWrite("input x:", 8);
+    serialWrite(xString, 3);
+    serialWrite(" y:", 3);
+    serialWrite(yString, 3);
+    serialWrite(" received\n", 10);
 
     receiveIndex = newReceiveIndex;
 

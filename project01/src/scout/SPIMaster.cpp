@@ -143,5 +143,5 @@ void SPIMaster::setTimer(int duration){
 // ISR for timer1
 ISR (TIMER1_COMPA_vect)
 {
-    serial_send("!!\n", 3);
+    serial_send_blocking("!!\n", 3);
 }
