@@ -29,10 +29,11 @@ void setup() {
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
 
-    // TODO test if priority queue based on euclid distance works
+    /* Test goals to test pathfinding
     coordinateQueue->append(20, 0);     // #2
     coordinateQueue->append(10, 10);    // #1
     coordinateQueue->append(-21, 0);    // #3
+     */
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -158,41 +159,50 @@ void readNewDestinations() {
         int yDestination = 0;
 
         bool leftFull = false;
-        String inStringLeft = "";   // string to hold input
-        String inStringRight = "";  // string to hold input
-        String command;
+
+        int stringIndex = 0;
+        char inStringLeft[4];
+        char inStringRight[4];
+
+        for (int i = 0; i < 4; i++){
+            inStringLeft[i] = '\0';
+            inStringRight[i] = '\0';
+        }
+
+        int commandIndex = 0;
+        char command[10];
         while(Serial1.available() > 0) {
-            int inChar = Serial.read();
-            command += (char)inChar;
-            if (!isDigit(inChar)) {
+            int inChar = Serial1.read();
+            command[commandIndex] = (char)inChar;
+            commandIndex += 1;
+            if (!isDigit(inChar) && !leftFull) {
                 leftFull = true;
+                stringIndex = 0;
                 continue;
-            }
-            if (isDigit(inChar)) {
+            } else {
                 // convert the incoming byte to a char and add it to the string:
                 if (!leftFull)
-                    inStringLeft += (char)inChar;
+                    inStringLeft[stringIndex] = (char)inChar;
                 else
-                    inStringRight += (char)inChar;
+                    inStringRight[stringIndex] = (char)inChar;
+                stringIndex += 1;
             }
         }
-        command.toUpperCase();
 
 
-        if (command.equals("END")) {
+        if (command[0] == 'E' && command[1] == 'N' && command[2] == 'D') {
             terminate = true;
         }
-        else if (inStringLeft.length() > 0 && inStringRight.length() > 0){
-            xDestination = (int)inStringLeft.toInt();
-            yDestination = (int)inStringRight.toInt();
-            Serial1.print("NEW DESTINATION IN QUEUE: (");
-            Serial1.print(xDestination);
-            Serial1.print(", ");
-            Serial1.print(yDestination);
-            Serial1.println(")");
-            Serial1.flush();
-            coordinateQueue->append(xDestination, yDestination);
-        }
+
+        xDestination = atoi(inStringLeft);
+        yDestination = atoi(inStringRight);
+        Serial1.print("NEW DESTINATION IN QUEUE: (");
+        Serial1.print(xDestination);
+        Serial1.print(", ");
+        Serial1.print(yDestination);
+        Serial1.println(")");
+        Serial1.flush();
+        coordinateQueue->append(xDestination, yDestination);
     }
 #endif
 }
