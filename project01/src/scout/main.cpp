@@ -110,11 +110,11 @@ void readNewDestinations() {
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
 
-    int *coordinates;
+    int coordinates[2];
 
-    coordinates = scoutSerial->readCoordinates();
+    bool newCoordinates = scoutSerial->readCoordinates(coordinates);
 
-    if (coordinates == nullptr) {
+    if (!newCoordinates) {
         return;
     }
 
@@ -122,6 +122,17 @@ void readNewDestinations() {
 
     int xDestination = coordinates[0];
     int yDestination = coordinates[1];
+
+    char output[3];
+    output[0] = (char)35;
+    output[2] = '\n';
+    output[1] = (char)xDestination;
+
+    scoutSerial->serialWrite(output, 2);
+
+    output[1] = (char)yDestination;
+    scoutSerial->serialWrite(output, 2);
+
 
 #ifdef DEBUG
     /*

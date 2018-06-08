@@ -5,6 +5,7 @@
 #include <OrangutanSerial.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <OrangutanTime.h>
 
 ScoutSerial::ScoutSerial() {
@@ -25,14 +26,12 @@ void ScoutSerial::serialWrite(char *buffer, unsigned char size) {
     OrangutanSerial::sendBlocking(buffer, size);
 }
 
-int* ScoutSerial::readCoordinates(){
+bool ScoutSerial::readCoordinates(int *returnArray){
 
     delay(10);
     int newReceiveIndex = OrangutanSerial::getReceivedBytes();
     if (receiveIndex == newReceiveIndex)
-        return nullptr;
-
-    int returnArray[2];
+        return false;
 
     char xString[4];
     char yString[4];
@@ -47,16 +46,31 @@ int* ScoutSerial::readCoordinates(){
 
     yString[3] = '\0';
     xString[3] = '\0';
-    returnArray[0] = atoi(xString);
-    returnArray[1] = atoi(yString);
 
+    int xInt = atoi(xString);
+    int yInt = atoi(yString);
+
+
+    /* Debug stuff: */
     serialWrite("input x:", 8);
     serialWrite(xString, 3);
     serialWrite(" y:", 3);
     serialWrite(yString, 3);
     serialWrite(" received\n", 10);
 
+    /* more DEBUG stuff */
+    char output[3];
+    output[0] = (char)36;
+    output[2] = '\n';
+    output[1] = (char)xInt;
+    serialWrite(output, 2);
+    output[1] = (char)yInt;
+    serialWrite(output, 2);
+
+    returnArray[0] = xInt;
+    returnArray[1] = yInt;
+
     receiveIndex = newReceiveIndex;
 
-    return returnArray;
+    return true;
 }
