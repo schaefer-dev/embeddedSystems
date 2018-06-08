@@ -28,27 +28,36 @@ void ScoutSerial::serialWrite(char *buffer, unsigned char size) {
 
 bool ScoutSerial::readCoordinates(int *returnArray){
 
-    delay(10);
+    delay(50);
     int newReceiveIndex = OrangutanSerial::getReceivedBytes();
     if (receiveIndex == newReceiveIndex)
         return false;
 
     char xString[4];
     char yString[4];
-
-    for (int i = 0; i < 3; i++){
-        xString[i] = receiveBuffer[receiveIndex + i];
+    for (int i = 0; i < 4; i++){
+        yString[i] = '\0';
+        xString[i] = '\0';
     }
 
-    for (int i = 0; i < 3; i++){
-        yString[i] = receiveBuffer[receiveIndex + i + 3];
+    int iterator = receiveIndex;
+
+    int i = 0;
+    while (receiveBuffer[iterator] >= 48 && receiveBuffer[iterator] <= 57 && i < 4){
+        xString[i] = receiveBuffer[iterator];
+        iterator += 1;
+        i += 1;
     }
 
-    yString[3] = '\0';
-    xString[3] = '\0';
+    /* skip non number character, like commata or space etc */
+    iterator += 1;
 
-    int xInt = atoi(xString);
-    int yInt = atoi(yString);
+    i = 0;
+    while (receiveBuffer[iterator] >= 48 && receiveBuffer[iterator] <= 57 && iterator < newReceiveIndex && i < 4){
+        yString[i] = receiveBuffer[iterator];
+        iterator += 1;
+        i += 1;
+    }
 
 
     /* Debug stuff: */
@@ -58,17 +67,9 @@ bool ScoutSerial::readCoordinates(int *returnArray){
     serialWrite(yString, 3);
     serialWrite(" received\n", 10);
 
-    /* more DEBUG stuff */
-    char output[3];
-    output[0] = (char)36;
-    output[2] = '\n';
-    output[1] = (char)xInt;
-    serialWrite(output, 2);
-    output[1] = (char)yInt;
-    serialWrite(output, 2);
 
-    returnArray[0] = xInt;
-    returnArray[1] = yInt;
+    returnArray[0] = atoi(xString);
+    returnArray[1] = atoi(yString);
 
     receiveIndex = newReceiveIndex;
 

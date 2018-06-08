@@ -118,35 +118,8 @@ void readNewDestinations() {
         return;
     }
 
-    scoutSerial->serialWrite("--- I received something ---\n", 29);
-
     int xDestination = coordinates[0];
     int yDestination = coordinates[1];
-
-    char output[3];
-    output[0] = (char)35;
-    output[2] = '\n';
-    output[1] = (char)xDestination;
-
-    scoutSerial->serialWrite(output, 2);
-
-    output[1] = (char)yDestination;
-    scoutSerial->serialWrite(output, 2);
-
-
-#ifdef DEBUG
-    /*
-    xDestination = Serial1.parseInt();
-    yDestination = Serial1.parseInt();
-
-    Serial1.print("NEW DESTINATION IN QUEUE: (");
-    Serial1.print(xDestination);
-    Serial1.print(", ");
-    Serial1.print(yDestination);
-    Serial1.println(")");
-    Serial1.flush();
-    */
-#endif
 
     coordinateQueue->append(xDestination, yDestination);
 }
