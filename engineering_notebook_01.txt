@@ -393,11 +393,18 @@ No success in intergrating our implementation.
 
 - Daniel: 
     Driver issue with serial detection, fixed using `CH34x_Install_V1.3.pkg`
+- Kevin:
+	Test implementation of the differential drive
 
 # Mon. 04.06
 - Daniel:
-  Implemented Queue for Destinations
-  Implemented Class which observes and changes physical roboter state
+	Implemented Queue for Destinations
+	Implemented Class which observes and changes physical roboter state
+
+- Kevin:
+	Collector drive calibration, testing with different speeds etc 
+	and implementation of drive to destination
+	Implemented celebration rotation
 
 - Group Meeting:
   Differential Drive Problems encountered, very imprecise. For Collector we used 
@@ -407,4 +414,10 @@ No success in intergrating our implementation.
   for now, but this should be improved by running specific tests
 
   BUG ENCOUNTERED: Rotation condition if driving from 0,0 to 10,0 to 0,0 broken. After reaching 10,0 - turns back and forth and never drives towards 0,0
-    
+
+# Fri. 08.06
+- Kevin:
+	Generated new brightness values for more acurate proximity values. Document readings in table.
+	Fixed rotation bug. Robot now always turns correctly in the correct (and best) direction.
+	Implemented possibility to send END command to collector.	
+	
