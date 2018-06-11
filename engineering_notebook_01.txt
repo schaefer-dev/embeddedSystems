@@ -408,6 +408,10 @@ No success in intergrating our implementation.
 	and implementation of drive to destination
 	Implemented celebration rotation
 
+- Rafael:
+	Further research into SPI and timers on uController
+	Begun to set up SPI framework
+
 - Group Meeting:
   Differential Drive Problems encountered, very imprecise. For Collector we used 
       
@@ -428,7 +432,21 @@ No success in intergrating our implementation.
 	Implemented: First version of scout code, which fullfills most of the criteria, but still issues with the serial libraries of scout
 	Implemented: Collector hunts objects depending on Proximity sensor readings. Basic cases to turn and push objects implemented
 
+- Rafael:
+	Implemented SPI framework for Scout
+	Designed state machine for SPI communication
+
 # Thu. 07.06
+- Rafael:
+	New info: SPI must not be used for RF module at this time
+	SPI "communication" general, maybe utilize ADC
+	
+	Redid framework and state machine accordingly.
+	Implemented timer & interrupt on Scout.
+	
+	Problem: Scout does not compile: 'cannot find -lpololu'
+	All libraries are installed and in the right directory,
+	but issue persists.
 
 
 # Fri. 08.06
@@ -440,4 +458,29 @@ No success in intergrating our implementation.
 	Fix: fixes to serial communication with scout
 	Fix: Scout motor calibration performed and constants inserted
 	Fix: Fixes for new collector input of coordinates, but still not working perfectly
+- Rafael:
+	Fixed minor formatting issues in SPI implementation
+	Bug: Spi init messes with motors
+
+# Sat. 09.06
+- Rafael: 
+	Compiling problem persists.
+	Refined SPI state machine
+	Fixed wrong pin register, might fix motor problem.
+	Implemented transmitdata function for sending more than one byte
+
+# Sun. 10.06
+- Rafael:
+	 Cannot fix compiling problem, reinstalling all libraries; /no success
+
+	Adjusted state machine with actual registers and pins for Scout robot
+	Implemented timer on timer 4 of Collector robot
+	Reformatting
+
+# Mon. 11.06
+- Rafael:
+	Drafted function for reading ADC on Scout robot
+	
+	
+	
 	
