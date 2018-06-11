@@ -37,9 +37,6 @@ int main() {
     /* DEBUG: Testing insertions of coordinates */
     //coordinateQueue->append(30,0);
 
-
-    // initialize SPI module
-    //SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
     delay(200);
 
     char adcdata;
@@ -47,9 +44,13 @@ int main() {
 
     int rotationcounter = 0;
 
+
+    // IMPORTANT: initialize SPI module DISABLED, comment this in when using SPI
+    // SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
+
     while (1) {
 
-        /* SPI CODE CURRENLY DISABLED !!
+        /* IMPORTANT: SPI CODE DISABLED, to enable comment this block in and comment the roboter driving code below out.
         // select ADC
         SPIMaster::slaveSelect(SELECT_ADC);
 
@@ -58,7 +59,7 @@ int main() {
         // send data to ADC
 
         adcdata = SPIMaster::transmitByte(1);
-        ScoutSerial::serialWrite("-- ADC data --\n", 16);
+        scoutSerial->serialWrite("-- ADC data --\n", 16);
 
         // deselect slave
         SPIMaster::slaveSelect(DESELECT);
@@ -68,13 +69,13 @@ int main() {
          */
 
 
-        /* Roboter driving code */
+        /* IMPORTANT Roboter driving code ENABLED */
         readNewDestinations();
         if (driveToDestination()) {
             performRotation();
         }
         scoutState->updateRoboterPositionAndAngles();
-        delay(10);
+        //delay(10);
 
     }
 
