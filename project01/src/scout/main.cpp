@@ -12,6 +12,7 @@ CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 ScoutSerial *scoutSerial;
 bool termination = false;
+bool spiEnabled = false;
 
 int main() {
     /* SETUP */
@@ -46,36 +47,44 @@ int main() {
 
 
     // IMPORTANT: initialize SPI module DISABLED, comment this in when using SPI
-    // SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
+    if (spiEnabled)
+        SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
 
     while (1) {
 
-        /* IMPORTANT: SPI CODE DISABLED, to enable comment this block in and comment the roboter driving code below out.
-        // select ADC
-        SPIMaster::slaveSelect(SELECT_ADC);
+        /* IMPORTANT: SPI CODE DISABLED */
+        if (spiEnabled) {
+            // select ADC
+            SPIMaster::slaveSelect(SELECT_ADC);
 
-        delay(50);
+            delay(50);
 
-        // send data to ADC
+            // send data to ADC
 
-        adcdata = SPIMaster::transmitByte(1);
-        scoutSerial->serialWrite("-- ADC data --\n", 16);
+            adcdata = SPIMaster::transmitByte(1);
+            char adcArray[1];
+            adcArray[0] = adcdata + 48;
+            scoutSerial->serialWrite(adcArray, 1);
+            scoutSerial->serialWrite(" <- ADC data --\n", 16);
 
-        // deselect slave
-        SPIMaster::slaveSelect(DESELECT);
+            // deselect slave
+            SPIMaster::slaveSelect(DESELECT);
 
-        // set timer of 1s
-        SPIMaster::setTimer(1000);
-         */
+            // set timer of 1s
+            SPIMaster::setTimer(1000);
+        }
+
+
 
 
         /* IMPORTANT Roboter driving code ENABLED */
-        readNewDestinations();
-        if (driveToDestination()) {
-            performRotation();
+        if (!spiEnabled) {
+            readNewDestinations();
+            if (driveToDestination()) {
+                performRotation();
+            }
+            scoutState->updateRoboterPositionAndAngles();
         }
-        scoutState->updateRoboterPositionAndAngles();
-        //delay(10);
 
     }
 

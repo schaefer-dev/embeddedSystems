@@ -396,6 +396,12 @@ No success in intergrating our implementation.
 - Kevin:
 	Test implementation of the differential drive
 
+# Sa. 02.06
+- Kevin:
+	Implemented: Diff drive implementation (according to simulink draft)
+	Implemented: Priting of current position via serial
+	Implemented: TurnTODestination and DiffDriveUPdate
+
 # Mon. 04.06
 - Daniel:
 	Implemented: Queue for Destinations
@@ -431,6 +437,9 @@ No success in intergrating our implementation.
 - Daniel:
 	Implemented: First version of scout code, which fullfills most of the criteria, but still issues with the serial libraries of scout
 	Implemented: Collector hunts objects depending on Proximity sensor readings. Basic cases to turn and push objects implemented
+
+- Kevin:
+	Roboter Calibration
 
 - Rafael:
 	Implemented SPI framework for Scout
@@ -480,6 +489,9 @@ No success in intergrating our implementation.
 # Mon. 11.06
 - Rafael:
 	Drafted function for reading ADC on Scout robot
+- Kevin:
+	Fixed Collector timer
+	Fixed Serial input problem
 	
 	
 	
