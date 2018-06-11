@@ -393,11 +393,20 @@ No success in intergrating our implementation.
 
 - Daniel: 
     Driver issue with serial detection, fixed using `CH34x_Install_V1.3.pkg`
+- Kevin:
+	Test implementation of the differential drive
 
 # Mon. 04.06
 - Daniel:
-  Implemented Queue for Destinations
-  Implemented Class which observes and changes physical roboter state
+	Implemented: Queue for Destinations
+	Implemented: Class which observes and changes physical roboter state
+	Fixed: Serial Communication broken, fixed using CH34x_Install_V1.3
+  Implemented: Ported Driving to collector, changing values and threshholds to meed collector specifications
+
+- Kevin:
+	Collector drive calibration, testing with different speeds etc 
+	and implementation of drive to destination
+	Implemented celebration rotation
 
 - Group Meeting:
   Differential Drive Problems encountered, very imprecise. For Collector we used 
@@ -407,4 +416,28 @@ No success in intergrating our implementation.
   for now, but this should be improved by running specific tests
 
   BUG ENCOUNTERED: Rotation condition if driving from 0,0 to 10,0 to 0,0 broken. After reaching 10,0 - turns back and forth and never drives towards 0,0
-    
+
+# Tue. 05.06
+- Daniel:
+	Implemented: Roboter Calibration Methods
+	Implemented: Queue driving implemented, tested and verified to be working
+	Implemented: Differential drive equations precision enhancement using millis to calculate the exact time that passed since the last internal position/angle update
+
+# Wed. 06.06
+- Daniel:
+	Implemented: First version of scout code, which fullfills most of the criteria, but still issues with the serial libraries of scout
+	Implemented: Collector hunts objects depending on Proximity sensor readings. Basic cases to turn and push objects implemented
+
+# Thu. 07.06
+
+
+# Fri. 08.06
+- Kevin:
+	Generated new brightness values for more acurate proximity values. Document readings in table.
+	Fixed rotation bug. Robot now always turns correctly in the correct (and best) direction.
+	Implemented possibility to send END command to collector.	
+- Daniel:
+	Fix: fixes to serial communication with scout
+	Fix: Scout motor calibration performed and constants inserted
+	Fix: Fixes for new collector input of coordinates, but still not working perfectly
+	
