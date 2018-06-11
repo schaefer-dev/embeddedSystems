@@ -6,20 +6,24 @@
 #include <math.h>
 #include "avr/io.h"
 #include "avr/interrupt.h"
+#include "../scout/main.h"
 
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
-const uint8_t PROXIMITY_THRESHOLD = 6;   // (10-6) * 5cm = 20cm
+const uint8_t PROXIMITY_THRESHOLD = 7;   // (10-7) * 5cm = 15cm
 
 /* used for demonstration and testing of individual functionalities */
 const uint8_t MODE_DESTINATION = 1;
 const uint8_t MODE_HUNT_OBJECT = 2;
-const uint8_t MODE_COMMUNICATION = 3;
+const uint8_t MODE_TIMER = 3;
 uint8_t modeOfOperation = MODE_DESTINATION;
 
 boolean terminate = false;
+uint16_t numInterrups = 0;
+uint16_t numInterrupsPrevCycle = 0;
+const uint8_t TIMER_DURATION = 16;      // in ms, must be at least 16
 
 void setup() {
 
@@ -41,6 +45,9 @@ void setup() {
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
+
+    // initialize timer
+    setTimer(TIMER_DURATION);
 
     // initialize serial connection
 #ifdef DEBUG
@@ -69,8 +76,17 @@ void loop() {
     else if (modeOfOperation == MODE_HUNT_OBJECT) {
         huntObject();
     }
-    else if (modeOfOperation == MODE_COMMUNICATION) {
-        // TODO RF MODULE TESTS
+    else if (modeOfOperation == MODE_TIMER) {
+        if (numInterrups > numInterrupsPrevCycle) {
+            numInterrupsPrevCycle = numInterrups;
+            Serial1.print("Interrupt #");
+            Serial1.print(numInterrups);
+            Serial1.print(", calculated time: ");
+            Serial1.print(numInterrups * TIMER_DURATION);
+            Serial1.print(", real time: ");
+            Serial1.print(millis());
+            Serial1.println(" ms");
+        }
     }
 }
 
@@ -82,8 +98,6 @@ void loop() {
 
 void huntObject(){
     proximitySensors->read();
-    // delay(5);
-
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
     uint8_t frontRightSensorValue = proximitySensors->countsFrontWithRightLeds();
     uint8_t leftSensorValue = proximitySensors->countsLeftWithLeftLeds();
@@ -156,7 +170,7 @@ void readNewDestinations() {
 #ifdef DEBUG
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
-    if (Serial1.available() > 2) {
+    if (Serial1.available() > 6) {
         int xDestination = 0;
         int yDestination = 0;
 
@@ -286,40 +300,40 @@ void generateBrightnessLevels() {
  * @param duration in ms
  */
 void setTimer(int duration){
-    uint16_t timer = 0;
+    uint8_t timer = 0;
 
     // select prescaler
-    if (duration < 32){
-        // prescaler 8 suffices
-        timer = (duration * 2000) -1 ;
+    if (duration < 3){
+        // prescaler 64 suffices
+        timer = (duration * 125) -1 ;      // Collector runs on 1Mhz
         OCR4A = timer;
 
     } else {
         // prescaler 1024
-        timer = (duration * 20) - 1;
+        timer = (duration * 8) - 1;        // Collector runs on 1Mhz
         OCR4A = timer;
     }
     // ctc on OCR4A
-    TCCR4B |= (1 << COM4A0);
+    TCCR4B |= (1 << COM4A1 | (1 << PWM4A));
 
     // set ctc interrupt
     TIMSK4 |= (1 << OCIE4A);
 
-    if (duration < 32){
-        // prescaler 8 suffices
-        TCCR4B |= (1 << CS42);
+    if (duration < 3){
+        // prescaler 256 suffices
+        TCCR4B &= ~(1 << CS43);
+        TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS42);
     } else {
-        // prescaler 1024
-        TCCR4B |= (1 << CS43) | (1 << CS41) | (1 << CS40);
+        // prescaler 4096
+        TCCR4B &= ~(1 << CS42);
+        TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS43);
     }
 
     // enable global interrupts
     sei();
-
-
 }
 
 ISR (TIMER4_COMPA_vect)
 {
-    //handle timer interrupt
+    numInterrups++;
 }

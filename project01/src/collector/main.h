@@ -18,3 +18,4 @@ void performRotation();
 void performStraightDrive(int cmLength);
 void huntObject();
 void generateBrightnessLevels();
+void setTimer(int);

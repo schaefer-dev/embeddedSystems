@@ -62,7 +62,7 @@ void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options
 
     if ( !(DDRC & (1<<PIN_SS_ADC)) && !(PORTC & (1<<PIN_SS_ADC)) )
     {
-        PORTD |= 1<<PIN_SS_ADC;
+        PORTC |= 1<<PIN_SS_ADC;
 
         // Delay a while to give the pull-up time
         delayMicroseconds(30);
@@ -198,12 +198,12 @@ void SPIMaster::setTimer(int duration){
     // select prescaler
     if (duration < 32){
         // prescaler 8 suffices
-        timer = (duration * 2000) -1 ;
+        timer = (duration * 2500) -1 ;  // TODO only if collector runs on 20Mhz
         OCR1A = timer;
 
     } else {
         // prescaler 1024
-        timer = (duration * 20) - 1;
+        timer = (duration * 20) - 1;    // TODO only if collector runs on 20Mhz
         OCR1A = timer;
     }
     // ctc on OCR1A (mode 4)

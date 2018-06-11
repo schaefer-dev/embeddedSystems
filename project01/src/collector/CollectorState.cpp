@@ -7,7 +7,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 12.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 20.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
