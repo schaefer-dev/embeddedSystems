@@ -1,5 +1,6 @@
 //
 // Created by rafael on 06.06.18.
+// part rewrite from OrangutanSPIMaster.h
 //
 
 #include "SPIMaster.h"
@@ -8,6 +9,20 @@
 #include <OrangutanSerial.h>
 #include <OrangutanTime.h>
 #include "ScoutSerial.h"
+
+
+// Fix incorrect SPI register and bit names used by some
+// versions of avr-libc
+#if defined(SPCR0) && !defined(SPCR)
+#define SPCR SPCR0
+#define CPHA CPHA0
+#define MSTR MSTR0
+#define SPE  SPE0
+#define SPSR SPSR0
+#define SPIF SPIF0
+#define SPDR SPDR0
+#endif
+
 
 // define Pins
 #define PIN_SS_RF 4
@@ -36,13 +51,35 @@
 
 void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options){
 
+    //Make sure slave select are output and pulled up
+    if ( !(DDRD & (1<<PIN_SS_RF)) && !(PORTD & (1<<PIN_SS_RF)) )
+    {
+        PORTD |= 1<<PIN_SS_RF;
+
+        // Delay a while to give the pull-up time
+        delayMicroseconds(30);
+    }
+
+    if ( !(DDRC & (1<<PIN_SS_ADC)) && !(PORTC & (1<<PIN_SS_ADC)) )
+    {
+        PORTD |= 1<<PIN_SS_ADC;
+
+        // Delay a while to give the pull-up time
+        delayMicroseconds(30);
+    }
+
+
+
     // Set MISO pin as input
     DDRB &= ~( 1 << PIN_MISO );
 
 
     // Set MOSI and SCK as ouput
-    DDRB |= ( 1 << PIN_MOSI );
-    DDRB |= ( 1 << PIN_SCK );
+    DDRB |= ( 1 << PIN_MOSI ) | ( 1 << PIN_SCK );
+
+    // Set Slave select as output
+    DDRC |= ( 1 << PIN_SS_ADC);
+    DDRD |= ( 1 << PIN_SS_RF);
 
 
     // drive PD4 high, PD7 low to deselect RF
@@ -53,6 +90,8 @@ void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options
     // Initiate SPI module
     SPCR = (1 << SPE) | (1 << MSTR) | (options & ~3) | (speed_divider & 3);
     SPSR = (speed_divider & 4) ? 1 : 0;
+
+    delay(1);
 
 }
 
@@ -78,6 +117,7 @@ void SPIMaster::slaveSelect(unsigned char slave){
         PORTD |= ( 1 << PIN_SS_RF);
         PORTC &= ~( 1 << PIN_SS_ADC);
     }
+    delayMicroseconds(30);
 
 }
 
@@ -119,26 +159,91 @@ unsigned char SPIMaster::transmitByte(unsigned char data){
 }
 
 
+/** transmit data bytewise
+ *
+ * @param data
+ * @return
+ */
+unsigned char* SPIMaster::transmitData(unsigned char* data, int size){
+
+    if (size <= 0){
+        int i=0;
+        for (i = 0; i < size; i++){
+            data[i] = 0;
+        }
+        return data;
+    }
+
+    int sizeM = size;
+    char dataByte = 0;
+
+    while (size > 0){
+        dataByte = data[sizeM-size];
+        data[sizeM-size] = transmitByte(dataByte);
+
+    }
+
+    return data;
+}
+
+
 /** set timer1 to interrupt after duration in ms
  *
  * @param duration
  */
 void SPIMaster::setTimer(int duration){
-    OCR1A = 0x3D08;
 
+    uint16_t timer = 0;
+
+    // select prescaler
+    if (duration < 32){
+        // prescaler 8 suffices
+        timer = (duration * 2000) -1 ;
+        OCR1A = timer;
+
+    } else {
+        // prescaler 1024
+        timer = (duration * 20) - 1;
+        OCR1A = timer;
+    }
+    // ctc on OCR1A (mode 4)
     TCCR1B |= (1 << WGM12);
-    // Mode 4, CTC on OCR1A
 
+    // set ctc interrupt
     TIMSK1 |= (1 << OCIE1A);
-    //Set interrupt on compare match
 
-    TCCR1B |= (1 << CS12) | (1 << CS10);
-    // set prescalar to 1024 and start the timer
+    if (duration < 32){
+        // prescaler 8 suffices
+        TCCR1B |= (1 << CS11);
+    } else {
+        // prescaler 1024
+        TCCR1B |= (1 << CS12) | (1 << CS10);
+    }
 
     // enable global interrupts
     sei();
 
 }
+
+int SPIMaster::readADC() {
+/*
+    // select ADC
+    slaveSelect(SELECT_ADC);
+
+    // read dummy byte
+    unsigned char address = 0x00f0;
+    unsigned char data[16];
+    data[0] = address;
+    transmitData(data, 16);
+    delay(1);
+
+    // read ADC
+    unsigned char reply[16];
+    reply = transmitData(data, 16);*/
+    return 0;
+}
+
+
 
 // ISR for timer1
 ISR (TIMER1_COMPA_vect)

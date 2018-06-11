@@ -38,6 +38,10 @@ public:
 
     static unsigned char transmitByte(unsigned char data);
 
+    static unsigned char *transmitData(unsigned char *data, int size);
+
+    static int readADC();
+
     static void setTimer(int duration);
 
 };

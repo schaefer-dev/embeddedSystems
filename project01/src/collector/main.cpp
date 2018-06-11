@@ -4,6 +4,8 @@
 #include "Coordinates.h"
 #include "main.h"
 #include <math.h>
+#include "avr/io.h"
+#include "avr/interrupt.h"
 
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
@@ -276,4 +278,48 @@ void generateBrightnessLevels() {
         defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1/4.0f);
     }
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
+}
+
+
+/** set timer 4
+ *
+ * @param duration in ms
+ */
+void setTimer(int duration){
+    uint16_t timer = 0;
+
+    // select prescaler
+    if (duration < 32){
+        // prescaler 8 suffices
+        timer = (duration * 2000) -1 ;
+        OCR4A = timer;
+
+    } else {
+        // prescaler 1024
+        timer = (duration * 20) - 1;
+        OCR4A = timer;
+    }
+    // ctc on OCR4A
+    TCCR4B |= (1 << COM4A0);
+
+    // set ctc interrupt
+    TIMSK4 |= (1 << OCIE4A);
+
+    if (duration < 32){
+        // prescaler 8 suffices
+        TCCR4B |= (1 << CS42);
+    } else {
+        // prescaler 1024
+        TCCR4B |= (1 << CS43) | (1 << CS41) | (1 << CS40);
+    }
+
+    // enable global interrupts
+    sei();
+
+
+}
+
+ISR (TIMER4_COMPA_vect)
+{
+    //handle timer interrupt
 }
