@@ -16,6 +16,8 @@ public:
     void serialWrite(char *buffer, unsigned char size);
     bool readCoordinates(int *);
 
+    void serialWriteInt(int input);
+
     char receiveBuffer[100];
     unsigned char receiveIndex;
 };

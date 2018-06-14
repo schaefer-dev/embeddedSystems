@@ -5,10 +5,12 @@
 
 #include "SPIMaster.h"
 #include "avr/io.h"
-#include "avr/interrupt.h"
 #include <OrangutanSerial.h>
 #include <OrangutanTime.h>
 #include "ScoutSerial.h"
+#include "main.h"
+#include "avr/interrupt.h"
+#include "avr/io.h"
 
 
 // Fix incorrect SPI register and bit names used by some
@@ -49,7 +51,11 @@
  * PD7 -- RF enable
  */
 
-void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options){
+
+SPIMaster::SPIMaster(){
+}
+
+void SPIMaster::SPIMasterInit(){
 
     //Make sure slave select are output and pulled up
     if ( !(DDRD & (1<<PIN_SS_RF)) && !(PORTD & (1<<PIN_SS_RF)) )
@@ -69,7 +75,6 @@ void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options
     }
 
 
-
     // Set MISO pin as input
     DDRB &= ~( 1 << PIN_MISO );
 
@@ -87,16 +92,37 @@ void SPIMaster::SPIMasterInit(unsigned char speed_divider, unsigned char options
     PORTD &= ~( 1 << PIN_RF_ENABLE);
 
 
-    // Initiate SPI module
-    SPCR = (1 << SPE) | (1 << MSTR) | (options & ~3) | (speed_divider & 3);
-    SPSR = (speed_divider & 4) ? 1 : 0;
+    // set timer for SCK frequency
+    // TODO: this parameter might need optimization (maybe even change prescaler used in method)
+    setTimer1Interrupt(100);
+
 
     delay(1);
 
 }
 
 
+/* returns whenever next rising edge occurs, used for synchronization */
+void SPIMaster::waitNextRisingEdge(){
+
+
+    volatile int counter;
+
+    while (SCK_VALUE > 0){
+        counter ++;
+    }
+
+    while (SCK_VALUE == 0){
+        counter ++;
+    }
+}
+
+
 /**
+ *
+ * IMPORTANT: Select slaves only when clock currently high, such that rising edge after slave select can be detected
+ * with 100% probability.
+ *
  * select or deselect current slave node on Scout
  * @param slave DESELECT (0), SELECT_ADC (1) or SELECT_RF (2)
  */
@@ -127,18 +153,7 @@ void SPIMaster::slaveSelect(unsigned char slave){
  * @return data sent by slave device
  */
 unsigned char SPIMaster::transmitByte(unsigned char data){
-
-    // enable SPI in default mode
-    if ( !(SPCR & (1<<SPE)) )
-    {
-        SPIMasterInit(SPI_DEFAULT_SPEED_DIVIDER, SPI_DEFAULT_OPTIONS);
-    }
-
-    // if the SPI module is not in master mode
-    if (!(SPCR&(1<<MSTR)))
-    {
-        SPCR |= 1<<MSTR;
-    }
+    // TODO rewrite method entirely
 
     // begin transmission
     SPDR = data;
@@ -165,6 +180,7 @@ unsigned char SPIMaster::transmitByte(unsigned char data){
  * @return
  */
 unsigned char* SPIMaster::transmitData(unsigned char* data, int size){
+    // TODO rewrite method entirely
 
     if (size <= 0){
         int i=0;
@@ -187,46 +203,43 @@ unsigned char* SPIMaster::transmitData(unsigned char* data, int size){
 }
 
 
-/** set timer1 to interrupt after duration in ms
- *
+/* 
+ * Timer1 is reset every duration, and prescaled to interrupt every duration
+ * 
  * @param duration
  */
-void SPIMaster::setTimer(int duration){
+void SPIMaster::setTimer1Interrupt(uint16_t factor){
 
-    uint16_t timer = 0;
+    OCR1A = factor;
 
-    // select prescaler
-    if (duration < 32){
-        // prescaler 8 suffices
-        timer = (duration * 2500) -1 ;  // TODO only if collector runs on 20Mhz
-        OCR1A = timer;
-
-    } else {
-        // prescaler 1024
-        timer = (duration * 20) - 1;    // TODO only if collector runs on 20Mhz
-        OCR1A = timer;
-    }
     // ctc on OCR1A (mode 4)
     TCCR1B |= (1 << WGM12);
 
     // set ctc interrupt
     TIMSK1 |= (1 << OCIE1A);
 
-    if (duration < 32){
-        // prescaler 8 suffices
-        TCCR1B |= (1 << CS11);
-    } else {
-        // prescaler 1024
-        TCCR1B |= (1 << CS12) | (1 << CS10);
-    }
+    // prescaler 1024
+    TCCR1B |= (1 << CS12) | (1 << CS10);
 
     // enable global interrupts
     sei();
-
 }
 
 int SPIMaster::readADC() {
+    int output = 0;
+
+    slaveSelect(SLAVE_ADC);
+
+    waitNextRisingEdge();
+
+
+
+    slaveSelect(SLAVE_NONE);
+
+
+
 /*
+ *  // TODO rewrite method entirely
     // select ADC
     slaveSelect(SELECT_ADC);
 
@@ -240,7 +253,7 @@ int SPIMaster::readADC() {
     // read ADC
     unsigned char reply[16];
     reply = transmitData(data, 16);*/
-    return 0;
+    return output;
 }
 
 
@@ -248,5 +261,10 @@ int SPIMaster::readADC() {
 // ISR for timer1
 ISR (TIMER1_COMPA_vect)
 {
-    serial_send_blocking("!!\n", 3);
+    if (SCK_VALUE > 0)
+        PORTB &= ~(1<<PB4);
+    else
+        PORTB |= (1<<PB4);
+
+
 }

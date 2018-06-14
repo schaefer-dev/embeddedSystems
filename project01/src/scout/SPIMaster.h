@@ -5,44 +5,36 @@
 #ifndef EMBEDDEDSYSTEMS18_SPIMASTER_H
 #define EMBEDDEDSYSTEMS18_SPIMASTER_H
 
+#include <stdint.h>
 
-#define SPI_EDGE_LEADING  0
-#define SPI_EDGE_TRAILING (1<<CPHA)
+#define SLAVE_NONE 0
+#define SLAVE_ADC 1
+#define SLAVE_RF 2
 
-#define SPI_MSB_FIRST     0
-#define SPI_LSB_FIRST     (1<<DORD)
-
-#define SPI_SCK_IDLE_LOW    0
-#define SPI_SCK_IDLE_HIGH   (1<<CPOL)
-
-#define SPI_SPEED_DIVIDER_2   0b100
-#define SPI_SPEED_DIVIDER_4   0b000
-#define SPI_SPEED_DIVIDER_8   0b101
-#define SPI_SPEED_DIVIDER_16  0b001
-#define SPI_SPEED_DIVIDER_32  0b110
-#define SPI_SPEED_DIVIDER_64  0b010
-#define SPI_SPEED_DIVIDER_128 0b011
-
-#define DESELECT 0
-#define SELECT_ADC 1
-#define SELECT_RF 2
-
+#define SCK_VALUE (PORTB & (1<<PB4))
 
 class SPIMaster
 {
+
+private:
+    void waitNextRisingEdge();
+
+    void slaveSelect(unsigned char slave);
+
+    unsigned char transmitByte(unsigned char data);
+
+    unsigned char *transmitData(unsigned char *data, int size);
+
+
 public:
 
-    static void SPIMasterInit(unsigned char speed_divider, unsigned char options);
+    SPIMaster();
 
-    static void slaveSelect(unsigned char slave);
+    void SPIMasterInit();
 
-    static unsigned char transmitByte(unsigned char data);
+    int readADC();
 
-    static unsigned char *transmitData(unsigned char *data, int size);
-
-    static int readADC();
-
-    static void setTimer(int duration);
+    void setTimer1Interrupt(uint16_t factor);
 
 };
 

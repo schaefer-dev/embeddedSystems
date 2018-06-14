@@ -26,6 +26,19 @@ void ScoutSerial::serialWrite(char *buffer, unsigned char size) {
     OrangutanSerial::sendBlocking(buffer, size);
 }
 
+void ScoutSerial::serialWriteInt(int input) {
+    char toBePrinted[6];
+    toBePrinted[5] = '\n';
+
+    for (int i = 4; i >= 0; i--){
+        int modValue = input % 10;
+
+        toBePrinted[i] = (char)(modValue + 48);
+        input = input / 10;
+    }
+    serialWrite(toBePrinted, 6);
+}
+
 bool ScoutSerial::readCoordinates(int *returnArray){
 
     delay(50);

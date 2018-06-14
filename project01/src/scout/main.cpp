@@ -1,18 +1,16 @@
-#include "ScoutState.h"
-#include "SPIMaster.h"
+
 #include <OrangutanTime.h>
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
 #include "../collector/Coordinates.h"
-#include "ScoutSerial.h"
 
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 ScoutSerial *scoutSerial;
-bool termination = false;
-bool spiEnabled = false;
+SPIMaster *scoutSPI;
+bool spiEnabled = true;
 
 int main() {
     /* SETUP */
@@ -20,6 +18,7 @@ int main() {
     /* initialization of Data structures */
     scoutState = new ScoutState();
     coordinateQueue = new CoordinateQueue();
+    scoutSPI = new SPIMaster();
 
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
@@ -41,44 +40,26 @@ int main() {
     delay(200);
 
     char adcdata;
-    char intq;
 
-    int rotationcounter = 0;
-
-
-    // IMPORTANT: initialize SPI module DISABLED, comment this in when using SPI
     if (spiEnabled)
-        SPIMaster::SPIMasterInit(SPI_SPEED_DIVIDER_128, 0);
+        scoutSPI->SPIMasterInit();
 
     while (1) {
 
         /* IMPORTANT: SPI CODE DISABLED */
-        if (spiEnabled) {
-            // select ADC
-            SPIMaster::slaveSelect(SELECT_ADC);
-
-            delay(50);
-
-            // send data to ADC
-
-            adcdata = SPIMaster::transmitByte(1);
-            char adcArray[1];
-            adcArray[0] = adcdata + 48;
-            scoutSerial->serialWrite(adcArray, 1);
-            scoutSerial->serialWrite(" <- ADC data --\n", 16);
-
-            // deselect slave
-            SPIMaster::slaveSelect(DESELECT);
-
-            // set timer of 1s
-            SPIMaster::setTimer(1000);
+        if (PORTB & (1<<PB4)){
+            scoutSerial->serialWrite("high\n",5);
+        } else {
+            scoutSerial->serialWrite("low\n",4);
         }
+        delay(100);
 
 
 
 
         /* IMPORTANT Roboter driving code ENABLED */
         if (!spiEnabled) {
+
             readNewDestinations();
             if (driveToDestination()) {
                 performRotation();
