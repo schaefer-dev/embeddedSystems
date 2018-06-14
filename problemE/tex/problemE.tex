@@ -48,18 +48,28 @@
 
 \section*{Problem E1}
 \subsection*{a)}
-(7, 8, 9, 1, 2, 3, 4, 5, 3, 4, 6)
+The path \\
+(7, 8, 9, 1, 2, 3, 4, 5, 3, 4, 6) \\
+has statement coverage, \\
+but we do not cover the decision to follow the edge from 7 to 9. \\
+As such we do not get decision coverage.
 
 \subsection*{b)}
-(2, 7, 8)
+(2, 7, 8) is a simple path as it is finite and the nodes are pairwise different.
+It is also a subsequence of the prime path (1, 2, 7, 8, 9, 1).
+Thus the path itself is no prime path.
 
 \subsection*{c)}
-$\{$(1, 2, 7, 9, 1), (7, 8, 9, 1, 2, 3, 4, 6), (3, 4, 5, 3)$\}$
+The following set of paths \\
+$\{$(1, 2, 7, 9, 1, 2, 3, 4, 5, 3), (1, 2, 7, 8, 9, 1, 2, 3, 4, 6)$\}$ \\
+achieves prime path coverage. 
+
 
 \subsection*{d)}
-For path coverage of all finite paths the infinite set of paths that fulfill the following suffice:
-$\{ p \in $ (1, 2, 7, (8, $|$ 8, 9,))* 2, (3, 4, 5,)* 3, 4, 6 $\}$ ; where * denotes any finite amount of repetitions
+For path coverage of all finite paths the infinite set of test paths that fulfill the following suffice:
+$\{ p \in $ [ (1, 2, 7, (8, $|$ 8, 9,))* 2, (3, 4, 5,)* 3, 4, 6 ] $\}$ ; where * denotes any finite amount of repetitions
 
+The given CFG contains two loops that allow for infinite paths.
 Since we cannot cover all infinite paths with our test paths, we do not have full path coverage.
 
 This infinte set covers all finite paths, therefore we do achieve prime path coverage. 
@@ -70,22 +80,24 @@ This infinte set covers all finite paths, therefore we do achieve prime path cov
 \section*{Problem E3}
 \subsection*{a)}
 
-%TODO Automaton
+\newpage
 
 \subsection*{b)}
 \begin{itemize}
 	\item[i)] $ \mathbf{G}( \neg \: bdep )$
 	\item[ii)] $ \mathbf{G} ( \neg home \rightarrow \mathbf{F} \: home ) $
 	\item[iii)] $ \mathbf{G} (pu2 \rightarrow ( \neg pu1 \: \mathbf{U} \: compacting ) ) $
-	\item[iv)] $ \mathbf{G} \neg (fis \rightarrow \neg \mathbf{F} \: puf )$
+	\item[iv)] $ \mathbf{G} (fis \rightarrow \mathbf{X} \: puf )$
 \end{itemize}
 
 \subsection*{c)}
 \begin{itemize}
-	\item[i)]
-	\item[ii)]
-	\item[iii)]
-	\item[iv)]
+	\item[i)] safety property
+	\vspace{4cm}
+	\item[ii)] liveness property
+	\item[iii)] liveness property
+	\item[iv)] safety property
+	\vspace{4cm}
 \end{itemize}
 
 
