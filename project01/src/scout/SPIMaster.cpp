@@ -11,6 +11,7 @@
 #include "main.h"
 #include "avr/interrupt.h"
 #include "avr/io.h"
+#include "math.h"
 
 
 // Fix incorrect SPI register and bit names used by some
@@ -52,23 +53,21 @@
  */
 
 
-SPIMaster::SPIMaster(){
+SPIMaster::SPIMaster() {
 }
 
-void SPIMaster::SPIMasterInit(){
+void SPIMaster::SPIMasterInit() {
 
     //Make sure slave select are output and pulled up
-    if ( !(DDRD & (1<<PIN_SS_RF)) && !(PORTD & (1<<PIN_SS_RF)) )
-    {
-        PORTD |= 1<<PIN_SS_RF;
+    if (!(DDRD & (1 << PIN_SS_RF)) && !(PORTD & (1 << PIN_SS_RF))) {
+        PORTD |= 1 << PIN_SS_RF;
 
         // Delay a while to give the pull-up time
         delayMicroseconds(30);
     }
 
-    if ( !(DDRC & (1<<PIN_SS_ADC)) && !(PORTC & (1<<PIN_SS_ADC)) )
-    {
-        PORTC |= 1<<PIN_SS_ADC;
+    if (!(DDRC & (1 << PIN_SS_ADC)) && !(PORTC & (1 << PIN_SS_ADC))) {
+        PORTC |= 1 << PIN_SS_ADC;
 
         // Delay a while to give the pull-up time
         delayMicroseconds(30);
@@ -76,20 +75,20 @@ void SPIMaster::SPIMasterInit(){
 
 
     // Set MISO pin as input
-    DDRB &= ~( 1 << PIN_MISO );
+    DDRB &= ~(1 << PIN_MISO);
 
 
     // Set MOSI and SCK as ouput
-    DDRB |= ( 1 << PIN_MOSI ) | ( 1 << PIN_SCK );
+    DDRB |= (1 << PIN_MOSI) | (1 << PIN_SCK) | (1 << PB1);
 
     // Set Slave select as output
-    DDRC |= ( 1 << PIN_SS_ADC);
-    DDRD |= ( 1 << PIN_SS_RF);
+    DDRC |= (1 << PIN_SS_ADC);
+    DDRD |= (1 << PIN_SS_RF);
 
 
     // drive PD4 high, PD7 low to deselect RF
-    PORTD |= ( 1 << PIN_SS_RF);
-    PORTD &= ~( 1 << PIN_RF_ENABLE);
+    PORTD |= (1 << PIN_SS_RF);
+    PORTD &= ~(1 << PIN_RF_ENABLE);
 
 
     // set timer for SCK frequency
@@ -103,17 +102,32 @@ void SPIMaster::SPIMasterInit(){
 
 
 /* returns whenever next rising edge occurs, used for synchronization */
-void SPIMaster::waitNextRisingEdge(){
+void SPIMaster::waitNextRisingEdge() {
 
 
     volatile int counter;
 
-    while (SCK_VALUE > 0){
-        counter ++;
+    while (SCK_VALUE > 0) {
+        counter++;
     }
 
-    while (SCK_VALUE == 0){
-        counter ++;
+    while (SCK_VALUE == 0) {
+        counter++;
+    }
+}
+
+/* returns whenever next falling edge occurs, used for synchronization */
+void SPIMaster::waitNextFallingEdge() {
+
+
+    volatile int counter;
+
+    while (SCK_VALUE == 0) {
+        counter++;
+    }
+
+    while (SCK_VALUE > 0) {
+        counter++;
     }
 }
 
@@ -126,22 +140,21 @@ void SPIMaster::waitNextRisingEdge(){
  * select or deselect current slave node on Scout
  * @param slave DESELECT (0), SELECT_ADC (1) or SELECT_RF (2)
  */
-void SPIMaster::slaveSelect(unsigned char slave){
+void SPIMaster::slaveSelect(unsigned char slave) {
 
     // check for selection
-    if (slave < 1){
-        PORTD |= ( 1 << PIN_SS_RF);
-        PORTC |= ( 1 << PIN_SS_ADC);
+    if (slave < 1) {
+        PORTD |= (1 << PIN_SS_RF);
+        PORTC |= (1 << PIN_SS_ADC);
     }
-    if (slave > 1){
+    if (slave > 1) {
         // deselect ADC, select RF
-        PORTC |= ( 1 << PIN_SS_ADC);
+        PORTC |= (1 << PIN_SS_ADC);
         // PORTD &= ~( 1 << PIN_SS_RF);
-    }
-    else {
+    } else {
         //deselect RF, select ADC
-        PORTD |= ( 1 << PIN_SS_RF);
-        PORTC &= ~( 1 << PIN_SS_ADC);
+        PORTD |= (1 << PIN_SS_RF);
+        PORTC &= ~(1 << PIN_SS_ADC);
     }
     delayMicroseconds(30);
 
@@ -152,17 +165,15 @@ void SPIMaster::slaveSelect(unsigned char slave){
  * @param data byte to send
  * @return data sent by slave device
  */
-unsigned char SPIMaster::transmitByte(unsigned char data){
+unsigned char SPIMaster::transmitByte(unsigned char data) {
     // TODO rewrite method entirely
 
     // begin transmission
     SPDR = data;
 
     // wait while transmission is processing
-    while(!(SPSR & (1<<SPIF)))
-    {
-        if (!(SPCR & (1<<MSTR)))
-        {
+    while (!(SPSR & (1 << SPIF))) {
+        if (!(SPCR & (1 << MSTR))) {
             // The SPI module has left master mode, so return.
             // Otherwise, this will be an infinite loop.
             return 0;
@@ -179,12 +190,12 @@ unsigned char SPIMaster::transmitByte(unsigned char data){
  * @param data
  * @return
  */
-unsigned char* SPIMaster::transmitData(unsigned char* data, int size){
+unsigned char *SPIMaster::transmitData(unsigned char *data, int size) {
     // TODO rewrite method entirely
 
-    if (size <= 0){
-        int i=0;
-        for (i = 0; i < size; i++){
+    if (size <= 0) {
+        int i = 0;
+        for (i = 0; i < size; i++) {
             data[i] = 0;
         }
         return data;
@@ -193,9 +204,9 @@ unsigned char* SPIMaster::transmitData(unsigned char* data, int size){
     int sizeM = size;
     char dataByte = 0;
 
-    while (size > 0){
-        dataByte = data[sizeM-size];
-        data[sizeM-size] = transmitByte(dataByte);
+    while (size > 0) {
+        dataByte = data[sizeM - size];
+        data[sizeM - size] = transmitByte(dataByte);
 
     }
 
@@ -208,7 +219,7 @@ unsigned char* SPIMaster::transmitData(unsigned char* data, int size){
  * 
  * @param duration
  */
-void SPIMaster::setTimer1Interrupt(uint16_t factor){
+void SPIMaster::setTimer1Interrupt(uint16_t factor) {
 
     OCR1A = factor;
 
@@ -225,46 +236,60 @@ void SPIMaster::setTimer1Interrupt(uint16_t factor){
     sei();
 }
 
+
 int SPIMaster::readADC() {
     int output = 0;
+    int buf = 0;
 
+    setTimer1Interrupt(1024);
+
+    // drive SS/CS low
     slaveSelect(SLAVE_ADC);
+
+    // wait for 2 rising , 1 falling edge
+    waitNextRisingEdge();
 
     waitNextRisingEdge();
 
+    waitNextFallingEdge();
 
+    // send address over MOSI
+    PORTB &= ~(1 << PB5);
 
+    for (int k = 0; k < 8; k++)
+        waitNextRisingEdge();
+
+    // drive SS/CS high
     slaveSelect(SLAVE_NONE);
 
+    // wait for conversion
+    for (int i = 0; i < 40; i++)
+        waitNextRisingEdge();
 
+    // drive SS/CS low
+    slaveSelect(SLAVE_ADC);
 
-/*
- *  // TODO rewrite method entirely
-    // select ADC
-    slaveSelect(SELECT_ADC);
+    // receive conversion data on MISO
+    for (int j = 0; j < 8; j++){
 
-    // read dummy byte
-    unsigned char address = 0x00f0;
-    unsigned char data[16];
-    data[0] = address;
-    transmitData(data, 16);
-    delay(1);
+        buf = (PORTB & (1<<PB0));
+        output += pow(2, 7-j) * buf;
+        waitNextFallingEdge();
 
-    // read ADC
-    unsigned char reply[16];
-    reply = transmitData(data, 16);*/
+    }
+
     return output;
 }
 
 
 
 // ISR for timer1
-ISR (TIMER1_COMPA_vect)
-{
-    if (SCK_VALUE > 0)
-        PORTB &= ~(1<<PB4);
-    else
-        PORTB |= (1<<PB4);
+ISR (TIMER1_COMPA_vect) {
+    if (SCK_VALUE > 0) {
+        PORTB &= (~(1 << PB4) & ~(1 << PB1));
+    } else {
+        PORTB |= (1 << PB4) | (1 << PB1);
+    }
 
 
 }

@@ -40,20 +40,25 @@ int main() {
     delay(200);
 
     char adcdata;
+    int adcout;
 
     if (spiEnabled)
         scoutSPI->SPIMasterInit();
 
     while (1) {
 
-        /* IMPORTANT: SPI CODE DISABLED */
+
+        adcout = scoutSPI->readADC();
+        scoutSerial->serialWriteInt(adcout);
+        delay(200);
+        /* IMPORTANT: SPI CODE DISABLED
         if (PORTB & (1<<PB4)){
             scoutSerial->serialWrite("high\n",5);
         } else {
             scoutSerial->serialWrite("low\n",4);
         }
         delay(100);
-
+        */
 
 
 

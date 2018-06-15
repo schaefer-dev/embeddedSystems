@@ -36,6 +36,7 @@ public:
 
     void setTimer1Interrupt(uint16_t factor);
 
+    void waitNextFallingEdge();
 };
 
 
