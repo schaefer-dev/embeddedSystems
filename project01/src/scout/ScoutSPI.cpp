@@ -41,13 +41,13 @@
 
 
 // define Pins
-#define PIN_SS_RF 4
-#define PIN_SS_ADC 5
-#define PIN_MOSI  PB5
-#define PIN_MISO  PB0
-#define PIN_SPI_SCK PB4
-#define PIN_RF_ENABLE 7
-#define PIN_ADC_SCK PB1
+#define PIN_SS_RF_D PD4
+#define PIN_SS_ADC_C PC5
+#define PIN_MOSI_B  PB5
+#define PIN_MISO_B  PB0
+#define PIN_SPI_SCK_B PB4
+#define PIN_RF_ENABLE_D PD7
+#define PIN_ADC_SCK_B PB1
 
 
 /* SPI_INTERRUPT_SPEED has to be 1 with the current setup */
@@ -69,15 +69,15 @@ void ScoutSPI::SPIMasterInit() {
     ScoutSPI::interruptCounter = 0;
 
     //Make sure slave select are output and pulled up
-    if (!(DDRD & (1 << PIN_SS_RF)) && !(PORTD & (1 << PIN_SS_RF))) {
-        PORTD |= 1 << PIN_SS_RF;
+    if (!(DDRD & (1 << PIN_SS_RF_D)) && !(PORTD & (1 << PIN_SS_RF_D))) {
+        PORTD |= 1 << PIN_SS_RF_D;
 
         // Delay a while to give the pull-up time
         delayMicroseconds(30);
     }
 
-    if (!(DDRC & (1 << PIN_SS_ADC)) && !(PORTC & (1 << PIN_SS_ADC))) {
-        PORTC |= 1 << PIN_SS_ADC;
+    if (!(DDRC & (1 << PIN_SS_ADC_C)) && !(PORTC & (1 << PIN_SS_ADC_C))) {
+        PORTC |= 1 << PIN_SS_ADC_C;
 
         // Delay a while to give the pull-up time
         delayMicroseconds(30);
@@ -85,20 +85,20 @@ void ScoutSPI::SPIMasterInit() {
 
 
     // Set MISO pin as input
-    DDRB &= ~(1 << PIN_MISO);
+    DDRB &= ~(1 << PIN_MISO_B);
 
     // Set MOSI and SCK for SPI as ouput, additionally also the SystemClock of the ADC (PB1)
-    DDRB |= (1 << PIN_MOSI) | (1 << PIN_SPI_SCK) | (1 << PIN_ADC_SCK);
+    DDRB |= (1 << PIN_MOSI_B) | (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
 
 
     // Set Slave select as output
-    DDRC |= (1 << PIN_SS_ADC);
-    DDRD |= (1 << PIN_SS_RF);
+    DDRC |= (1 << PIN_SS_ADC_C);
+    DDRD |= (1 << PIN_SS_RF_D);
 
 
     // drive PD4 high, PD7 low to deselect RF
-    PORTD |= (1 << PIN_SS_RF);
-    PORTD &= ~(1 << PIN_RF_ENABLE);
+    PORTD |= (1 << PIN_SS_RF_D);
+    PORTD &= ~(1 << PIN_RF_ENABLE_D);
 
 
 
@@ -149,17 +149,17 @@ void ScoutSPI::slaveSelect(unsigned char slave) {
 
     // check for selection
     if (slave < 1) {
-        PORTD |= (1 << PIN_SS_RF);
-        PORTC |= (1 << PIN_SS_ADC);
+        PORTD |= (1 << PIN_SS_RF_D);
+        PORTC |= (1 << PIN_SS_ADC_C);
     }
     if (slave > 1) {
         // deselect ADC, select RF
-        PORTC |= (1 << PIN_SS_ADC);
-        // PORTD &= ~( 1 << PIN_SS_RF);
+        PORTC |= (1 << PIN_SS_ADC_C);
+        // PORTD &= ~( 1 << PIN_SS_RF_D);
     } else {
         //deselect RF, select ADC
-        PORTD |= (1 << PIN_SS_RF);
-        PORTC &= ~(1 << PIN_SS_ADC);
+        PORTD |= (1 << PIN_SS_RF_D);
+        PORTC &= ~(1 << PIN_SS_ADC_C);
     }
 }
 
@@ -330,7 +330,7 @@ int ScoutSPI::readADC() {
 
         waitNextFallingEdge();
 
-        buf = (PORTB & (1 << PIN_MISO));
+        buf = (PORTB & (1 << PIN_MISO_B));
         output += pow(2, 7-j) * buf;
 
     }
@@ -355,18 +355,18 @@ ISR (TIMER1_COMPA_vect) {
     /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
     if (ScoutSPI::interruptCounter == 0) {
         if (SCK_VALUE > 0) {
-            //PORTB &= (~(1 << PIN_SPI_SCK) & ~(1 << PIN_ADC_SCK));
-            PORTB &= (~(1 << PIN_SPI_SCK));
+            //PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
+            PORTB &= (~(1 << PIN_SPI_SCK_B));
             //ScoutSerial::serialWrite("L",1);
         } else {
-            //PORTB |= (1 << PIN_SPI_SCK) | (1 << PIN_ADC_SCK);
-            PORTB |= (1 << PIN_SPI_SCK);
+            //PORTB |= (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
+            PORTB |= (1 << PIN_SPI_SCK_B);
             //ScoutSerial::serialWrite("H",1);
         }
 
 
         /* Debug, check if MOSI line currently sends anything */
-        if ((PORTB & (1<<PIN_MOSI)) > 0){
+        if ((PORTB & (1<<PIN_MOSI_B)) > 0){
             //ScoutSerial::serialWrite("1\n", 2);
         } else {
             //ScoutSerial::serialWrite("0\n", 2);
@@ -375,15 +375,15 @@ ISR (TIMER1_COMPA_vect) {
 
 
     /* switch adc system clock every time the interrupt is triggered */
-    if ((PORTB & (1 << PIN_ADC_SCK)) > 0){
-        PORTB &= (~(1 << PIN_ADC_SCK));
+    if ((PORTB & (1 << PIN_ADC_SCK_B)) > 0){
+        PORTB &= (~(1 << PIN_ADC_SCK_B));
     } else {
-        PORTB |= (1 << PIN_ADC_SCK);
+        PORTB |= (1 << PIN_ADC_SCK_B);
     }
 
 
     /* Debug, check if MISO lane receives anything */
-    if ((PORTB & (1<< PIN_MISO)) > 0){
+    if ((PORTB & (1<< PIN_MISO_B)) > 0){
         ScoutSerial::serialWrite("!!!\n", 4);
     }
 
