@@ -93,7 +93,7 @@ void SPIMaster::SPIMasterInit() {
 
     // set timer for SCK frequency
     // TODO: this parameter might need optimization (maybe even change prescaler used in method)
-    setTimer1Interrupt(100);
+    setTimer1Interrupt(30);
 
 
     delay(1);
@@ -103,7 +103,6 @@ void SPIMaster::SPIMasterInit() {
 
 /* returns whenever next rising edge occurs, used for synchronization */
 void SPIMaster::waitNextRisingEdge() {
-
 
     volatile int counter;
 
@@ -118,7 +117,6 @@ void SPIMaster::waitNextRisingEdge() {
 
 /* returns whenever next falling edge occurs, used for synchronization */
 void SPIMaster::waitNextFallingEdge() {
-
 
     volatile int counter;
 
@@ -156,8 +154,6 @@ void SPIMaster::slaveSelect(unsigned char slave) {
         PORTD |= (1 << PIN_SS_RF);
         PORTC &= ~(1 << PIN_SS_ADC);
     }
-    delayMicroseconds(30);
-
 }
 
 /** send one byte of data to slave node
@@ -241,7 +237,7 @@ int SPIMaster::readADC() {
     int output = 0;
     int buf = 0;
 
-    setTimer1Interrupt(1024);
+    waitNextFallingEdge();
 
     // drive SS/CS low
     slaveSelect(SLAVE_ADC);
@@ -253,30 +249,67 @@ int SPIMaster::readADC() {
 
     waitNextFallingEdge();
 
-    // send address over MOSI
+    // set byte to be sent over MOSI to 0
     PORTB &= ~(1 << PB5);
 
-    for (int k = 0; k < 8; k++)
+    // first bit 0 is being read
+    waitNextRisingEdge();
+
+    // second bit 0 is being read
+    waitNextRisingEdge();
+
+    // set byte to be sent over MOSI to 1
+    PORTB |= (1 << PB5);
+
+    // third bit 1 is being read
+    waitNextRisingEdge();
+
+    // set byte to be sent over MOSI to 0
+    PORTB &= ~(1 << PB5);
+
+    // fourth bit 0 is being read
+    waitNextRisingEdge();
+
+    /* at this point adc should have received adress 0010 */
+
+    for (int k = 0; k < 4; k++)
         waitNextRisingEdge();
+
+    waitNextFallingEdge();
 
     // drive SS/CS high
     slaveSelect(SLAVE_NONE);
 
-    // wait for conversion
+    // wait for conversion (at least 36 cycles)
     for (int i = 0; i < 40; i++)
         waitNextRisingEdge();
+
+    waitNextFallingEdge();
 
     // drive SS/CS low
     slaveSelect(SLAVE_ADC);
 
+    // wait for 2 rising , 1 falling edge
+    waitNextRisingEdge();
+
+    waitNextRisingEdge();
+
+    waitNextFallingEdge();
+
     // receive conversion data on MISO
     for (int j = 0; j < 8; j++){
 
+        waitNextRisingEdge();
+
         buf = (PORTB & (1<<PB0));
         output += pow(2, 7-j) * buf;
-        waitNextFallingEdge();
 
     }
+
+    waitNextFallingEdge();
+
+    // drive SS/CS high
+    slaveSelect(SLAVE_NONE);
 
     return output;
 }
@@ -290,6 +323,12 @@ ISR (TIMER1_COMPA_vect) {
     } else {
         PORTB |= (1 << PB4) | (1 << PB1);
     }
+
+    /* Debug, check if MISO lane receives anything */
+    if ((PORTB & (1<<PB0)) > 0){
+        OrangutanSerial::sendBlocking("high!\n", 6);
+    }
+
 
 
 }

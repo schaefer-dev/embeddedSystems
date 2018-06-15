@@ -494,5 +494,11 @@ No success in intergrating our implementation.
 	Fixed Serial input problem
 	
 	
+
+# Thu 14.06
+- Daniel:
+      Timer0, Timer2 used for motors
+      Current state of SPI/Timers:
+      timer1 is prescaled for SPI and triggers interrupt currently on compare with constant and clears after interrupt. This might change in the future
 	
 	
