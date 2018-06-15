@@ -43,15 +43,19 @@
 // define Pins
 #define PIN_SS_RF 4
 #define PIN_SS_ADC 5
-#define PIN_MOSI  5
-#define PIN_MISO  0
-#define PIN_SCK 4
+#define PIN_MOSI  PB5
+#define PIN_MISO  PB0
+#define PIN_SPI_SCK PB4
 #define PIN_RF_ENABLE 7
+#define PIN_ADC_SCK PB1
 
 
-/* SPI_INTERRUPT_CONDITION defines the frequency in which the SCK of SPI is inverted */
-#define SPI_INTERRUPT_CONDITION 1
-#define ADC_SCK_SPEED_FACTOR 300
+/* SPI_INTERRUPT_SPEED has to be 1 with the current setup */
+#define SPI_INTERRUPT_SPEED 1
+
+/* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted
+ * (ADC system clock is inverted every interrupt) */
+#define SPI_CLOCK_FACTOR 2
 
 unsigned int ScoutSPI::interruptCounter = 0;
 
@@ -84,7 +88,7 @@ void ScoutSPI::SPIMasterInit() {
     DDRB &= ~(1 << PIN_MISO);
 
     // Set MOSI and SCK for SPI as ouput, additionally also the SystemClock of the ADC (PB1)
-    DDRB |= (1 << PIN_MOSI) | (1 << PIN_SCK) | (1 << PB1);
+    DDRB |= (1 << PIN_MOSI) | (1 << PIN_SPI_SCK) | (1 << PIN_ADC_SCK);
 
 
     // Set Slave select as output
@@ -98,7 +102,7 @@ void ScoutSPI::SPIMasterInit() {
 
 
 
-    setTimer1Interrupt(SPI_INTERRUPT_CONDITION);
+    setTimer1Interrupt(SPI_INTERRUPT_SPEED);
 
     delay(1);
 }
@@ -123,7 +127,7 @@ void ScoutSPI::waitNextFallingEdge() {
 
     volatile int counter;
 
-    while (SCK_VALUE == 0) {
+    while ( SCK_VALUE == 0) {
         counter++;
     }
 
@@ -235,9 +239,7 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
 
 
-
-
-    /* PWM TRY (not working)
+    /* PWM TRY (not helping)
 
     // ctc on OCR1A (mode 4)
     TCCR1B |= (1 << WGM13);
@@ -268,14 +270,14 @@ int ScoutSPI::readADC() {
     ScoutSerial::serialWrite("S\n", 2);
 
     // wait for 2 rising , 1 falling edge
+    waitNextRisingEdge();
     //waitNextRisingEdge();
-    //waitNextRisingEdge();
-    //waitNextFallingEdge();
+    waitNextFallingEdge();
 
     // set byte to be sent over MOSI to 1
     PORTB |= (1 << PB5);
 
-    // first bit 0 is being read
+    // first bit 1 is being read
     waitNextRisingEdge();
 
     // set byte to be sent over MOSI to 0
@@ -290,14 +292,14 @@ int ScoutSPI::readADC() {
     // third bit 1 is being read
     waitNextRisingEdge();
 
-    // fourth bit 0 is being read
+    // fourth bit 1 is being read
     waitNextRisingEdge();
-
 
     // set byte to be sent over MOSI to 0
     PORTB &= ~(1 << PB5);
 
-    /* at this point adc should have received adress 0010 */
+
+    /* at this point adc should have received adress 1011 */
 
     for (int k = 0; k < 4; k++)
         waitNextRisingEdge();
@@ -309,7 +311,7 @@ int ScoutSPI::readADC() {
     ScoutSerial::serialWrite("D\n", 2);
 
     // wait for conversion (at least 36 cycles of ADC_SystemClock)
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 20; i++)
         waitNextRisingEdge();
 
     waitNextFallingEdge();
@@ -319,16 +321,16 @@ int ScoutSPI::readADC() {
     ScoutSerial::serialWrite("S\n", 2);
 
     // wait for 2 rising , 1 falling edge
+    waitNextRisingEdge();
     //waitNextRisingEdge();
-    //waitNextRisingEdge();
-    //waitNextFallingEdge();
+    waitNextFallingEdge();
 
     // receive conversion data on MISO
     for (int j = 0; j < 8; j++){
 
-        waitNextRisingEdge();
+        waitNextFallingEdge();
 
-        buf = (PORTB & (1<<PB0));
+        buf = (PORTB & (1 << PIN_MISO));
         output += pow(2, 7-j) * buf;
 
     }
@@ -347,42 +349,42 @@ int ScoutSPI::readADC() {
 // ISR for timer1
 ISR (TIMER1_COMPA_vect) {
 
-    ScoutSPI::interruptCounter = (ScoutSPI::interruptCounter + 1) % ADC_SCK_SPEED_FACTOR;
+    ScoutSPI::interruptCounter = (ScoutSPI::interruptCounter + 1) % SPI_CLOCK_FACTOR;
 
 
     /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
     if (ScoutSPI::interruptCounter == 0) {
         if (SCK_VALUE > 0) {
-            //PORTB &= (~(1 << PB4) & ~(1 << PB1));
-            PORTB &= (~(1 << PB4));
-            ScoutSerial::serialWrite("L",1);
+            //PORTB &= (~(1 << PIN_SPI_SCK) & ~(1 << PIN_ADC_SCK));
+            PORTB &= (~(1 << PIN_SPI_SCK));
+            //ScoutSerial::serialWrite("L",1);
         } else {
-            //PORTB |= (1 << PB4) | (1 << PB1);
-            PORTB |= (1 << PB4);
-            ScoutSerial::serialWrite("H",1);
+            //PORTB |= (1 << PIN_SPI_SCK) | (1 << PIN_ADC_SCK);
+            PORTB |= (1 << PIN_SPI_SCK);
+            //ScoutSerial::serialWrite("H",1);
         }
 
 
         /* Debug, check if MOSI line currently sends anything */
-        if ((PORTB & (1<<PB5)) > 0){
-            ScoutSerial::serialWrite("1\n", 2);
+        if ((PORTB & (1<<PIN_MOSI)) > 0){
+            //ScoutSerial::serialWrite("1\n", 2);
         } else {
-            ScoutSerial::serialWrite("0\n", 2);
+            //ScoutSerial::serialWrite("0\n", 2);
         }
     }
 
 
     /* switch adc system clock every time the interrupt is triggered */
-    if ((PORTB & (1<<PB1)) > 0){
-        PORTB &= (~(1 << PB1));
+    if ((PORTB & (1 << PIN_ADC_SCK)) > 0){
+        PORTB &= (~(1 << PIN_ADC_SCK));
     } else {
-        PORTB |= (1 << PB1);
+        PORTB |= (1 << PIN_ADC_SCK);
     }
 
 
     /* Debug, check if MISO lane receives anything */
-    if ((PORTB & (1<<PB0)) > 0){
-        ScoutSerial::serialWrite("!!!!!\n", 6);
+    if ((PORTB & (1<< PIN_MISO)) > 0){
+        ScoutSerial::serialWrite("!!!\n", 4);
     }
 
 }
