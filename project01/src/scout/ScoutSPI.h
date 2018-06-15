@@ -37,6 +37,8 @@ public:
     static void setTimer1Interrupt(uint16_t factor);
 
     static void waitNextFallingEdge();
+
+    static unsigned int interruptCounter;
 };
 
 
