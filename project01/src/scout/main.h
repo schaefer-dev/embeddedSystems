@@ -7,7 +7,7 @@
 
 #include <stdlib.h>
 #include "ScoutState.h"
-#include "SPIMaster.h"
+#include "ScoutSPI.h"
 #include "ScoutSerial.h"
 
 /* debug define to enable serial output/inputs to save program memory */

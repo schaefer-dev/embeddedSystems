@@ -8,13 +8,23 @@
 #include <string.h>
 #include <OrangutanTime.h>
 
+
+unsigned char ScoutSerial::receiveIndex = 0;
+char ScoutSerial::receiveBuffer[100];
+
+// not used because static
 ScoutSerial::ScoutSerial() {
+}
+
+
+void ScoutSerial::initScoutSerial() {
     for (int i = 0; i < 99; i++){
         receiveBuffer[i] = 0;
     }
     OrangutanSerial::receive(receiveBuffer, 100);
-    receiveIndex = 0;
+    ScoutSerial::receiveIndex = 0;
 }
+
 
 void ScoutSerial::serialRead(char *buffer, unsigned char size) {
 

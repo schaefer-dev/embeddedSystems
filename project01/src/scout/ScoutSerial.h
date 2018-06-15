@@ -12,14 +12,16 @@ class ScoutSerial{
 
 public:
     ScoutSerial();
-    void serialRead(char *buffer, unsigned char size);
-    void serialWrite(char *buffer, unsigned char size);
-    bool readCoordinates(int *);
 
-    void serialWriteInt(int input);
+    static void initScoutSerial();
+    static void serialRead(char *buffer, unsigned char size);
+    static void serialWrite(char *buffer, unsigned char size);
+    static bool readCoordinates(int *);
 
-    char receiveBuffer[100];
-    unsigned char receiveIndex;
+    static void serialWriteInt(int input);
+
+    static char receiveBuffer[100];
+    static unsigned char receiveIndex;
 };
 
 #endif //EMBEDDEDSYSTEMS18_SCOUTSERIAL_H

@@ -81,23 +81,6 @@ bool ScoutState::navigateToDestination() {
     while (deltaAngleDeg < 0) deltaAngleDeg += 360;
     double deltaDegrees = deltaAngleDeg;
 
-#ifdef DEBUG
-    /*Serial1.print("\t IST: ");
-    Serial1.print(currentAnglePrint);
-    Serial1.print(" (");
-    Serial1.print(((180 / M_PI) * currentAnglePrint));
-    Serial1.print(")");
-    Serial1.print("\t SOLL: ");
-    Serial1.print(angle);
-    Serial1.print(" (");
-    Serial1.print(((180 / M_PI) * anglePrint));
-    Serial1.print(")");
-    Serial1.print("\t DELTA : ");
-    Serial1.print(deltaAngle);
-    Serial1.print(" (");
-    Serial1.print(((180 / M_PI) * deltaAngle));
-    Serial1.println(")");*/
-#endif
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setSpeeds(forwardSpeed, forwardSpeed);

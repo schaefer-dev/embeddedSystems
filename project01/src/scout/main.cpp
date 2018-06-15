@@ -8,8 +8,6 @@
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
-ScoutSerial *scoutSerial;
-SPIMaster *scoutSPI;
 bool spiEnabled = true;
 
 int main() {
@@ -18,7 +16,6 @@ int main() {
     /* initialization of Data structures */
     scoutState = new ScoutState();
     coordinateQueue = new CoordinateQueue();
-    scoutSPI = new SPIMaster();
 
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
@@ -26,9 +23,9 @@ int main() {
 
 #ifdef DEBUG
     // initialize serial connection
-    scoutSerial = new ScoutSerial();
+    ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
-    scoutSerial->serialWrite("--- Start Serial Monitor ---\n", 29);
+    ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 #endif
 
    scoutState->lastDiffDriveCall = millis();
@@ -43,15 +40,15 @@ int main() {
     int adcout;
 
     if (spiEnabled) {
-        scoutSPI->SPIMasterInit();
+        ScoutSPI::SPIMasterInit();
         delay(50);
     }
 
     while (1) {
 
 
-        adcout = scoutSPI->readADC();
-        scoutSerial->serialWriteInt(adcout);
+        adcout = ScoutSPI::readADC();
+        ScoutSerial::serialWriteInt(adcout);
         delay(20);
         /* IMPORTANT: SPI CODE DISABLED
         if (PORTB & (1<<PB4)){
@@ -110,7 +107,7 @@ void readNewDestinations() {
 
     int coordinates[2];
 
-    bool newCoordinates = scoutSerial->readCoordinates(coordinates);
+    bool newCoordinates = ScoutSerial::readCoordinates(coordinates);
 
     if (!newCoordinates) {
         return;

@@ -3,7 +3,7 @@
 // part rewrite from OrangutanSPIMaster.h
 //
 
-#include "SPIMaster.h"
+#include "ScoutSPI.h"
 #include "avr/io.h"
 #include <OrangutanSerial.h>
 #include <OrangutanTime.h>
@@ -27,19 +27,6 @@
 #endif
 
 
-// define Pins
-#define PIN_SS_RF 4
-#define PIN_SS_ADC 5
-#define PIN_MOSI  5
-#define PIN_MISO  0
-#define PIN_SCK 4
-#define PIN_RF_ENABLE 7
-
-// By default, pick slowest possible speed.
-#define SPI_DEFAULT_SPEED_DIVIDER SPI_SPEED_DIVIDER_128  // 20MHz / 128 = 156 kHz
-#define SPI_DEFAULT_OPTIONS SPI_EDGE_LEADING
-
-
 /**
  * initialize Master node for SPI communication on Scout robot
  * PB0 -- MISO
@@ -53,10 +40,24 @@
  */
 
 
-SPIMaster::SPIMaster() {
+// define Pins
+#define PIN_SS_RF 4
+#define PIN_SS_ADC 5
+#define PIN_MOSI  5
+#define PIN_MISO  0
+#define PIN_SCK 4
+#define PIN_RF_ENABLE 7
+
+
+/* SPI_INTERRUPT_CONDITION defines the frequency in which the SCK of SPI is inverted */
+#define SPI_INTERRUPT_CONDITION 200
+
+
+// not used because static
+ScoutSPI::ScoutSPI() {
 }
 
-void SPIMaster::SPIMasterInit() {
+void ScoutSPI::SPIMasterInit() {
 
     //Make sure slave select are output and pulled up
     if (!(DDRD & (1 << PIN_SS_RF)) && !(PORTD & (1 << PIN_SS_RF))) {
@@ -77,9 +78,9 @@ void SPIMaster::SPIMasterInit() {
     // Set MISO pin as input
     DDRB &= ~(1 << PIN_MISO);
 
-
     // Set MOSI and SCK as ouput
-    DDRB |= (1 << PIN_MOSI) | (1 << PIN_SCK) | (1 << PB1);
+    DDRB |= (1 << PIN_MOSI) | (1 << PIN_SCK);
+
 
     // Set Slave select as output
     DDRC |= (1 << PIN_SS_ADC);
@@ -93,7 +94,7 @@ void SPIMaster::SPIMasterInit() {
 
     // set timer for SCK frequency
     // TODO: this parameter might need optimization (maybe even change prescaler used in method)
-    setTimer1Interrupt(30);
+    setTimer1Interrupt(SPI_INTERRUPT_CONDITION);
 
 
     delay(1);
@@ -102,7 +103,7 @@ void SPIMaster::SPIMasterInit() {
 
 
 /* returns whenever next rising edge occurs, used for synchronization */
-void SPIMaster::waitNextRisingEdge() {
+void ScoutSPI::waitNextRisingEdge() {
 
     volatile int counter;
 
@@ -116,7 +117,7 @@ void SPIMaster::waitNextRisingEdge() {
 }
 
 /* returns whenever next falling edge occurs, used for synchronization */
-void SPIMaster::waitNextFallingEdge() {
+void ScoutSPI::waitNextFallingEdge() {
 
     volatile int counter;
 
@@ -138,7 +139,7 @@ void SPIMaster::waitNextFallingEdge() {
  * select or deselect current slave node on Scout
  * @param slave DESELECT (0), SELECT_ADC (1) or SELECT_RF (2)
  */
-void SPIMaster::slaveSelect(unsigned char slave) {
+void ScoutSPI::slaveSelect(unsigned char slave) {
 
     // check for selection
     if (slave < 1) {
@@ -161,7 +162,7 @@ void SPIMaster::slaveSelect(unsigned char slave) {
  * @param data byte to send
  * @return data sent by slave device
  */
-unsigned char SPIMaster::transmitByte(unsigned char data) {
+unsigned char ScoutSPI::transmitByte(unsigned char data) {
     // TODO rewrite method entirely
 
     // begin transmission
@@ -186,7 +187,7 @@ unsigned char SPIMaster::transmitByte(unsigned char data) {
  * @param data
  * @return
  */
-unsigned char *SPIMaster::transmitData(unsigned char *data, int size) {
+unsigned char *ScoutSPI::transmitData(unsigned char *data, int size) {
     // TODO rewrite method entirely
 
     if (size <= 0) {
@@ -211,11 +212,11 @@ unsigned char *SPIMaster::transmitData(unsigned char *data, int size) {
 
 
 /* 
- * Timer1 is reset every duration, and prescaled to interrupt every duration
+ * Timer1 is reset every duration, and prescaled to interrupt every duration.
  * 
  * @param duration
  */
-void SPIMaster::setTimer1Interrupt(uint16_t factor) {
+void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
     OCR1A = factor;
 
@@ -233,7 +234,7 @@ void SPIMaster::setTimer1Interrupt(uint16_t factor) {
 }
 
 
-int SPIMaster::readADC() {
+int ScoutSPI::readADC() {
     int output = 0;
     int buf = 0;
 
@@ -319,16 +320,14 @@ int SPIMaster::readADC() {
 // ISR for timer1
 ISR (TIMER1_COMPA_vect) {
     if (SCK_VALUE > 0) {
-        PORTB &= (~(1 << PB4) & ~(1 << PB1));
+        PORTB &= ~(1 << PB4);
     } else {
-        PORTB |= (1 << PB4) | (1 << PB1);
+        PORTB |= (1 << PB4);
     }
 
     /* Debug, check if MISO lane receives anything */
     if ((PORTB & (1<<PB0)) > 0){
         OrangutanSerial::sendBlocking("high!\n", 6);
     }
-
-
 
 }
