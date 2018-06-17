@@ -61,6 +61,8 @@ unsigned int ScoutSPI::interruptCounter = 0;
 unsigned volatile char ScoutSPI::SPIClock = 0;
 unsigned volatile char ScoutSPI::ADCClock = 0;
 
+bool ScoutSPI::ADCConvertingState = false;
+
 
 // not used because static
 ScoutSPI::ScoutSPI() {
@@ -88,27 +90,35 @@ void ScoutSPI::SPIMasterInit() {
 
     // Set MISO pin as input
     DDRB &= ~(1 << PIN_MISO_B);
+    delayMicroseconds(30);
 
     // Set MOSI and SCK for SPI as ouput, additionally also the SystemClock of the ADC (PB1)
     DDRB |= (1 << PIN_MOSI_B) | (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
+    delayMicroseconds(30);
 
 
     /* drive SPICLock and ADCClock low initially */
     PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
     ADCClock = 0;
     SPIClock = 0;
+    delayMicroseconds(30);
 
 
 
     // Set Slave select as output
     DDRC |= (1 << PIN_SS_ADC_C);
+    delayMicroseconds(30);
     DDRD |= (1 << PIN_SS_RF_D);
+    delayMicroseconds(30);
 
 
     // drive all SlaveSelect lanes high, PD7 low to deselect RF
     PORTD |= (1 << PIN_SS_RF_D);
+    delayMicroseconds(30);
     PORTC |= (1 << PIN_SS_ADC_C);
+    delayMicroseconds(30);
     PORTD &= ~(1 << PIN_RF_ENABLE_D);
+    delayMicroseconds(30);
 
 
 
@@ -185,19 +195,24 @@ void ScoutSPI::waitNextADCFallingEdge() {
  */
 void ScoutSPI::slaveSelect(unsigned char slave) {
 
-    // check for selection
     if (slave < 1) {
+        /* deselect everyone */
         PORTD |= (1 << PIN_SS_RF_D);
+        delayMicroseconds(30);
         PORTC |= (1 << PIN_SS_ADC_C);
+        delayMicroseconds(30);
     }
     if (slave > 1) {
-        // deselect ADC, select RF
+        /* select RF module (TODO: disabled currently) */
         PORTC |= (1 << PIN_SS_ADC_C);
+        delayMicroseconds(30);
         // PORTD &= ~( 1 << PIN_SS_RF_D);
     } else {
-        //deselect RF, select ADC
+        /* select ADC */
         PORTD |= (1 << PIN_SS_RF_D);
+        delayMicroseconds(30);
         PORTC &= ~(1 << PIN_SS_ADC_C);
+        delayMicroseconds(30);
     }
 }
 
@@ -313,11 +328,13 @@ int ScoutSPI::readADC(char sensorAdress) {
 
     /* already start sending the first bit of adress */
     char outputBit = sensorAdress / 8;
-    if (outputBit > 0)
+    if (outputBit > 0) {
         PORTB |= (1 << PIN_MOSI_B);
-    else
-        PORTB &= ~(1 << PIN_MISO_B);
-
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
 
     waitNextSPIFallingEdge();
 
@@ -340,10 +357,13 @@ int ScoutSPI::readADC(char sensorAdress) {
     /* on falling edge put next bit on MOSI */
     waitNextSPIFallingEdge();
     outputBit = (sensorAdress % 8) / 4;
-    if (outputBit > 0)
+    if (outputBit > 0) {
         PORTB |= (1 << PIN_MOSI_B);
-    else
-        PORTB &= ~(1 << PIN_MISO_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
 
     // second bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -355,10 +375,13 @@ int ScoutSPI::readADC(char sensorAdress) {
     /* on falling edge put next bit on MOSI */
     waitNextSPIFallingEdge();
     outputBit = (sensorAdress % 4) / 2;
-    if (outputBit > 0)
+    if (outputBit > 0) {
         PORTB |= (1 << PIN_MOSI_B);
-    else
-        PORTB &= ~(1 << PIN_MISO_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
 
     // third bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -370,10 +393,13 @@ int ScoutSPI::readADC(char sensorAdress) {
     /* on falling edge put next bit on MOSI */
     waitNextSPIFallingEdge();
     outputBit = (sensorAdress % 2) / 1;
-    if (outputBit > 0)
+    if (outputBit > 0) {
         PORTB |= (1 << PIN_MOSI_B);
-    else
-        PORTB &= ~(1 << PIN_MISO_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
 
     // fourth bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -384,6 +410,7 @@ int ScoutSPI::readADC(char sensorAdress) {
 
     // set byte to be sent over MOSI to 0 after adress sending has been completed
     PORTB &= ~(1 << PB5);
+    delayMicroseconds(30);
 
 
     waitNextSPIRisingEdge();
@@ -468,11 +495,13 @@ ISR (TIMER1_COMPA_vect) {
             //PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
             PORTB &= (~(1 << PIN_SPI_SCK_B));
             //ScoutSerial::serialWrite("L",1);
+            delayMicroseconds(30);
             ScoutSPI::SPIClock = 0;
         } else {
             //PORTB |= (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
             PORTB |= (1 << PIN_SPI_SCK_B);
             //ScoutSerial::serialWrite("H",1);
+            delayMicroseconds(30);
             ScoutSPI::SPIClock = 1;
         }
 
@@ -489,10 +518,13 @@ ISR (TIMER1_COMPA_vect) {
     /* switch adc system clock every time the interrupt is triggered */
     if (ScoutSPI::ADCClock > 0){
         PORTB &= (~(1 << PIN_ADC_SCK_B));
+        delayMicroseconds(30);
         ScoutSPI::ADCClock = 0;
     } else {
         PORTB |= (1 << PIN_ADC_SCK_B);
+        delayMicroseconds(30);
         ScoutSPI::ADCClock = 1;
+
     }
 
 
@@ -500,5 +532,4 @@ ISR (TIMER1_COMPA_vect) {
     if ((PORTB & (1<< PIN_MISO_B)) > 0){
         ScoutSerial::serialWrite("!!!\n", 4);
     }
-
 }

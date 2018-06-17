@@ -43,6 +43,8 @@ public:
 
     static volatile unsigned char SPIClock;
     static volatile unsigned char ADCClock;
+
+    static bool ADCConvertingState;
 };
 
 

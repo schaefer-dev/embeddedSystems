@@ -40,7 +40,7 @@ int main() {
 
     if (spiEnabled) {
         ScoutSPI::SPIMasterInit();
-        delay(50);
+        delay(500);
     }
 
     while (1) {
@@ -55,17 +55,17 @@ int main() {
         adcout11 = ScoutSPI::readADC(0);
         /* debug line : */ ScoutSerial::serialWriteInt(adcout11);
 
-        /* debug: */ delay(100);
+        /* debug: */
 
         adcout0 = ScoutSPI::readADC(1);
         ScoutSerial::serialWriteInt(adcout0);
 
-        /* debug: */ delay(100);
+        /* debug: */ delay(5);
 
         adcout1 = ScoutSPI::readADC(2);
         ScoutSerial::serialWriteInt(adcout1);
 
-        /* debug: */ delay(100);
+        /* debug: */ delay(20);
 
         adcout2 = ScoutSPI::readADC(3);
         ScoutSerial::serialWriteInt(adcout2);
@@ -75,7 +75,7 @@ int main() {
         adcout3 = ScoutSPI::readADC(11);
         ScoutSerial::serialWriteInt(adcout3);
 
-        /* debug: */ delay(100);
+        /* debug: */ delay(150);
 
 
         /* IMPORTANT Roboter driving code ENABLED */
