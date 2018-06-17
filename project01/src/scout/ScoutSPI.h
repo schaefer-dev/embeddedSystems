@@ -22,8 +22,6 @@ private:
     static void waitNextADCRisingEdge();
     static void waitNextADCFallingEdge();
 
-    static void slaveSelect(unsigned char slave);
-
     static unsigned char transmitByte(unsigned char data);
 
     static unsigned char *transmitData(unsigned char *data, int size);
@@ -35,10 +33,10 @@ public:
 
     static void SPIMasterInit();
 
-    static int readADC(char sensorAdress);
-    static int readADCContinous(char sensorAdress);
+    static void slaveSelect(unsigned char slave);
 
-    static void debugADC();
+    static int readADC(char sensorAdress);
+    static void readADCInInterrupt(char sensorAdress);
 
     static void setTimer1Interrupt(uint16_t factor);
 
@@ -48,7 +46,8 @@ public:
     static volatile unsigned char ADCClock;
 
     static bool ADCConvertingState;
-    static int DEBUG_delayNumber;
+
+    static unsigned int ADCCommunicationState;
 };
 
 

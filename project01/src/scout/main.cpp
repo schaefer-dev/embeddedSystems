@@ -73,10 +73,17 @@ int main() {
          */
 
 
-        ScoutSPI::debugADC();
-        delay(30);
 
-        /*
+        /* WORKING: debug: testing to read in interrupt
+        ScoutSPI::readADCInInterrupt(0);
+        delay(10);
+        ScoutSPI::readADCInInterrupt(0);
+        delay(10);
+        ScoutSPI::readADCInInterrupt(0);
+        delay(10);
+         */
+
+
         adcout11 = ScoutSPI::readADC(0);
         ScoutSerial::serialWriteInt(adcout11);
 
@@ -99,7 +106,7 @@ int main() {
         ScoutSerial::serialWriteInt(adcout3);
 
         delay(150);
-         */
+
 
 
         /* IMPORTANT Roboter driving code ENABLED */
