@@ -37,7 +37,6 @@ int main() {
     delay(200);
 
     char adcdata;
-    int adcout;
 
     if (spiEnabled) {
         ScoutSPI::SPIMasterInit();
@@ -46,19 +45,37 @@ int main() {
 
     while (1) {
 
+        int adcout11;
+        int adcout0;
+        int adcout1;
+        int adcout2;
+        int adcout3;
 
-        adcout = ScoutSPI::readADC();
-        ScoutSerial::serialWriteInt(adcout);
-        delay(20);
-        /* IMPORTANT: SPI CODE DISABLED
-        if (PORTB & (1<<PB4)){
-            scoutSerial->serialWrite("high\n",5);
-        } else {
-            scoutSerial->serialWrite("low\n",4);
-        }
-        delay(100);
-        */
 
+        adcout11 = ScoutSPI::readADC(0);
+        /* debug line : */ ScoutSerial::serialWriteInt(adcout11);
+
+        /* debug: */ delay(100);
+
+        adcout0 = ScoutSPI::readADC(1);
+        ScoutSerial::serialWriteInt(adcout0);
+
+        /* debug: */ delay(100);
+
+        adcout1 = ScoutSPI::readADC(2);
+        ScoutSerial::serialWriteInt(adcout1);
+
+        /* debug: */ delay(100);
+
+        adcout2 = ScoutSPI::readADC(3);
+        ScoutSerial::serialWriteInt(adcout2);
+
+        /* debug: */ delay(100);
+
+        adcout3 = ScoutSPI::readADC(11);
+        ScoutSerial::serialWriteInt(adcout3);
+
+        /* debug: */ delay(100);
 
 
         /* IMPORTANT Roboter driving code ENABLED */

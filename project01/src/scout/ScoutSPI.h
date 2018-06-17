@@ -17,7 +17,10 @@ class ScoutSPI
 {
 
 private:
-    static void waitNextRisingEdge();
+    static void waitNextSPIRisingEdge();
+    static void waitNextSPIFallingEdge();
+    static void waitNextADCRisingEdge();
+    static void waitNextADCFallingEdge();
 
     static void slaveSelect(unsigned char slave);
 
@@ -32,13 +35,14 @@ public:
 
     static void SPIMasterInit();
 
-    static int readADC();
+    static int readADC(char sensorAdress);
 
     static void setTimer1Interrupt(uint16_t factor);
 
-    static void waitNextFallingEdge();
-
     static unsigned int interruptCounter;
+
+    static volatile unsigned char SPIClock;
+    static volatile unsigned char ADCClock;
 };
 
 
