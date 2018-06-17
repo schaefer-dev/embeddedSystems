@@ -38,6 +38,8 @@ public:
     static int readADC(char sensorAdress);
     static int readADCContinous(char sensorAdress);
 
+    static void debugADC();
+
     static void setTimer1Interrupt(uint16_t factor);
 
     static unsigned int interruptCounter;
@@ -46,6 +48,7 @@ public:
     static volatile unsigned char ADCClock;
 
     static bool ADCConvertingState;
+    static int DEBUG_delayNumber;
 };
 
 

@@ -54,11 +54,12 @@
 #define SPI_INTERRUPT_SPEED 1
 
 /* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted */
-#define SPI_CLOCK_FACTOR 40
+#define SPI_CLOCK_FACTOR 20
 
 unsigned int ScoutSPI::interruptCounter = 0;
 unsigned volatile char ScoutSPI::SPIClock = 0;
 unsigned volatile char ScoutSPI::ADCClock = 0;
+int ScoutSPI::DEBUG_delayNumber = 0;
 
 bool ScoutSPI::ADCConvertingState = false;
 
@@ -70,22 +71,6 @@ ScoutSPI::ScoutSPI() {
 void ScoutSPI::SPIMasterInit() {
 
     ScoutSPI::interruptCounter = 0;
-
-    //Make sure slave select are output and pulled up
-    if (!(DDRD & (1 << PIN_SS_RF_D)) && !(PORTD & (1 << PIN_SS_RF_D))) {
-        PORTD |= 1 << PIN_SS_RF_D;
-
-        // Delay a while to give the pull-up time
-        delayMicroseconds(30);
-    }
-
-    if (!(DDRC & (1 << PIN_SS_ADC_C)) && !(PORTC & (1 << PIN_SS_ADC_C))) {
-        PORTC |= 1 << PIN_SS_ADC_C;
-
-        // Delay a while to give the pull-up time
-        delayMicroseconds(30);
-    }
-
 
     // Set MISO pin as input
     DDRB &= ~(1 << PIN_MISO_B);
@@ -215,59 +200,6 @@ void ScoutSPI::slaveSelect(unsigned char slave) {
     }
 }
 
-/** send one byte of data to slave node
- *
- * @param data byte to send
- * @return data sent by slave device
- */
-unsigned char ScoutSPI::transmitByte(unsigned char data) {
-    // TODO rewrite method entirely
-
-    // begin transmission
-    SPDR = data;
-
-    // wait while transmission is processing
-    while (!(SPSR & (1 << SPIF))) {
-        if (!(SPCR & (1 << MSTR))) {
-            // The SPI module has left master mode, so return.
-            // Otherwise, this will be an infinite loop.
-            return 0;
-        }
-    }
-
-    // return transmission from slave node
-    return SPDR;
-}
-
-
-/** transmit data bytewise
- *
- * @param data
- * @return
- */
-unsigned char *ScoutSPI::transmitData(unsigned char *data, int size) {
-    // TODO rewrite method entirely
-
-    if (size <= 0) {
-        int i = 0;
-        for (i = 0; i < size; i++) {
-            data[i] = 0;
-        }
-        return data;
-    }
-
-    int sizeM = size;
-    char dataByte = 0;
-
-    while (size > 0) {
-        dataByte = data[sizeM - size];
-        data[sizeM - size] = transmitByte(dataByte);
-
-    }
-
-    return data;
-}
-
 
 /* 
  * Timer1 is reset every duration, and prescaled to interrupt every duration.
@@ -312,6 +244,23 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
     // enable global interrupts
     sei();
+}
+
+void ScoutSPI::debugADC() {
+    /* set output to 0 to only send adress 0000 */
+    PORTB &= ~(1 << PIN_MOSI_B);
+    delayMicroseconds(30);
+
+
+    slaveSelect(SLAVE_ADC);
+    for (int i = 0; i < DEBUG_delayNumber; i++){
+        waitNextADCRisingEdge();
+    }
+
+    slaveSelect(SLAVE_NONE);
+    delay(1);
+    ScoutSerial::serialWriteInt(DEBUG_delayNumber);
+    DEBUG_delayNumber += 1;
 }
 
 

@@ -73,6 +73,10 @@ int main() {
          */
 
 
+        ScoutSPI::debugADC();
+        delay(30);
+
+        /*
         adcout11 = ScoutSPI::readADC(0);
         ScoutSerial::serialWriteInt(adcout11);
 
@@ -95,6 +99,7 @@ int main() {
         ScoutSerial::serialWriteInt(adcout3);
 
         delay(150);
+         */
 
 
         /* IMPORTANT Roboter driving code ENABLED */
