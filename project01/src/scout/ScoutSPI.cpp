@@ -276,6 +276,10 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
     TCCR1B |= (1 << CS12) | (1 << CS10);
 
 
+    // prescaler 256
+    //TCCR1B |= (1 << CS12);
+
+
 
     /* PWM TRY (not helping)
 
@@ -309,7 +313,11 @@ int ScoutSPI::readADC(char sensorAdress) {
 
     /* already start sending the first bit of adress */
     char outputBit = sensorAdress / 8;
-    PORTB &= ~(outputBit << PB5);
+    if (outputBit > 0)
+        PORTB |= (1 << PIN_MOSI_B);
+    else
+        PORTB &= ~(1 << PIN_MISO_B);
+
 
     waitNextSPIFallingEdge();
 
@@ -329,11 +337,13 @@ int ScoutSPI::readADC(char sensorAdress) {
     if( (PORTB & (1 << PIN_MISO_B)) > 0)
         output += 128;
 
-
     /* on falling edge put next bit on MOSI */
     waitNextSPIFallingEdge();
     outputBit = (sensorAdress % 8) / 4;
-    PORTB &= ~(outputBit << PB5);
+    if (outputBit > 0)
+        PORTB |= (1 << PIN_MOSI_B);
+    else
+        PORTB &= ~(1 << PIN_MISO_B);
 
     // second bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -345,7 +355,10 @@ int ScoutSPI::readADC(char sensorAdress) {
     /* on falling edge put next bit on MOSI */
     waitNextSPIFallingEdge();
     outputBit = (sensorAdress % 4) / 2;
-    PORTB &= ~(outputBit << PB5);
+    if (outputBit > 0)
+        PORTB |= (1 << PIN_MOSI_B);
+    else
+        PORTB &= ~(1 << PIN_MISO_B);
 
     // third bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -357,7 +370,10 @@ int ScoutSPI::readADC(char sensorAdress) {
     /* on falling edge put next bit on MOSI */
     waitNextSPIFallingEdge();
     outputBit = (sensorAdress % 2) / 1;
-    PORTB &= ~(outputBit << PB5);
+    if (outputBit > 0)
+        PORTB |= (1 << PIN_MOSI_B);
+    else
+        PORTB &= ~(1 << PIN_MISO_B);
 
     // fourth bit is being read by ADC
     waitNextSPIRisingEdge();
