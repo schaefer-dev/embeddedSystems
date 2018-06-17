@@ -36,6 +36,7 @@ public:
     static void SPIMasterInit();
 
     static int readADC(char sensorAdress);
+    static int readADCContinous(char sensorAdress);
 
     static void setTimer1Interrupt(uint16_t factor);
 

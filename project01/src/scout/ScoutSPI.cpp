@@ -53,9 +53,8 @@
 /* SPI_INTERRUPT_SPEED has to be 1 with the current setup */
 #define SPI_INTERRUPT_SPEED 1
 
-/* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted
- * (ADC system clock is inverted every interrupt) */
-#define SPI_CLOCK_FACTOR 2
+/* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted */
+#define SPI_CLOCK_FACTOR 40
 
 unsigned int ScoutSPI::interruptCounter = 0;
 unsigned volatile char ScoutSPI::SPIClock = 0;
@@ -318,7 +317,6 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
 int ScoutSPI::readADC(char sensorAdress) {
     int output = 0;
-    int buf = 0;
 
     /* catch illegal sensorAdresses */
     if (sensorAdress > 11){
@@ -342,10 +340,10 @@ int ScoutSPI::readADC(char sensorAdress) {
     slaveSelect(SLAVE_ADC);
     ScoutSerial::serialWrite("S\n", 2);
 
+
     // wait for 2 rising , 1 falling edge of ADC clock
-    waitNextADCRisingEdge();
-    waitNextADCRisingEdge();
-    waitNextADCFallingEdge();
+
+
 
     // wait such that first bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -448,8 +446,29 @@ int ScoutSPI::readADC(char sensorAdress) {
         waitNextADCRisingEdge();
 
     return output;
+}
 
-    /* no longer necessary as it can be called consecetive times now to output all sensors after each other
+
+int ScoutSPI::readADCContinous(char sensorAdress) {
+    int output = 0;
+    int buf = 0;
+
+    /* catch illegal sensorAdresses */
+    if (sensorAdress > 11){
+        ScoutSerial::serialWrite("W: sensorAdress > 11\n", 21);
+        return 0;
+    }
+
+    /* already start sending the first bit of adress */
+    char outputBit = sensorAdress / 8;
+    if (outputBit > 0) {
+        PORTB |= (1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
+
     waitNextSPIFallingEdge();
 
     // drive SS/CS low
@@ -461,24 +480,133 @@ int ScoutSPI::readADC(char sensorAdress) {
     waitNextADCRisingEdge();
     waitNextADCFallingEdge();
 
-    // receive conversion data on MISO
-    for (int j = 0; j < 8; j++){
+    // wait such that first bit is being read by ADC
+    waitNextSPIRisingEdge();
 
-        waitNextSPIRisingEdge();
-
-        buf = (PORTB & (1 << PIN_MISO_B));
-        output += pow(2, 7-j) * buf;
-
+    /* on falling edge put next bit on MOSI */
+    waitNextSPIFallingEdge();
+    outputBit = (sensorAdress % 8) / 4;
+    if (outputBit > 0) {
+        PORTB |= (1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
     }
+
+    // second bit is being read by ADC
+    waitNextSPIRisingEdge();
+
+    /* on falling edge put next bit on MOSI */
+    waitNextSPIFallingEdge();
+    outputBit = (sensorAdress % 4) / 2;
+    if (outputBit > 0) {
+        PORTB |= (1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
+
+    // third bit is being read by ADC
+    waitNextSPIRisingEdge();
+
+    /* on falling edge put next bit on MOSI */
+    waitNextSPIFallingEdge();
+    outputBit = (sensorAdress % 2) / 1;
+    if (outputBit > 0) {
+        PORTB |= (1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+        delayMicroseconds(30);
+    }
+
+    // fourth bit is being read by ADC
+    waitNextSPIRisingEdge();
+
+    // set byte to be sent over MOSI to 0 after adress sending has been completed
+    PORTB &= ~(1 << PB5);
+    delayMicroseconds(30);
+
+
+    waitNextSPIRisingEdge();
+
+    waitNextSPIRisingEdge();
+
+    waitNextSPIRisingEdge();
+
+    waitNextSPIRisingEdge();
 
     waitNextSPIFallingEdge();
 
-    // drive SS/CS high
+    ADCConvertingState = true;
+
+    // wait for conversion (at least 36 cycles of ADC_SystemClock)
+    for (int i = 0; i < 40; i++)
+        waitNextADCRisingEdge();
+
+    ADCConvertingState = false;
+
+    waitNextSPIRisingEdge();
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 128;
+
+    // second bit is being read by ADC
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 64;
+
+    // third bit is being read by ADC
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 32;
+
+    // fourth bit is being read by ADC
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 16;
+
+
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 8;
+
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 4;
+
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 2;
+
+    waitNextSPIRisingEdge();
+
+    /* read value on rising edge of SPI */
+    if( (PORTB & (1 << PIN_MISO_B)) > 0)
+        output += 1;
+
+    waitNextSPIFallingEdge();
+
+    // drive SS/CS low
     slaveSelect(SLAVE_NONE);
     ScoutSerial::serialWrite("D\n", 2);
 
+
     return output;
-     */
 }
 
 
@@ -490,7 +618,7 @@ ISR (TIMER1_COMPA_vect) {
 
 
     /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
-    if (ScoutSPI::interruptCounter == 0) {
+    if (ScoutSPI::interruptCounter == 0 && !ScoutSPI::ADCConvertingState) {
         if (ScoutSPI::SPIClock > 0) {
             //PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
             PORTB &= (~(1 << PIN_SPI_SCK_B));

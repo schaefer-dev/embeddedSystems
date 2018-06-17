@@ -52,30 +52,49 @@ int main() {
         int adcout3;
 
 
-        adcout11 = ScoutSPI::readADC(0);
-        /* debug line : */ ScoutSerial::serialWriteInt(adcout11);
+        /* DEBUG continious reading test without deselect
+         *
+        adcout0 = ScoutSPI::readADCContinous(0);
+        ScoutSerial::serialWriteInt(adcout0);
 
-        /* debug: */
+        adcout1 = ScoutSPI::readADCContinous(1);
+        ScoutSerial::serialWriteInt(adcout1);
+
+        adcout2 = ScoutSPI::readADCContinous(2);
+        ScoutSerial::serialWriteInt(adcout2);
+
+        adcout3 = ScoutSPI::readADCContinous(3);
+        ScoutSerial::serialWriteInt(adcout3);
+
+        adcout11 = ScoutSPI::readADCContinous(11);
+        ScoutSerial::serialWriteInt(adcout11);
+
+        delay(100);
+         */
+
+
+        adcout11 = ScoutSPI::readADC(0);
+        ScoutSerial::serialWriteInt(adcout11);
 
         adcout0 = ScoutSPI::readADC(1);
         ScoutSerial::serialWriteInt(adcout0);
 
-        /* debug: */ delay(5);
+        delay(5);
 
         adcout1 = ScoutSPI::readADC(2);
         ScoutSerial::serialWriteInt(adcout1);
 
-        /* debug: */ delay(20);
+        delay(20);
 
         adcout2 = ScoutSPI::readADC(3);
         ScoutSerial::serialWriteInt(adcout2);
 
-        /* debug: */ delay(100);
+        delay(100);
 
         adcout3 = ScoutSPI::readADC(11);
         ScoutSerial::serialWriteInt(adcout3);
 
-        /* debug: */ delay(150);
+        delay(150);
 
 
         /* IMPORTANT Roboter driving code ENABLED */
