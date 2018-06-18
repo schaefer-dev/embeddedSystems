@@ -21,6 +21,7 @@ private:
     static void waitNextSPIFallingEdge();
     static void waitNextADCRisingEdge();
     static void waitNextADCFallingEdge();
+    static int readWriteSPI(int payload);
 
 
 public:
@@ -32,15 +33,16 @@ public:
     static void slaveSelect(unsigned char slave);
 
     static int readADC(char sensorAdress);
+    static void initializeRFModule();
 
     static void setTimer1Interrupt(uint16_t factor);
+
+    static void ADCConversionWait();
 
     static unsigned int interruptCounter;
 
     static volatile unsigned char SPIClock;
     static volatile unsigned char ADCClock;
-
-    static unsigned int ADCConversionClocks;
 
     static bool runSPIClock;
 

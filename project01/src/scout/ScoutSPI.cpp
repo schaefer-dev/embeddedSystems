@@ -74,7 +74,6 @@ void ScoutSPI::SPIMasterInit() {
     delayMicroseconds(30);
 
 
-
     // Set Slave select as output
     DDRC |= (1 << PIN_SS_ADC_C);
     delayMicroseconds(30);
@@ -87,9 +86,6 @@ void ScoutSPI::SPIMasterInit() {
     delayMicroseconds(30);
     PORTC |= (1 << PIN_SS_ADC_C);
     delayMicroseconds(30);
-    PORTD &= ~(1 << PIN_RF_ENABLE_D);
-    delayMicroseconds(30);
-
 
     setTimer1Interrupt(SPI_INTERRUPT_SPEED);
 
@@ -175,7 +171,7 @@ void ScoutSPI::slaveSelect(unsigned char slave) {
         /* select RF module (TODO: disabled currently) */
         PORTC |= (1 << PIN_SS_ADC_C);
         delayMicroseconds(30);
-        // PORTD &= ~( 1 << PIN_SS_RF_D);
+        PORTD &= ~(1 << PIN_SS_RF_D);
     } else {
         /* select ADC */
         PORTD |= (1 << PIN_SS_RF_D);
@@ -207,49 +203,85 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
     TCCR1B |= (1 << CS12) | (1 << CS10);
 
 
-    // prescaler 256
+    // prescaler 256, seems to be too fast
     // TCCR1B |= (1 << CS12);
 
-
-
-    /* PWM TRY (not helping)
-
-    // ctc on OCR1A (mode 4)
-    TCCR1B |= (1 << WGM13);
-
-    // PWM on pin PB1
-    TCCR1A |= (1 << COM1A1) | (1 << COM1A0);
-
-    // set ctc interrupt
-    TIMSK1 |= (1 << OCIE1A);
-
-    // prescaler 1024
-    TCCR1B |= (1 << CS12) | (1 << CS10);
-     */
 
     // enable global interrupts
     sei();
 }
 
 
+void ScoutSPI::initializeRFModule(){
+
+    /* drive RF module enable pin */
+    PORTD |= (1 << PIN_RF_ENABLE_D);
+    delayMicroseconds(30);
+
+    int output = 1;
+
+}
+
+
+/* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
+int ScoutSPI::readWriteSPI(int payload){
+    int output = 0;
+    unsigned int volatile counter = 0;
+
+
+    for (int i = 8; i > 0; i --) {
+        int modValue = pow(2, i);
+        int divValue = pow(2, (i - 1));
+
+        /* wait until SPI clock falls (unless first iteration,
+         * because SPIClock not yet enabled) */
+        if (i < 8){
+            waitNextSPIFallingEdge();
+        }
+
+        int payloadBit = (payload % modValue) / divValue;
+        if (payloadBit > 0) {
+            PORTB |= (1 << PIN_MOSI_B);
+        } else {
+            PORTB &= ~(1 << PIN_MOSI_B);
+        }
+
+        runSPIClock = true;
+
+        /* wait until SPI clock high */
+        waitNextSPIRisingEdge();
+
+        /* read value on rising edge of SPI */
+        if ((PINB & (1 << PIN_MISO_B)) > 0) {
+            output += pow(2, (i-1));
+        }
+    }
+
+    /* wait until SPI clock drops low */
+    waitNextSPIFallingEdge();
+
+    runSPIClock = false;
+
+    return output;
+}
+
+void ScoutSPI::ADCConversionWait(){
+    // wait for conversion (at least 36 cycles of ADC_SystemClock)
+    for (int i = 0; i < 40; i++)
+        waitNextADCRisingEdge();
+    return;
+}
+
 int ScoutSPI::readADC(char sensorAdress) {
     int output = 0;
+
+    /* scale adress to 8 byte payload */
+    int payload = sensorAdress * 16;
 
     /* catch illegal sensorAdresses */
     if (sensorAdress > 11){
         ScoutSerial::serialWrite("W: sensorAdress > 11\n", 21);
         return 0;
-    }
-
-    //waitNextSPIFallingEdge();
-
-
-    /* already start sending the first bit of adress */
-    char outputBit = sensorAdress / 8;
-    if (outputBit > 0) {
-        PORTB |= (1 << PIN_MOSI_B);
-    } else {
-        PORTB &= ~(1 << PIN_MOSI_B);
     }
 
     // drive SS/CS low
@@ -262,6 +294,24 @@ int ScoutSPI::readADC(char sensorAdress) {
     waitNextADCRisingEdge();
     waitNextADCRisingEdge();
     waitNextADCFallingEdge();
+
+
+    // TODO: fix readWriteSPI, to mimic the behaviour of the function below
+     //output = readWriteSPI(payload);
+
+    slaveSelect(SLAVE_NONE);
+
+    // TODO: Comment in once readWriteSPI fixed
+    //return output;
+
+
+    /* already start sending the first bit of adress */
+    char outputBit = sensorAdress / 8;
+    if (outputBit > 0) {
+        PORTB |= (1 << PIN_MOSI_B);
+    } else {
+        PORTB &= ~(1 << PIN_MOSI_B);
+    }
 
     runSPIClock = true;
 
@@ -350,13 +400,9 @@ int ScoutSPI::readADC(char sensorAdress) {
 
     waitNextSPIFallingEdge();
 
-    // drive SS/CS high
-    slaveSelect(SLAVE_NONE);
-    runSPIClock = false;
 
-    // wait for conversion (at least 36 cycles of ADC_SystemClock)
-    for (int i = 0; i < 40; i++)
-        waitNextADCRisingEdge();
+    // drive SS/CS high
+    runSPIClock = false;
 
     return output;
 }
