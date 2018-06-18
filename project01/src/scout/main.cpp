@@ -4,6 +4,7 @@
 #include "main.h"
 #include <math.h>
 #include "../collector/Coordinates.h"
+#include "../scout/ScoutMonitor.h"
 
 
 CoordinateQueue *coordinateQueue;
@@ -12,6 +13,15 @@ bool spiEnabled = true;
 
 int main() {
     /* SETUP */
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPongScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logSendHarvest();
+
+    char result = ScoutMonitor::verifyState(); // should return 1 (prelim good)
+    ScoutSerial::serialWriteInt(result);
 
     /* initialization of Data structures */
     scoutState = new ScoutState();

@@ -7,6 +7,7 @@
 #include "avr/io.h"
 #include "avr/interrupt.h"
 #include "../scout/main.h"
+#include "CollectorMonitor.h"
 
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
@@ -26,6 +27,11 @@ uint16_t numInterrupsPrevCycle = 0;
 const uint8_t TIMER_DURATION = 16;      // in ms, must be at least 16
 
 void setup() {
+    CollectorMonitor::logPingCollector();
+    CollectorMonitor::logPingCollector();
+    CollectorMonitor::logPingCollector();
+    CollectorMonitor::logPingCollector();
+    char result = CollectorMonitor::verifyState();  // should return 0 (bad)
 
     proximitySensors = new Zumo32U4ProximitySensors();
     generateBrightnessLevels();
@@ -53,7 +59,7 @@ void setup() {
 #ifdef DEBUG
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
-    Serial1.println();
+    Serial1.println(result);
 #endif
 }
 
