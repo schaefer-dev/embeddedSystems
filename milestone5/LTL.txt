@@ -1,0 +1,53 @@
+1. The Scout should at some point in time send a harvesting
+position to the Collector.
+
+F(sendHarvest)
+
+http://www.lsv.fr/~gastin/ltl2ba/tmp/15946-B.gif
+
+Safety? No. There is no bad prexif because for every trace that is not in L we can always do S.SendHarvest in the next step.
+Co-Safety? Yes. Every trace in L has S.SendHarvest at some point which is a good prefix.
+
+
+2. The Collector should always check its proximity sensors
+unless it is at a decent harvesting position.
+/* TODO does this mean it should NEVER check when sitting 
+at a harvesting position or that it does not have to ALWAYS check? */
+
+G(~atHarvest -> checkingProximity)
+
+http://www.lsv.fr/~gastin/ltl2ba/tmp/15962-B.gif
+http://www.lsv.fr/~gastin/ltl2ba/tmp/15978-B.gif
+
+Safety? Yes. Every trace not in L has at least one prefix {~C.AtHarvest -> ~C.CheckProximity} which is a bad prefix.
+Co-Safety? No. Every trace that is in L does not have a good prefix because we can always do {~C.AtHarvest && ~C.CheckProximity} in the next step.
+
+
+3. A robot should never ignore three consecutive PING
+messages.
+
+G(((~pong & ping) -> X((~pong & ping) -> X((~pong & ping) -> X(pong)))))
+
+G(unansweredPings == 3 -> X pong)
+
+
+http://www.lsv.fr/~gastin/ltl2ba/tmp/16085-B.gif
+
+Globally not:
+If
+	If
+		If Ping then no Pong until Ping
+	then	
+		no Pong until Ping
+then
+	no Pong until Ping or no Pong at all
+
+Safety? Yes. Every trace not in L has at least one prefix x which is a bad prefix.
+Co-Safety? No. We can extend every trace to a bad trace by doing {C.Ping, C.Ping, C.Ping, C.Ping}
+	
+4. When receiving a message, the robot copies the data over
+into a buffer. This buffer should be emptied at least every
+500ms.
+
+This specification cannot be expressed in LTL but only in TLTL.
+
