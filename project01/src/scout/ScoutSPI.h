@@ -22,10 +22,6 @@ private:
     static void waitNextADCRisingEdge();
     static void waitNextADCFallingEdge();
 
-    static unsigned char transmitByte(unsigned char data);
-
-    static unsigned char *transmitData(unsigned char *data, int size);
-
 
 public:
 
@@ -36,7 +32,6 @@ public:
     static void slaveSelect(unsigned char slave);
 
     static int readADC(char sensorAdress);
-    static void readADCInInterrupt();
 
     static void setTimer1Interrupt(uint16_t factor);
 
@@ -45,16 +40,10 @@ public:
     static volatile unsigned char SPIClock;
     static volatile unsigned char ADCClock;
 
-    static bool ADCConvertingState;
-
-    static unsigned int ADCArrayIndex;
-    static unsigned int ADCSensorIndex;
     static unsigned int ADCConversionClocks;
-    static unsigned int sensor0Data[10];
 
     static bool runSPIClock;
 
-    static unsigned int ADCCommunicationState;
 };
 
 

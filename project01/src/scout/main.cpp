@@ -72,7 +72,7 @@ int main() {
 
         delay(1);
 
-        adcout1[adcIndex] = ScoutSPI::readADC(2); 
+        adcout1[adcIndex] = ScoutSPI::readADC(2);
 
         delay(1);
 
@@ -98,16 +98,16 @@ int main() {
         adcout3Average = adcout3Average / 10;
 
 
-        ScoutSerial::serialWrite("LIGHT: left=", 12);
+        ScoutSerial::serialWrite("LIGHT: front=", 12);
         //ScoutSerial::serialWrite8Bit(adcout0Average);
         ScoutSerial::serialWrite8Bit(adcout0[adcIndex]);
-        ScoutSerial::serialWrite(" front=", 7);
+        ScoutSerial::serialWrite(" right=", 7);
         //ScoutSerial::serialWrite8Bit(adcout1Average);
         ScoutSerial::serialWrite8Bit(adcout1[adcIndex]);
-        ScoutSerial::serialWrite(" right=", 7);
+        ScoutSerial::serialWrite(" back=", 7);
         //ScoutSerial::serialWrite8Bit(adcout2Average);
         ScoutSerial::serialWrite8Bit(adcout2[adcIndex]);
-        ScoutSerial::serialWrite(" back=", 6);
+        ScoutSerial::serialWrite(" left=", 6);
         //ScoutSerial::serialWrite8Bit(adcout3Average);
         ScoutSerial::serialWrite8Bit(adcout3[adcIndex]);
 

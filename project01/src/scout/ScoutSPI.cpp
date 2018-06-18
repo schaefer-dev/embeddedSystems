@@ -46,14 +46,6 @@ unsigned int ScoutSPI::interruptCounter = 0;
 unsigned volatile char ScoutSPI::SPIClock = 0;
 unsigned volatile char ScoutSPI::ADCClock = 0;
 
-bool ScoutSPI::ADCConvertingState = false;
-unsigned int ScoutSPI::ADCCommunicationState = 0;
-
-unsigned int ScoutSPI::ADCArrayIndex = 0;
-unsigned int ScoutSPI::ADCSensorIndex = 0;
-unsigned int ScoutSPI::ADCConversionClocks = 0;
-unsigned int ScoutSPI::sensor0Data[10];
-
 bool ScoutSPI::runSPIClock;
 
 
@@ -239,11 +231,6 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
     sei();
 }
 
-void ScoutSPI::readADCInInterrupt(){
-    ScoutSPI::ADCSensorIndex = 0;
-    ScoutSPI::ADCCommunicationState = 1;
-}
-
 
 int ScoutSPI::readADC(char sensorAdress) {
     int output = 0;
@@ -381,21 +368,22 @@ ISR (TIMER1_COMPA_vect) {
 
 
     /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
-    if (ScoutSPI::interruptCounter == 0 && ScoutSPI::runSPIClock) {
+    if (ScoutSPI::interruptCounter == 0) {
         if (ScoutSPI::SPIClock > 0) {
             //PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
             PORTB &= (~(1 << PIN_SPI_SCK_B));
             //ScoutSerial::serialWrite("L",1);
-            if (ScoutSPI::ADCConversionClocks > 0)
-                ScoutSPI::ADCConversionClocks -= 1;
             delayMicroseconds(30);
             ScoutSPI::SPIClock = 0;
         } else {
-            //PORTB |= (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
-            PORTB |= (1 << PIN_SPI_SCK_B);
-            //ScoutSerial::serialWrite("H",1);
-            delayMicroseconds(30);
-            ScoutSPI::SPIClock = 1;
+            /* only set SPI clock to 1 if allowed to run */
+            if (ScoutSPI::runSPIClock) {
+                //PORTB |= (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
+                PORTB |= (1 << PIN_SPI_SCK_B);
+                //ScoutSerial::serialWrite("H",1);
+                delayMicroseconds(30);
+                ScoutSPI::SPIClock = 1;
+            }
         }
 
     }
@@ -410,270 +398,5 @@ ISR (TIMER1_COMPA_vect) {
         delayMicroseconds(30);
         ScoutSPI::ADCClock = 1;
 
-    }
-
-    switch(ScoutSPI::ADCCommunicationState){
-        case 0:
-            return;
-        case 1:
-            /* select ADC if SPI Clock */
-            if (ScoutSPI::SPIClock == 0){
-                ScoutSPI::slaveSelect(SLAVE_ADC);
-                ScoutSPI::ADCCommunicationState += 1;
-
-                // write first adress bit B3 which is always 0
-                PORTB &= ~(1 << PIN_MOSI_B);
-            }
-            break;
-        case 2:
-            if (ScoutSPI::ADCClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 3:
-            if (ScoutSPI::ADCClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 4:
-            if (ScoutSPI::ADCClock > 0){
-                ScoutSPI::ADCCommunicationState = 20;
-            }
-            break;
-
-        case 20:
-            /* SPI high step 1, ADC reads first adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 21:
-            /* SPI low step 1, write next adress bit */
-            if (ScoutSPI::SPIClock == 0){
-                // write second adress bit B2, which is always 0
-                PORTB &= ~(1 << PIN_MOSI_B);
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 22:
-            /* SPI high step 2, ADC reads second adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 23:
-            /* SPI low step 2, write next adress bit */
-            if (ScoutSPI::SPIClock == 0){
-                // write third adress bit B1
-                if (((ScoutSPI::ADCSensorIndex % 4) / 2) > 0){
-                    PORTB |= (1 << PIN_MOSI_B);
-                } else {
-                    PORTB &= ~(1 << PIN_MOSI_B);
-                }
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 24:
-            /* SPI high step 3, ADC reads third adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 25:
-            /* SPI low step 3, write fourth adress bit */
-            if (ScoutSPI::SPIClock == 0){
-                // write fourth adress bit 01
-                if ((ScoutSPI::ADCSensorIndex % 2) > 0){
-                    PORTB |= (1 << PIN_MOSI_B);
-                } else {
-                    PORTB &= ~(1 << PIN_MOSI_B);
-                }
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 26:
-            /* SPI high step 4, ADC reads fourth adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 27:
-            /* wait for high step 5 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 28:
-            /* wait for high step 6 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 29:
-            /* wait for high step 7 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 30:
-            /* wait for high step 8 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 31:
-            /* deselect when SPI low */
-            if (ScoutSPI::SPIClock == 0){
-                ScoutSPI::slaveSelect(SLAVE_NONE);
-                ScoutSPI::ADCCommunicationState = 40;
-                ScoutSPI::ADCConversionClocks = 40;
-            }
-            break;
-        case 40:
-            if (ScoutSPI::ADCConversionClocks == 0)
-                ScoutSPI::ADCCommunicationState = 51;
-            break;
-
-        case 51:
-            /* select ADC if SPI Clock */
-            if (ScoutSPI::SPIClock == 0){
-                ScoutSPI::slaveSelect(SLAVE_ADC);
-                ScoutSPI::ADCCommunicationState += 1;
-
-                // write first adress bit B3 which is always 0
-                // PORTB &= ~(1 << PIN_MOSI_B);
-            }
-            break;
-        case 52:
-            if (ScoutSPI::ADCClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 53:
-            if (ScoutSPI::ADCClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 54:
-            if (ScoutSPI::ADCClock > 0){
-                ScoutSPI::ADCCommunicationState = 60;
-            }
-            break;
-
-        case 60:
-            /* SPI high step 1, ADC reads first adress bit + we read first bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] = 0;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 128;
-            }
-            break;
-        case 61:
-            /* SPI low step 1, write next adress bit */
-            if (ScoutSPI::SPIClock == 0){
-                // write second adress bit B2, which is always 0
-                //PORTB &= ~(1 << PIN_MOSI_B);
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 62:
-            /* SPI high step 2, ADC reads second adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 64;
-            }
-            break;
-        case 63:
-            /* SPI low step 2, write next adress bit */
-            if (ScoutSPI::SPIClock == 0){
-                /* write third adress bit B1
-                if (((ScoutSPI::ADCSensorIndex % 4) / 2) > 0){
-                    PORTB |= (1 << PIN_MOSI_B);
-                } else {
-                    PORTB &= ~(1 << PIN_MOSI_B);
-                }*/
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 64:
-            /* SPI high step 3, ADC reads third adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 32;
-            }
-            break;
-        case 65:
-            /* SPI low step 3, write fourth adress bit */
-            if (ScoutSPI::SPIClock == 0){
-                // write fourth adress bit 01
-                /*if ((ScoutSPI::ADCSensorIndex % 2) > 0){
-                    PORTB |= (1 << PIN_MOSI_B);
-                } else {
-                    PORTB &= ~(1 << PIN_MOSI_B);
-                }*/
-                ScoutSPI::ADCCommunicationState += 1;
-            }
-            break;
-        case 66:
-            /* SPI high step 4, ADC reads fourth adress bit */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 16;
-            }
-            break;
-        case 67:
-            /* wait for high step 5 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 8;
-            }
-            break;
-        case 68:
-            /* wait for high step 6 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 4;
-            }
-            break;
-        case 69:
-            /* wait for high step 7 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 2;
-            }
-            break;
-        case 70:
-            /* wait for high step 8 */
-            if (ScoutSPI::SPIClock > 0){
-                ScoutSPI::ADCCommunicationState += 1;
-                if ((PINB & (1 << PIN_MISO_B)) > 0)
-                    ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex] += 1;
-
-                ScoutSerial::serialWrite8Bit(ScoutSPI::sensor0Data[ScoutSPI::ADCArrayIndex]);
-                ScoutSerial::serialWrite("\n", 1);
-            }
-            break;
-        case 71:
-            /* deselect when SPI low */
-            if (ScoutSPI::SPIClock == 0){
-                ScoutSPI::slaveSelect(SLAVE_NONE);
-                ScoutSPI::ADCSensorIndex = 0;
-                if (ScoutSPI::ADCSensorIndex == 4){
-                    ScoutSPI::ADCSensorIndex = 0;
-                    ScoutSPI::ADCArrayIndex = (ScoutSPI::ADCArrayIndex + 1) % 10;
-                }
-                ScoutSPI::ADCCommunicationState = 1;
-            }
-            break;
-
-        default:
-            return;
     }
 }
