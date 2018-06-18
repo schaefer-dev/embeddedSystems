@@ -49,6 +49,18 @@ void ScoutSerial::serialWriteInt(int input) {
     serialWrite(toBePrinted, 6);
 }
 
+void ScoutSerial::serialWrite8Bit(int input) {
+    char toBePrinted[3];
+
+    for (int i = 2; i >= 0; i--){
+        int modValue = input % 10;
+
+        toBePrinted[i] = (char)(modValue + 48);
+        input = input / 10;
+    }
+    serialWrite(toBePrinted, 3);
+}
+
 bool ScoutSerial::readCoordinates(int *returnArray){
 
     delay(50);

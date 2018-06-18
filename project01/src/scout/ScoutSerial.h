@@ -19,6 +19,7 @@ public:
     static bool readCoordinates(int *);
 
     static void serialWriteInt(int input);
+    static void serialWrite8Bit(int input);
 
     static char receiveBuffer[100];
     static unsigned char receiveIndex;

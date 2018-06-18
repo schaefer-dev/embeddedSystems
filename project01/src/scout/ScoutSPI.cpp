@@ -40,7 +40,7 @@
 #define SPI_INTERRUPT_SPEED 1
 
 /* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted */
-#define SPI_CLOCK_FACTOR 20
+#define SPI_CLOCK_FACTOR 2
 
 unsigned int ScoutSPI::interruptCounter = 0;
 unsigned volatile char ScoutSPI::SPIClock = 0;
@@ -259,12 +259,14 @@ int ScoutSPI::readADC(char sensorAdress) {
 
     // drive SS/CS low
     slaveSelect(SLAVE_ADC);
-    ScoutSerial::serialWrite("S\n", 2);
 
 
     // wait for 2 rising , 1 falling edge of ADC clock
-
-
+    waitNextADCRisingEdge();
+    waitNextADCRisingEdge();
+    waitNextADCFallingEdge();
+    waitNextADCRisingEdge();
+    waitNextADCRisingEdge();
 
     // wait such that first bit is being read by ADC
     waitNextSPIRisingEdge();
@@ -360,7 +362,6 @@ int ScoutSPI::readADC(char sensorAdress) {
 
     // drive SS/CS high
     slaveSelect(SLAVE_NONE);
-    ScoutSerial::serialWrite("D\n", 2);
 
     // wait for conversion (at least 36 cycles of ADC_SystemClock)
     for (int i = 0; i < 40; i++)
