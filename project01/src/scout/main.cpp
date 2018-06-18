@@ -43,6 +43,7 @@ int main() {
         delay(500);
     }
 
+
     int adcIndex = 0;
     int adcout11[10];
     int adcout0[10];
@@ -50,45 +51,17 @@ int main() {
     int adcout2[10];
     int adcout3[10];
 
+
+    //ScoutSPI::readADCInInterrupt();
+
     while (1) {
+
 
         int adcout11Average = 0;
         int adcout0Average = 0;
         int adcout1Average = 0;
         int adcout2Average = 0;
         int adcout3Average = 0;
-
-
-        /* DEBUG continious reading test without deselect
-         *
-        adcout0 = ScoutSPI::readADCContinous(0);
-        ScoutSerial::serialWriteInt(adcout0);
-
-        adcout1 = ScoutSPI::readADCContinous(1);
-        ScoutSerial::serialWriteInt(adcout1);
-
-        adcout2 = ScoutSPI::readADCContinous(2);
-        ScoutSerial::serialWriteInt(adcout2);
-
-        adcout3 = ScoutSPI::readADCContinous(3);
-        ScoutSerial::serialWriteInt(adcout3);
-
-        adcout11 = ScoutSPI::readADCContinous(11);
-        ScoutSerial::serialWriteInt(adcout11);
-
-        delay(100);
-         */
-
-
-
-        /* WORKING: debug: testing to read in interrupt
-        ScoutSPI::readADCInInterrupt(0);
-        delay(10);
-        ScoutSPI::readADCInInterrupt(0);
-        delay(10);
-        ScoutSPI::readADCInInterrupt(0);
-        delay(10);
-         */
 
 
         adcout11[adcIndex] = ScoutSPI::readADC(0);
@@ -125,16 +98,16 @@ int main() {
         adcout3Average = adcout3Average / 10;
 
 
-        ScoutSerial::serialWrite("LIGHT: left=", 12);
+        ScoutSerial::serialWrite("LIGHT: front=", 12);
         //ScoutSerial::serialWrite8Bit(adcout0Average);
         ScoutSerial::serialWrite8Bit(adcout0[adcIndex]);
-        ScoutSerial::serialWrite(" front=", 7);
+        ScoutSerial::serialWrite(" right=", 7);
         //ScoutSerial::serialWrite8Bit(adcout1Average);
         ScoutSerial::serialWrite8Bit(adcout1[adcIndex]);
-        ScoutSerial::serialWrite(" right=", 7);
+        ScoutSerial::serialWrite(" back=", 7);
         //ScoutSerial::serialWrite8Bit(adcout2Average);
         ScoutSerial::serialWrite8Bit(adcout2[adcIndex]);
-        ScoutSerial::serialWrite(" back=", 6);
+        ScoutSerial::serialWrite(" left=", 6);
         //ScoutSerial::serialWrite8Bit(adcout3Average);
         ScoutSerial::serialWrite8Bit(adcout3[adcIndex]);
 
@@ -143,6 +116,7 @@ int main() {
         delay(150);
 
         adcIndex = (adcIndex + 1) % 10;
+
 
 
 
