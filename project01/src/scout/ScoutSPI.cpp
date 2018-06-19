@@ -226,7 +226,6 @@ void ScoutSPI::initializeRFModule(){
 /* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
 int ScoutSPI::readWriteSPI(int payload){
     int output = 0;
-    unsigned int volatile counter = 0;
 
 
     for (int i = 8; i > 0; i --) {
@@ -253,7 +252,7 @@ int ScoutSPI::readWriteSPI(int payload){
 
         /* read value on rising edge of SPI */
         if ((PINB & (1 << PIN_MISO_B)) > 0) {
-            output += pow(2, (i-1));
+            output += divValue;
         }
     }
 
@@ -261,6 +260,8 @@ int ScoutSPI::readWriteSPI(int payload){
     waitNextSPIFallingEdge();
 
     runSPIClock = false;
+
+    /* TODO assert that SPIClock true here */
 
     return output;
 }
@@ -297,12 +298,12 @@ int ScoutSPI::readADC(char sensorAdress) {
 
 
     // TODO: fix readWriteSPI, to mimic the behaviour of the function below
-     //output = readWriteSPI(payload);
+    output = readWriteSPI(payload * 16);
 
     slaveSelect(SLAVE_NONE);
 
     // TODO: Comment in once readWriteSPI fixed
-    //return output;
+    return output;
 
 
     /* already start sending the first bit of adress */
