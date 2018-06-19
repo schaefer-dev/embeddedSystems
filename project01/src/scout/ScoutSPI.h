@@ -39,8 +39,6 @@ public:
 
     static void ADCConversionWait();
 
-    static int int_pow(int base, int exp);
-
     static unsigned int interruptCounter;
 
     static volatile unsigned char SPIClock;

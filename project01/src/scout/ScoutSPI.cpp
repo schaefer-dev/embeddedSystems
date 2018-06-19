@@ -10,6 +10,7 @@
 #include "main.h"
 #include "avr/interrupt.h"
 #include "avr/io.h"
+#include "Utility.h"
 
 
 /**
@@ -221,19 +222,6 @@ void ScoutSPI::initializeRFModule(){
 
 }
 
-int ScoutSPI::int_pow(int base, int exp)
-{
-    int result = 1;
-    while (exp)
-    {
-        if (exp & 1)
-            result *= base;
-        exp /= 2;
-        base *= base;
-    }
-    return result;
-}
-
 
 /* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
 int ScoutSPI::readWriteSPI(int payload){
@@ -241,8 +229,8 @@ int ScoutSPI::readWriteSPI(int payload){
 
 
     for (int i = 8; i > 0; i --) {
-        int modValue = int_pow(2, i);
-        int divValue = int_pow(2, (i - 1));
+        int modValue = Utility::int_pow(2, i);
+        int divValue = Utility::int_pow(2, (i - 1));
 
         /* wait until SPI clock falls (unless first iteration,
          * because SPIClock not yet enabled) */
