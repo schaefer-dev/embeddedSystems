@@ -10,7 +10,6 @@
 #include "main.h"
 #include "avr/interrupt.h"
 #include "avr/io.h"
-#include "math.h"
 
 
 /**
@@ -222,6 +221,19 @@ void ScoutSPI::initializeRFModule(){
 
 }
 
+int ScoutSPI::int_pow(int base, int exp)
+{
+    int result = 1;
+    while (exp)
+    {
+        if (exp & 1)
+            result *= base;
+        exp /= 2;
+        base *= base;
+    }
+    return result;
+}
+
 
 /* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
 int ScoutSPI::readWriteSPI(int payload){
@@ -229,8 +241,8 @@ int ScoutSPI::readWriteSPI(int payload){
 
 
     for (int i = 8; i > 0; i --) {
-        int modValue = pow(2, i);
-        int divValue = pow(2, (i - 1));
+        int modValue = int_pow(2, i);
+        int divValue = int_pow(2, (i - 1));
 
         /* wait until SPI clock falls (unless first iteration,
          * because SPIClock not yet enabled) */
@@ -241,11 +253,21 @@ int ScoutSPI::readWriteSPI(int payload){
         int payloadBit = (payload % modValue) / divValue;
         if (payloadBit > 0) {
             PORTB |= (1 << PIN_MOSI_B);
+            if (i <= 4){
+                ScoutSerial::serialWrite("ERROR at ",9);
+                ScoutSerial::serialWriteInt(payload);
+                ScoutSerial::serialWrite("mod  ",4);
+                ScoutSerial::serialWriteInt(modValue);
+                ScoutSerial::serialWrite("div  ",4);
+                ScoutSerial::serialWriteInt(divValue);
+            }
         } else {
             PORTB &= ~(1 << PIN_MOSI_B);
         }
 
-        runSPIClock = true;
+        if (i == 8) {
+            runSPIClock = true;
+        }
 
         /* wait until SPI clock high */
         waitNextSPIRisingEdge();
@@ -298,113 +320,8 @@ int ScoutSPI::readADC(char sensorAdress) {
 
 
     // TODO: fix readWriteSPI, to mimic the behaviour of the function below
-    output = readWriteSPI(payload * 16);
-
+    output = readWriteSPI(payload);
     slaveSelect(SLAVE_NONE);
-
-    // TODO: Comment in once readWriteSPI fixed
-    return output;
-
-
-    /* already start sending the first bit of adress */
-    char outputBit = sensorAdress / 8;
-    if (outputBit > 0) {
-        PORTB |= (1 << PIN_MOSI_B);
-    } else {
-        PORTB &= ~(1 << PIN_MOSI_B);
-    }
-
-    runSPIClock = true;
-
-    // wait such that first bit is being read by ADC
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 128;
-
-    /* on falling edge put next bit on MOSI */
-    waitNextSPIFallingEdge();
-    outputBit = (sensorAdress % 8) / 4;
-    if (outputBit > 0) {
-        PORTB |= (1 << PIN_MOSI_B);
-    } else {
-        PORTB &= ~(1 << PIN_MOSI_B);
-    }
-
-    // second bit is being read by ADC
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 64;
-
-    /* on falling edge put next bit on MOSI */
-    waitNextSPIFallingEdge();
-    outputBit = (sensorAdress % 4) / 2;
-    if (outputBit > 0) {
-        PORTB |= (1 << PIN_MOSI_B);
-    } else {
-        PORTB &= ~(1 << PIN_MOSI_B);
-    }
-
-    // third bit is being read by ADC
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 32;
-
-    /* on falling edge put next bit on MOSI */
-    waitNextSPIFallingEdge();
-    outputBit = (sensorAdress % 2) / 1;
-    if (outputBit > 0) {
-        PORTB |= (1 << PIN_MOSI_B);
-    } else {
-        PORTB &= ~(1 << PIN_MOSI_B);
-    }
-
-    // fourth bit is being read by ADC
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 16;
-
-    // set byte to be sent over MOSI to 0 after adress sending has been completed
-    PORTB &= ~(1 << PB5);
-
-
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 8;
-
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 4;
-
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 2;
-
-    waitNextSPIRisingEdge();
-
-    /* read value on rising edge of SPI */
-    if( (PINB & (1 << PIN_MISO_B)) > 0)
-        output += 1;
-
-    waitNextSPIFallingEdge();
-
-
-    // drive SS/CS high
-    runSPIClock = false;
-
     return output;
 }
 
