@@ -204,7 +204,7 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 }
 
 
-void ScoutSPI::initializeRFModule(){
+void ScoutSPI::initializeRFModule() {
 
     int command_delay = 50;
     int delayBetween = 1;
@@ -212,12 +212,16 @@ void ScoutSPI::initializeRFModule(){
     PORTD |= (1 << PIN_RF_ENABLE_D);
     delayMicroseconds(30);
 
-    /* select RF module */
+    /* for every register in RF module:
+     * select RF as slave
+     * command address write register XX
+     * at least one clock cycle delay
+     * payload for register setup
+     * deselect slave
+     * short delay
+     * */
+
     slaveSelect(SLAVE_RF);
-
-    /* setup registers */
-
-
     readWriteSPI(36); // write command register 04
     delayMicroseconds(command_delay);
     readWriteSPI(138); // enable retries, up to 10 w delay 2ms
@@ -229,7 +233,7 @@ void ScoutSPI::initializeRFModule(){
     readWriteSPI(37); // write command register 05
     delayMicroseconds(command_delay);
     readWriteSPI(7); // set channel to 111
-    slaveSelect(SLAVE_NONE)
+    slaveSelect(SLAVE_NONE);
 
     delay(delayBetween);
 
@@ -245,7 +249,7 @@ void ScoutSPI::initializeRFModule(){
     readWriteSPI(61); // write command register 1D
     delayMicroseconds(command_delay);
     readWriteSPI(7); // enable dyn payload w dynamic ack
-    slaveSelect(SLAVE_NONE)
+    slaveSelect(SLAVE_NONE);
 
     delay(delayBetween);
 
@@ -261,29 +265,29 @@ void ScoutSPI::initializeRFModule(){
 
 
 /* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
-int ScoutSPI::readWriteSPI(int payload){
+int ScoutSPI::readWriteSPI(int payload) {
     int output = 0;
 
 
-    for (int i = 8; i > 0; i --) {
+    for (int i = 8; i > 0; i--) {
         int modValue = Utility::int_pow(2, i);
         int divValue = Utility::int_pow(2, (i - 1));
 
         /* wait until SPI clock falls (unless first iteration,
          * because SPIClock not yet enabled) */
-        if (i < 8){
+        if (i < 8) {
             waitNextSPIFallingEdge();
         }
 
         int payloadBit = (payload % modValue) / divValue;
         if (payloadBit > 0) {
             PORTB |= (1 << PIN_MOSI_B);
-            if (i <= 4){
-                ScoutSerial::serialWrite("ERROR at ",9);
+            if (i <= 4) {
+                ScoutSerial::serialWrite("ERROR at ", 9);
                 ScoutSerial::serialWriteInt(payload);
-                ScoutSerial::serialWrite("mod  ",4);
+                ScoutSerial::serialWrite("mod  ", 4);
                 ScoutSerial::serialWriteInt(modValue);
-                ScoutSerial::serialWrite("div  ",4);
+                ScoutSerial::serialWrite("div  ", 4);
                 ScoutSerial::serialWriteInt(divValue);
             }
         } else {
@@ -313,7 +317,7 @@ int ScoutSPI::readWriteSPI(int payload){
     return output;
 }
 
-void ScoutSPI::ADCConversionWait(){
+void ScoutSPI::ADCConversionWait() {
     // wait for conversion (at least 36 cycles of ADC_SystemClock)
     for (int i = 0; i < 40; i++)
         waitNextADCRisingEdge();
@@ -327,7 +331,7 @@ int ScoutSPI::readADC(char sensorAdress) {
     int payload = sensorAdress * 16;
 
     /* catch illegal sensorAdresses */
-    if (sensorAdress > 11){
+    if (sensorAdress > 11) {
         ScoutSerial::serialWrite("W: sensorAdress > 11\n", 21);
         return 0;
     }
@@ -378,7 +382,7 @@ ISR (TIMER1_COMPA_vect) {
     }
 
     /* switch adc system clock every time the interrupt is triggered */
-    if (ScoutSPI::ADCClock > 0){
+    if (ScoutSPI::ADCClock > 0) {
         PORTB &= (~(1 << PIN_ADC_SCK_B));
         delayMicroseconds(30);
         ScoutSPI::ADCClock = 0;

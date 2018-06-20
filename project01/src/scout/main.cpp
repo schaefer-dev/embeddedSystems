@@ -56,7 +56,7 @@ int main() {
 
     while (1) {
 
-        printPhotoresistorReadings();
+        printPhotosensorReadings();
 
         delay(150);
 
