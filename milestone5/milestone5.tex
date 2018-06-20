@@ -51,7 +51,7 @@
 	\item The Scout should at some point in time send a harvesting
 position to the Collector.
 	\begin{itemize}
-		\item \textbf{LTL:} F(sendHarvest)
+		\item \textbf{LTL:} $\mathbf{F}($sendHarvest$)$
 		\item \textbf{Not Safety:} There is no bad prexif because for every infinite trace that is not in L we can always append $\{\text{sendHarvest}\}$. This would then be a good prefix. $\emptyset ^{\omega}$ does not have a bad prefix
 		\item \textbf{Co-Safety:} Every trace in L has sendHarvest at some point which is a good prefix.
 		\item \textbf{Monitorable:} Every finite trace can be extended to a good prefix by appending $\{\text{sendHarvest}\}$ so we do not have an ugly prefix.
@@ -61,7 +61,7 @@ position to the Collector.
 		
 \item The Collector should always check its proximity sensors unless it is at a decent harvesting position.
 	\begin{itemize}
-		\item \textbf{LTL:} $G(\neg \text{atHarvest} \implies \text{checkingProximity})$
+		\item \textbf{LTL:} $\mathbf{G}(\text{atHarvest} \lor \text{checkingProximity})$
 		\item \textbf{Safety:} Every trace not in L has at least one prefix \\
 		$\{ \sim \text{atHarvest}  \implies \neg \text{checkingProximity}\}$ which is a bad prefix.
 		\item \textbf{Not Co-Safety:} $\{ \text{atHarvest, checkProximity}\}^ {\omega}$ does not have a good prefix. Every trace that is in L does not have a good prefix because we can always do $\{ \neg \text{atHarvest}  \land \neg \text{checkingProximity}\}$ in the next step.
@@ -71,7 +71,7 @@ position to the Collector.
 	
 \item A robot should never ignore three consecutive PING messages.
 	\begin{itemize}
-		\item \textbf{LTL:} $G(((\neg \text{pong} \land \text{ping}) \implies X((\neg \text{pong} \land \text{ping}) \implies X((\sim \text{pong} \land \text{ping}) \implies X(\text{pong})))))$
+		\item \textbf{LTL:} $\mathbf{G}((\text{ping} \land \mathbf{X}(\neg \text{pong} \land \text{ping}) \land \mathbf{X}(\neg \text{pong} \land \text{ping})) \rightarrow \mathbf{X} \: \text{pong})$
 		\item \textbf{Safety:} Every trace not in L has at least one prefix x which is a bad prefix.
 		\item \textbf{Not Co-Safety:} $\{ \text{pong}\}^ {\omega}$ does not have a good prefix. We can extend every good trace to a bad trace by appending $\{\text{ping, ping, ping, ping}\}$.
 		\item \textbf{Monitorable:} Every finite trace can be extended with the finite trace $\{\text{ping, ping, ping, ping}\}$ to a bad prefix, therefore we do not have an ugly prefix.
