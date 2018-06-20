@@ -47,7 +47,8 @@ public:
     static bool runSPIClock;
 
 
-    static int queryRFModule(); 
+    static int queryRFModule();
+    static void debug_RFModule();
 
 };
 
