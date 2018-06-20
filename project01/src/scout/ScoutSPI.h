@@ -41,8 +41,8 @@ public:
 
     static unsigned int interruptCounter;
 
-    static unsigned char SPIClock;
-    static unsigned char ADCClock;
+    static volatile unsigned char SPIClock;
+    static volatile unsigned char ADCClock;
 
     static bool runSPIClock;
 

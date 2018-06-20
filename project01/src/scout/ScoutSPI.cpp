@@ -43,8 +43,11 @@
 #define SPI_CLOCK_FACTOR 2
 
 unsigned int ScoutSPI::interruptCounter = 0;
-unsigned char ScoutSPI::SPIClock = 0;
-unsigned char ScoutSPI::ADCClock = 0;
+
+/* breaks if Clocks not volatile, because ISR has to be forced to write to disk such
+ * wait conditions are getting notified on change of clocks */
+volatile unsigned char ScoutSPI::SPIClock = 0;
+volatile unsigned char ScoutSPI::ADCClock = 0;
 
 bool ScoutSPI::runSPIClock;
 

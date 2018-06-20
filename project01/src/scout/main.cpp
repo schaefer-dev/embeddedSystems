@@ -76,7 +76,7 @@ int main() {
 
 
 /* write Readings of all Photosensors to DEV port serial */
-void printPhotoresistorReadings(){
+void printPhotosensorReadings(){
     int adcout11, adcout0, adcout1, adcout2, adcout3;
 
     adcout11 = ScoutSPI::readADC(0);
