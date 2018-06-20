@@ -71,7 +71,7 @@ position to the Collector.
 	
 \item A robot should never ignore three consecutive PING messages.
 	\begin{itemize}
-		\item \textbf{LTL:} $\mathbf{G}((\text{ping} \land \mathbf{X}(\neg \text{pong} \land \text{ping}) \land \mathbf{X}(\neg \text{pong} \land \text{ping})) \rightarrow \mathbf{X} \: \text{pong})$
+		\item \textbf{LTL:} $\mathbf{G}((\text{ping} \land \mathbf{X}(\neg \text{pong} \land \text{ping}) \land \mathbf{X}\mathbf{X}(\neg \text{pong} \land \text{ping})) \rightarrow \mathbf{X}\mathbf{X}\mathbf{X} \: \text{pong})$
 		\item \textbf{Safety:} Every trace not in L has at least one prefix x which is a bad prefix.
 		\item \textbf{Not Co-Safety:} $\{ \text{pong}\}^ {\omega}$ does not have a good prefix. We can extend every good trace to a bad trace by appending $\{\text{ping, ping, ping, ping}\}$.
 		\item \textbf{Monitorable:} Every finite trace can be extended with the finite trace $\{\text{ping, ping, ping, ping}\}$ to a bad prefix, therefore we do not have an ugly prefix.
