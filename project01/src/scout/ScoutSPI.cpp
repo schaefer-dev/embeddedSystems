@@ -275,7 +275,7 @@ int ScoutSPI::queryRFModule(){
     unsigned int statusRF = readWriteSPI(payload);
     slaveSelect(SLAVE_NONE);
     
-    ScoutSerial::serialWrite("Status Register: (", 17);
+    ScoutSerial::serialWrite("RF Status Register: (", 21);
     ScoutSerial::serialWrite8Bit(statusRF);
     ScoutSerial::serialWrite(")\n", 2);
 }
@@ -300,14 +300,6 @@ unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
         int payloadBit = (payload % modValue) / divValue;
         if (payloadBit > 0) {
             PORTB |= (1 << PIN_MOSI_B);
-            if (i <= 4) {
-                ScoutSerial::serialWrite("ERROR at ", 9);
-                ScoutSerial::serialWriteInt(payload);
-                ScoutSerial::serialWrite("mod  ", 4);
-                ScoutSerial::serialWriteInt(modValue);
-                ScoutSerial::serialWrite("div  ", 4);
-                ScoutSerial::serialWriteInt(divValue);
-            }
         } else {
             PORTB &= ~(1 << PIN_MOSI_B);
         }
@@ -317,7 +309,9 @@ unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
         }
 
         /* wait until SPI clock high */
-        waitNextSPIRisingEdge();
+        while (SPIClock == 0){
+            asm("");
+        }
 
         /* read value on rising edge of SPI */
         if ((PINB & (1 << PIN_MISO_B)) > 0) {
@@ -329,8 +323,7 @@ unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
     waitNextSPIFallingEdge();
 
     runSPIClock = false;
-
-    /* TODO assert that SPIClock true here */
+    SPIClock = 0;
 
     return output;
 }
