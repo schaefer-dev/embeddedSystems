@@ -214,9 +214,54 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
 void ScoutSPI::initializeRFModule(){
 
+    int command_delay = 50;
+    int delayBetween = 1;
     /* drive RF module enable pin */
     PORTD |= (1 << PIN_RF_ENABLE_D);
     delayMicroseconds(30);
+
+    /* select RF module */
+    slaveSelect(SLAVE_RF);
+
+    /* setup registers */
+
+
+    readWriteSPI(36); // write command register 04
+    delayMicroseconds(command_delay);
+    readWriteSPI(138); // enable retries, up to 10 w delay 2ms
+    slaveSelect(SLAVE_NONE);
+
+    delay(delayBetween);
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(37); // write command register 05
+    delayMicroseconds(command_delay);
+    readWriteSPI(7); // set channel to 111
+    slaveSelect(SLAVE_NONE)
+
+    delay(delayBetween);
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(38); // write command register 06
+    delayMicroseconds(command_delay);
+    readWriteSPI(6); // data rate 1 mbps, max power
+    slaveSelect(SLAVE_NONE);
+
+    delay(delayBetween);
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(61); // write command register 1D
+    delayMicroseconds(command_delay);
+    readWriteSPI(7); // enable dyn payload w dynamic ack
+    slaveSelect(SLAVE_NONE)
+
+    delay(delayBetween);
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(32); // write command register
+    delayMicroseconds(command_delay);
+    readWriteSPI(14); // enable crc in 16 bit, pwr up
+    slaveSelect(SLAVE_NONE);
 
     int output = 1;
 
