@@ -33,6 +33,7 @@
 #define PIN_MISO_B  PB0
 #define PIN_SPI_SCK_B PB4
 #define PIN_RF_ENABLE_D PD7
+#define PIN_RF_IRQ_D PD2
 #define PIN_ADC_SCK_B PB1
 
 
@@ -44,6 +45,7 @@
 
 /* delay between each byte of communication with RF module in microseconds */
 #define command_delay 50
+#define delay_after_RF_select 1
 
 unsigned int ScoutSPI::interruptCounter = 0;
 
@@ -212,11 +214,6 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
 void ScoutSPI::initializeRFModule() {
 
-    int delayBetween = 1;
-    /* drive RF module enable pin */
-    PORTD |= (1 << PIN_RF_ENABLE_D);
-    delayMicroseconds(30);
-
     /* for every register in RF module:
      * select RF as slave
      * command address write register XX
@@ -226,21 +223,31 @@ void ScoutSPI::initializeRFModule() {
      * short delay
      * */
 
+    /* TODO: some of this is default set already, so can be optimized */
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(34); // write command register 02
+    delayMicroseconds(command_delay);
+    readWriteSPI(63); // enable all data pipes
+    slaveSelect(SLAVE_NONE);
+
+    delay(delay_after_RF_select);
+
     slaveSelect(SLAVE_RF);
     readWriteSPI(36); // write command register 04
     delayMicroseconds(command_delay);
     readWriteSPI(138); // enable retries, up to 10 w delay 2ms
     slaveSelect(SLAVE_NONE);
 
-    delay(delayBetween);
+    delay(delay_after_RF_select);
 
     slaveSelect(SLAVE_RF);
     readWriteSPI(37); // write command register 05
     delayMicroseconds(command_delay);
-    readWriteSPI(7); // set channel to 111
+    readWriteSPI(111); // set channel to 111
     slaveSelect(SLAVE_NONE);
 
-    delay(delayBetween);
+    delay(delay_after_RF_select);
 
     slaveSelect(SLAVE_RF);
     readWriteSPI(38); // write command register 06
@@ -248,23 +255,114 @@ void ScoutSPI::initializeRFModule() {
     readWriteSPI(6); // data rate 1 mbps, max power
     slaveSelect(SLAVE_NONE);
 
-    delay(delayBetween);
+    delay(delay_after_RF_select);
+
+
+    /* write command register 11 to 16 to maximum RX payload (32 Bytes) */
+    for (int i = 0; i < 6; i ++){
+        slaveSelect(SLAVE_RF);
+        readWriteSPI(49 + i);
+        delayMicroseconds(command_delay);
+        readWriteSPI(32);
+        slaveSelect(SLAVE_NONE);
+
+        delay(delay_after_RF_select);
+    }
 
     slaveSelect(SLAVE_RF);
-    readWriteSPI(61); // write command register 1D
+    readWriteSPI(60); // write command register 1D
     delayMicroseconds(command_delay);
     readWriteSPI(7); // enable dyn payload w dynamic ack
     slaveSelect(SLAVE_NONE);
 
-    delay(delayBetween);
+    delay(delay_after_RF_select);
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(35); // write command register 03
+    delayMicroseconds(command_delay);
+    readWriteSPI(3); // adresses defined to hold 5 bytes
+    slaveSelect(SLAVE_NONE);
+
+    delay(delay_after_RF_select);
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(42); // write roboter receive adress in register 0A
+    delayMicroseconds(command_delay);
+    /* write  receive adress 14: 0x8527a891e2 LSByte to MSByte */
+    readWriteSPI(226); // write e2
+    delayMicroseconds(command_delay);
+    readWriteSPI(145); // write 91
+    delayMicroseconds(command_delay);
+    readWriteSPI(168); // write a8
+    delayMicroseconds(command_delay);
+    readWriteSPI(39); // write 27
+    delayMicroseconds(command_delay);
+    readWriteSPI(133); // write 85
+    slaveSelect(SLAVE_NONE);
+
+    delay(delay_after_RF_select);
+
+
+    /* DEBUG CODE BEGIN */
+
+    slaveSelect(SLAVE_RF);
+    readWriteSPI(43); // write roboter receive adress in register 0B
+    delayMicroseconds(command_delay);
+    /* write  receive adress 14: 0x8527a891e2 LSByte to MSByte */
+    readWriteSPI(226); // write e2
+    delayMicroseconds(command_delay);
+    readWriteSPI(145); // write 91
+    delayMicroseconds(command_delay);
+    readWriteSPI(168); // write a8
+    delayMicroseconds(command_delay);
+    readWriteSPI(39); // write 27
+    delayMicroseconds(command_delay);
+    readWriteSPI(133); // write 85
+    slaveSelect(SLAVE_NONE);
+
+    delay(delay_after_RF_select);
+
+    /* write LSB receive adress in register 0C to 0F */
+    for (int i = 0; i < 4; i ++){
+        slaveSelect(SLAVE_RF);
+        readWriteSPI(44 + i); // write roboter receive adress LSB in register 0C
+        delayMicroseconds(command_delay);
+        readWriteSPI(226); // write e2
+        slaveSelect(SLAVE_NONE);
+        delay(delay_after_RF_select);
+    }
+
+    /* DEBUG CODE END */
 
     slaveSelect(SLAVE_RF);
     readWriteSPI(32); // write command register
     delayMicroseconds(command_delay);
-    readWriteSPI(14); // enable crc in 16 bit, pwr up
+    readWriteSPI(15); // enable crc in 16 bit, pwr up and set to RX mode
     slaveSelect(SLAVE_NONE);
 
-    int output = 1;
+    /* drive RF module enable pin, apparently this should happen
+     * at the very end of configuration, but not 100% sure */
+    PORTD |= (1 << PIN_RF_ENABLE_D);
+    delayMicroseconds(30);
+
+}
+
+void ScoutSPI::debug_RFModule(){
+    int output = 0;
+    for (int i = 0; i < 29; i++){
+        slaveSelect(SLAVE_RF);
+        readWriteSPI(i); // query reading of register i
+        delayMicroseconds(command_delay);
+        output = readWriteSPI(255); // write nop and read answer
+        slaveSelect(SLAVE_NONE);
+
+        delay(delay_after_RF_select);
+        ScoutSerial::serialWrite("Register: (", 11);
+        ScoutSerial::serialWrite8Bit(output);
+        ScoutSerial::serialWrite(")\n", 2);
+        delay(20);
+
+    }
 }
 
 
@@ -390,6 +488,11 @@ ISR (TIMER1_COMPA_vect) {
             }
         }
 
+    }
+
+    /* DEBUG: Alert if RF module receives something */
+    if ((PIND & (1 << PIN_RF_IRQ_D) == 0)){
+        ScoutSerial::serialWrite("P\n", 2);
     }
 
     /* switch adc system clock every time the interrupt is triggered */

@@ -52,11 +52,16 @@ int main() {
 
     while (1) {
 
-        printPhotosensorReadings();
+        //printPhotosensorReadings();
 
         delay(150);
 
-        ScoutSPI::queryRFModule();
+        //ScoutSPI::queryRFModule();
+
+        ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
+        ScoutSPI::debug_RFModule();
+        ScoutSerial::serialWrite("REGISTER CHECk END:\n", 20);
+        delay(1000);
     }
 
 }
