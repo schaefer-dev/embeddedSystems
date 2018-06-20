@@ -43,8 +43,8 @@
 #define SPI_CLOCK_FACTOR 2
 
 unsigned int ScoutSPI::interruptCounter = 0;
-unsigned volatile char ScoutSPI::SPIClock = 0;
-unsigned volatile char ScoutSPI::ADCClock = 0;
+unsigned char ScoutSPI::SPIClock = 0;
+unsigned char ScoutSPI::ADCClock = 0;
 
 bool ScoutSPI::runSPIClock;
 
@@ -96,56 +96,48 @@ void ScoutSPI::SPIMasterInit() {
 /* returns whenever next rising edge occurs, used for synchronization */
 void ScoutSPI::waitNextSPIRisingEdge() {
 
-    volatile int counter;
-
     while (SPIClock > 0) {
-        counter++;
+        asm("");
     }
 
     while (SPIClock == 0) {
-        counter++;
+        asm("");
     }
 }
 
 /* returns whenever next falling edge occurs, used for synchronization */
 void ScoutSPI::waitNextSPIFallingEdge() {
 
-    volatile int counter;
-
     while (SPIClock == 0) {
-        counter++;
+        asm("");
     }
 
     while (SPIClock > 0) {
-        counter++;
+        asm("");
     }
 }
 
 /* returns whenever next rising edge occurs, used for synchronization */
 void ScoutSPI::waitNextADCRisingEdge() {
 
-    volatile int counter;
-
     while (ADCClock > 0) {
-        counter++;
+        asm("");
     }
 
     while (ADCClock == 0) {
-        counter++;
+        asm("");
     }
 }
 
 /* returns whenever next falling edge occurs, used for synchronization */
 void ScoutSPI::waitNextADCFallingEdge() {
 
-    volatile int counter;
-
     while (ADCClock == 0) {
-        counter++;
+        asm("");
     }
 
     while (ADCClock > 0) {
-        counter++;
+        asm("");
     }
 }
 

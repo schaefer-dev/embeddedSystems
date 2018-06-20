@@ -17,6 +17,7 @@ int main();
 bool driveToDestination();
 void readNewDestinations();
 void performRotation();
+void printPhotosensorReadings();
 void performStraightDrive(int cmLength);
 
 #endif //EMBEDDEDSYSTEMS18_SCOUT_MAIN_H
