@@ -19,6 +19,7 @@ void readNewDestinations();
 void performRotation();
 void printPhotosensorReadings();
 void performStraightDrive(int cmLength);
+void driveToSerialInput();
 
 #endif //EMBEDDEDSYSTEMS18_SCOUT_MAIN_H
 

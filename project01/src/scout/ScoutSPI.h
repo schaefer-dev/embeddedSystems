@@ -21,7 +21,7 @@ private:
     static void waitNextSPIFallingEdge();
     static void waitNextADCRisingEdge();
     static void waitNextADCFallingEdge();
-    static int readWriteSPI(int payload);
+    static unsigned int readWriteSPI(unsigned int payload);
 
 
 public:
@@ -45,6 +45,9 @@ public:
     static volatile unsigned char ADCClock;
 
     static bool runSPIClock;
+
+
+    static int queryRFModule(); 
 
 };
 

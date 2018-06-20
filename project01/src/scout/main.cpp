@@ -38,19 +38,15 @@ int main() {
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 #endif
 
-   scoutState->lastDiffDriveCall = millis();
-
-
-    /* DEBUG: Testing insertions of coordinates */
-    //coordinateQueue->append(30,0);
+    scoutState->lastDiffDriveCall = millis();
 
     delay(200);
 
-    char adcdata;
-
     if (spiEnabled) {
         ScoutSPI::SPIMasterInit();
-        delay(500);
+        delay(50);
+        ScoutSPI::initializeRFModule();
+        delay(100);
     }
     
 
@@ -60,18 +56,18 @@ int main() {
 
         delay(150);
 
-        /* IMPORTANT Roboter driving code ENABLED */
-        if (!spiEnabled) {
-
-            readNewDestinations();
-            if (driveToDestination()) {
-                performRotation();
-            }
-            scoutState->updateRoboterPositionAndAngles();
-        }
-
+        ScoutSPI::queryRFModule();
     }
 
+}
+
+
+void driveToSerialInput(){
+    readNewDestinations();
+    if (driveToDestination()) {
+        performRotation();
+    }
+    scoutState->updateRoboterPositionAndAngles();
 }
 
 

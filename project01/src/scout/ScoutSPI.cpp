@@ -42,6 +42,9 @@
 /* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted */
 #define SPI_CLOCK_FACTOR 2
 
+/* delay between each byte of communication with RF module in microseconds */
+#define command_delay 50
+
 unsigned int ScoutSPI::interruptCounter = 0;
 
 /* breaks if Clocks not volatile, because ISR has to be forced to write to disk such
@@ -209,7 +212,6 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
 
 void ScoutSPI::initializeRFModule() {
 
-    int command_delay = 50;
     int delayBetween = 1;
     /* drive RF module enable pin */
     PORTD |= (1 << PIN_RF_ENABLE_D);
@@ -263,13 +265,26 @@ void ScoutSPI::initializeRFModule() {
     slaveSelect(SLAVE_NONE);
 
     int output = 1;
-
 }
 
 
+
+int ScoutSPI::queryRFModule(){
+    slaveSelect(SLAVE_RF);
+    unsigned int payload = 255;
+    unsigned int statusRF = readWriteSPI(payload);
+    slaveSelect(SLAVE_NONE);
+    
+    ScoutSerial::serialWrite("Status Register: (", 17);
+    ScoutSerial::serialWrite8Bit(statusRF);
+    ScoutSerial::serialWrite(")\n", 2);
+}
+
+
+/* TODO: change to take unsigned char argument instead and return unsigned char (or maybe uint8) */
 /* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
-int ScoutSPI::readWriteSPI(int payload) {
-    int output = 0;
+unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
+    unsigned int output = 0;
 
 
     for (int i = 8; i > 0; i--) {
@@ -331,7 +346,7 @@ int ScoutSPI::readADC(char sensorAdress) {
     int output = 0;
 
     /* scale adress to 8 byte payload */
-    int payload = sensorAdress * 16;
+    unsigned int payload = sensorAdress * 16;
 
     /* catch illegal sensorAdresses */
     if (sensorAdress > 11) {
