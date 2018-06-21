@@ -292,7 +292,8 @@ void ScoutSPI::initializeRFModule() {
     writeRegister(0x0000001D,   7);
 
 
-    for (int i = 0; i < 2; i ++) {
+    /* Recent changes: adress only written in PIPE 0 */
+    for (int i = 0; i < 1; i ++) {
 
         slaveSelect(SLAVE_RF);
         readWriteSPI(42 + i); // write roboter receive adress in register 0A
@@ -313,9 +314,8 @@ void ScoutSPI::initializeRFModule() {
     }
 
 
-    /* DEBUG CODE BEGIN */
-
-    /* write LSB receive adress in register 0C to 0F */
+    /* Recent changes: adress only written in PIPE 0, so not necessary here anymore */
+    /* write LSB receive adress in register 0C to 0F
     for (int i = 0; i < 4; i ++){
         slaveSelect(SLAVE_RF);
         readWriteSPI(44 + i); // write roboter receive adress LSB in register 0C
@@ -323,9 +323,8 @@ void ScoutSPI::initializeRFModule() {
         readWriteSPI(226); // write e2
         slaveSelect(SLAVE_NONE);
         delay(delay_after_RF_select);
-    }
+    } */
 
-    /* DEBUG CODE END */
 
     // write register 00: enable crc 16 bit, pwr up, rx mode
     writeRegister(0x00000000, 15);
