@@ -61,6 +61,41 @@ void ScoutSerial::serialWrite8Bit(int input) {
     serialWrite(toBePrinted, 3);
 }
 
+void ScoutSerial::serialWrite8BitHex(int input) {
+    char toBePrinted[2];
+
+    for (int i = 1; i >= 0; i--){
+        int modValue = input % 16;
+
+        /* print hex chars if >= 10 */
+        if (modValue < 10)
+            toBePrinted[i] = (char)(modValue + 48);
+        else
+            toBePrinted[i] = (char)(modValue + 55);
+
+
+        input = input / 16;
+    }
+    serialWrite(toBePrinted, 2);
+}
+
+void ScoutSerial::serialWrite8BitBinary(int input) {
+    char toBePrinted[8];
+
+    for (int i = 7; i >= 0; i--){
+        int modValue = input % 2;
+
+        if (modValue > 0)
+            toBePrinted[i] = (char)(49);
+        else
+            toBePrinted[i] = (char)(48);
+
+
+        input = input / 2;
+    }
+    serialWrite(toBePrinted, 8);
+}
+
 bool ScoutSerial::readCoordinates(int *returnArray){
 
     delay(50);

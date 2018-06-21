@@ -223,6 +223,35 @@ void ScoutSPI::writeRegister(uint8_t reg, uint8_t setting){
     delay(delay_after_RF_select);
 }
 
+int ScoutSPI::readRegister(uint8_t reg){
+
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(R_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    int output = readWriteSPI(NOP);
+
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+
+    return output;
+}
+
+void ScoutSPI::readAdressRegister(uint8_t reg, int* outputArray){
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(R_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    for (int i = 0; i < 5; i++) {
+        outputArray[i] = readWriteSPI(NOP);
+        delayMicroseconds(command_delay);
+    }
+
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+}
+
+
 
 void ScoutSPI::initializeRFModule() {
 
@@ -255,6 +284,9 @@ void ScoutSPI::initializeRFModule() {
     for (int i = 0x00000011; i < 0x00000017; i ++){
         writeRegister( i,  32);
     }
+
+    // write register 1D: enable dyn payload, dyn ack
+    writeRegister(0x0000001C,   63);
 
     // write register 1D: enable dyn payload, dyn ack
     writeRegister(0x0000001D,   7);
@@ -307,20 +339,33 @@ void ScoutSPI::initializeRFModule() {
 
 void ScoutSPI::debug_RFModule(){
     int output = 0;
-    for (int i = 0; i < 29; i++){
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(i); // query reading of register i
-        delayMicroseconds(command_delay);
-        output = readWriteSPI(255); // write nop and read answer
-        slaveSelect(SLAVE_NONE);
+    for (int i = 0; i < 30; i++){
+        output = readRegister(i);
 
-        delay(delay_after_RF_select);
-        ScoutSerial::serialWrite("Register: (", 11);
-        ScoutSerial::serialWrite8Bit(output);
+        ScoutSerial::serialWrite("Register ", 9);
+        ScoutSerial::serialWrite8BitHex(i);
+        ScoutSerial::serialWrite(" = (", 4);
+        ScoutSerial::serialWrite8BitBinary(output);
         ScoutSerial::serialWrite(")\n", 2);
         delay(20);
 
     }
+
+    int adressArray[5];
+    readAdressRegister(0x000A, adressArray);
+    ScoutSerial::serialWrite("ADDR Register: 0A (", 19);
+    for (int i=0; i < 5; i++) {
+        ScoutSerial::serialWrite8BitHex(adressArray[i]);
+    }
+    ScoutSerial::serialWrite(")\n", 2);
+
+    readAdressRegister(0x000B, adressArray);
+    ScoutSerial::serialWrite("ADDR Register: 0B (", 19);
+    for (int i=0; i < 5; i++) {
+        ScoutSerial::serialWrite8BitHex(adressArray[i]);
+    }
+    ScoutSerial::serialWrite(")\n", 2);
+
 }
 
 
