@@ -63,7 +63,8 @@ void setup() {
 }
 
 void loop() {
-
+    homing();
+    return;
     delay(150);
 
     Serial1.println("REGISTER CHECk START:");
@@ -77,13 +78,33 @@ void loop() {
 /* ----------------- HELPER FUNCTIONS -------------------------*/
 /* ------------------------------------------------------------*/
 
-void driveToSerialInput(){
-    readNewDestinations();
+void homing() {
+    int home[2] = {30, 30};      // home
+
+    int currentPosition[2];
+    readNewDestinations(currentPosition);
+    collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
 
     if (terminate) {
         performRotation();
     }
     else {
+        if (driveToDestination()) {
+            performRotation();
+            coordinateQueue->append(home[0], home[1]);
+        }
+        collectorState->updateRoboterPositionAndAngles();
+    }
+}
+
+void driveToSerialInput() {
+    int destination[2];
+    readNewDestinations(destination);
+    coordinateQueue->append(destination[0], destination[1]);
+
+    if (terminate) {
+        performRotation();
+    } else {
         if (driveToDestination()) {
             performRotation();
         }
@@ -162,7 +183,7 @@ bool driveToDestination() {
  * Reads a new destination from the serial stream and adds it to the queue.
  * New destination must be given as to integers separated by some non-numeric character
  */
-void readNewDestinations() {
+void readNewDestinations(int dest[]) {
 #ifdef DEBUG
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
@@ -214,7 +235,10 @@ void readNewDestinations() {
         Serial1.print(yDestination);
         Serial1.println(")");
         Serial1.flush();
-        coordinateQueue->append(xDestination, yDestination);
+
+        dest[0] = xDestination;
+        dest[1] = yDestination;
+        //coordinateQueue->append(xDestination, yDestination);
     }
 #endif
 }
