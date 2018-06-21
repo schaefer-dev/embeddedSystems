@@ -1,40 +1,30 @@
-//
-// Created by rafael on 06.06.18.
-// part rewrite from OrangutanSPIMaster.h
-//
-
-#include "ScoutSPI.h"
+#include "CollectorSPI.h"
 #include "avr/io.h"
-#include <OrangutanTime.h>
-#include "ScoutSerial.h"
+#include <Arduino.h>
 #include "main.h"
 #include "avr/interrupt.h"
 #include "avr/io.h"
-#include "Utility.h"
+#include "../scout/Utility.h"
 
 
 /**
  * initialize Master node for SPI communication on Scout robot
- * PB0 -- MISO
- * PB1 -- ADC SCK
- * PB4 -- RF SCK / ADC I/O CLK
- * PB5 -- MOSI
- * PC5 -- ADC select
- * PD2 -- RF IRQ
- * PD4 -- RF select
- * PD7 -- RF enable
+ * PB0 - RF SCK
+ * PD5 - MOSI
+ * PD7 - MISO
+ * PB3 - RF SS
+ * PC7 - RF CE
+ * PD2 - RF IRQ/DEV RX  depending on jumper position
  */
 
 
 // define Pins
-#define PIN_SS_RF_D PD4
-#define PIN_SS_ADC_C PC5
-#define PIN_MOSI_B  PB5
-#define PIN_MISO_B  PB0
-#define PIN_SPI_SCK_B PB4
-#define PIN_RF_ENABLE_D PD7
+#define PIN_SS_RF_B PB3
+#define PIN_MOSI_D  PD5
+#define PIN_MISO_D  PD7
+#define PIN_SPI_SCK_B PB0
+#define PIN_RF_ENABLE_C PC7
 #define PIN_RF_IRQ_D PD2
-#define PIN_ADC_SCK_B PB1
 
 
 /* SPI_INTERRUPT_SPEED has to be 1 with the current setup */
@@ -47,62 +37,60 @@
 #define command_delay 50
 #define delay_after_RF_select 1
 
-unsigned int ScoutSPI::interruptCounter = 0;
+unsigned int CollectorSPI::interruptCounter = 0;
 
 /* breaks if Clocks not volatile, because ISR has to be forced to write to disk such
  * wait conditions are getting notified on change of clocks */
-volatile unsigned char ScoutSPI::SPIClock = 0;
-volatile unsigned char ScoutSPI::ADCClock = 0;
+volatile unsigned char CollectorSPI::SPIClock = 0;
 
-bool ScoutSPI::runSPIClock;
+bool CollectorSPI::runSPIClock;
 
 
 // not used because static
-ScoutSPI::ScoutSPI() {
+CollectorSPI::CollectorSPI() {
 }
 
-void ScoutSPI::SPIMasterInit() {
+void CollectorSPI::SPIMasterInit() {
 
-    ScoutSPI::interruptCounter = 0;
+    CollectorSPI::interruptCounter = 0;
 
     // Set MISO pin as input
-    DDRB &= ~(1 << PIN_MISO_B);
+    DDRD &= ~(1 << PIN_MISO_D);
     delayMicroseconds(30);
 
-    // Set MOSI and SCK for SPI as ouput, additionally also the SystemClock of the ADC (PB1)
-    DDRB |= (1 << PIN_MOSI_B) | (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
+
+    // Set MOSI as output
+    DDRD |= (1 << PIN_MOSI_D);
+
+    // Set SCK for SPI as ouput
+    DDRB |= (1 << PIN_SPI_SCK_B);
     delayMicroseconds(30);
 
 
     /* drive SPICLock and ADCClock low initially */
-    PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
-    ADCClock = 0;
+    PORTB &= ~(1 << PIN_SPI_SCK_B);
     SPIClock = 0;
-    ScoutSPI::runSPIClock = false;
+    CollectorSPI::runSPIClock = false;
     delayMicroseconds(30);
 
 
     // Set Slave select as output
-    DDRC |= (1 << PIN_SS_ADC_C);
-    delayMicroseconds(30);
-    DDRD |= (1 << PIN_SS_RF_D);
+    DDRB |= (1 << PIN_SS_RF_B);
     delayMicroseconds(30);
 
 
-    // drive all SlaveSelect lanes high, PD7 low to deselect RF
-    PORTD |= (1 << PIN_SS_RF_D);
-    delayMicroseconds(30);
-    PORTC |= (1 << PIN_SS_ADC_C);
+    // drive all SlaveSelect lanes high
+    PORTB |= (1 << PIN_SS_RF_B);
     delayMicroseconds(30);
 
-    setTimer1Interrupt(SPI_INTERRUPT_SPEED);
+    CollectorSPI::setTimer4Interrupt(SPI_INTERRUPT_SPEED);
 
     delay(1);
 }
 
 
 /* returns whenever next rising edge occurs, used for synchronization */
-void ScoutSPI::waitNextSPIRisingEdge() {
+void CollectorSPI::waitNextSPIRisingEdge() {
 
     while (SPIClock > 0) {
         asm("");
@@ -114,37 +102,13 @@ void ScoutSPI::waitNextSPIRisingEdge() {
 }
 
 /* returns whenever next falling edge occurs, used for synchronization */
-void ScoutSPI::waitNextSPIFallingEdge() {
+void CollectorSPI::waitNextSPIFallingEdge() {
 
     while (SPIClock == 0) {
         asm("");
     }
 
     while (SPIClock > 0) {
-        asm("");
-    }
-}
-
-/* returns whenever next rising edge occurs, used for synchronization */
-void ScoutSPI::waitNextADCRisingEdge() {
-
-    while (ADCClock > 0) {
-        asm("");
-    }
-
-    while (ADCClock == 0) {
-        asm("");
-    }
-}
-
-/* returns whenever next falling edge occurs, used for synchronization */
-void ScoutSPI::waitNextADCFallingEdge() {
-
-    while (ADCClock == 0) {
-        asm("");
-    }
-
-    while (ADCClock > 0) {
         asm("");
     }
 }
@@ -158,61 +122,22 @@ void ScoutSPI::waitNextADCFallingEdge() {
  * select or deselect current slave node on Scout
  * @param slave DESELECT (0), SELECT_ADC (1) or SELECT_RF (2)
  */
-void ScoutSPI::slaveSelect(unsigned char slave) {
+void CollectorSPI::slaveSelect(unsigned char slave) {
 
     if (slave < 1) {
         /* deselect everyone */
-        PORTD |= (1 << PIN_SS_RF_D);
-        delayMicroseconds(30);
-        PORTC |= (1 << PIN_SS_ADC_C);
+        PORTB |= (1 << PIN_SS_RF_B);
         delayMicroseconds(30);
     }
-    if (slave > 1) {
-        /* select RF module (TODO: disabled currently) */
-        PORTC |= (1 << PIN_SS_ADC_C);
-        delayMicroseconds(30);
-        PORTD &= ~(1 << PIN_SS_RF_D);
-    } else {
-        /* select ADC */
-        PORTD |= (1 << PIN_SS_RF_D);
-        delayMicroseconds(30);
-        PORTC &= ~(1 << PIN_SS_ADC_C);
+    if (slave == 1) {
+        /* select RF module */
+        PORTB &= ~(1 << PIN_SS_RF_B);
         delayMicroseconds(30);
     }
 }
 
 
-/* 
- * Timer1 is reset every duration, and prescaled to interrupt every duration.
- * 
- * @param duration
- */
-void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
-
-    OCR1A = factor;
-
-    /* simple interrupt without PWM */
-
-    // ctc on OCR1A (mode 4)
-    TCCR1B |= (1 << WGM12);
-
-    // set ctc interrupt
-    TIMSK1 |= (1 << OCIE1A);
-
-    // prescaler 1024
-    TCCR1B |= (1 << CS12) | (1 << CS10);
-
-
-    // prescaler 256, seems to be too fast
-    // TCCR1B |= (1 << CS12);
-
-
-    // enable global interrupts
-    sei();
-}
-
-
-void ScoutSPI::initializeRFModule() {
+void CollectorSPI::initializeRFModule() {
 
     /* for every register in RF module:
      * select RF as slave
@@ -290,16 +215,16 @@ void ScoutSPI::initializeRFModule() {
         slaveSelect(SLAVE_RF);
         readWriteSPI(42 + i); // write roboter receive adress in register 0A
         delayMicroseconds(command_delay);
-        /* write  receive adress 14: 0x8527a891e2 LSByte to MSByte */
-        readWriteSPI(226); // write e2
+        /* write  receive adress 15: 0xe629fa6598 LSByte to MSByte */
+        readWriteSPI(152); // write 98
         delayMicroseconds(command_delay);
-        readWriteSPI(145); // write 91
+        readWriteSPI(101); // write 65
         delayMicroseconds(command_delay);
-        readWriteSPI(168); // write a8
+        readWriteSPI(250); // write fa
         delayMicroseconds(command_delay);
-        readWriteSPI(39); // write 27
+        readWriteSPI(41); // write 29
         delayMicroseconds(command_delay);
-        readWriteSPI(133); // write 85
+        readWriteSPI(230); // write e6
         slaveSelect(SLAVE_NONE);
 
         delay(delay_after_RF_select);
@@ -313,7 +238,7 @@ void ScoutSPI::initializeRFModule() {
         slaveSelect(SLAVE_RF);
         readWriteSPI(44 + i); // write roboter receive adress LSB in register 0C
         delayMicroseconds(command_delay);
-        readWriteSPI(226); // write e2
+        readWriteSPI(152); // write 98
         slaveSelect(SLAVE_NONE);
         delay(delay_after_RF_select);
     }
@@ -328,12 +253,12 @@ void ScoutSPI::initializeRFModule() {
 
     /* drive RF module enable pin, apparently this should happen
      * at the very end of configuration, but not 100% sure */
-    PORTD |= (1 << PIN_RF_ENABLE_D);
+    PORTC |= (1 << PIN_RF_ENABLE_C);
     delayMicroseconds(30);
 
 }
 
-void ScoutSPI::debug_RFModule(){
+void CollectorSPI::debug_RFModule(){
     int output = 0;
     for (int i = 0; i < 29; i++){
         slaveSelect(SLAVE_RF);
@@ -343,31 +268,30 @@ void ScoutSPI::debug_RFModule(){
         slaveSelect(SLAVE_NONE);
 
         delay(delay_after_RF_select);
-        ScoutSerial::serialWrite("Register: (", 11);
-        ScoutSerial::serialWrite8Bit(output);
-        ScoutSerial::serialWrite(")\n", 2);
+        Serial1.print("Register: (");
+        Serial1.print(output);
+        Serial1.println(")");
         delay(20);
 
     }
 }
 
 
-
-int ScoutSPI::queryRFModule(){
+int CollectorSPI::queryRFModule(){
     slaveSelect(SLAVE_RF);
     unsigned int payload = 255;
     unsigned int statusRF = readWriteSPI(payload);
     slaveSelect(SLAVE_NONE);
-    
-    ScoutSerial::serialWrite("RF Status Register: (", 21);
-    ScoutSerial::serialWrite8Bit(statusRF);
-    ScoutSerial::serialWrite(")\n", 2);
+
+    Serial1.print("RF Status Register: (");
+    Serial1.print(statusRF);
+    Serial1.println(")");
 }
 
 
 /* TODO: change to take unsigned char argument instead and return unsigned char (or maybe uint8) */
 /* transmits 1 byte and reads 1 byte over SPI (most significant to least significant )*/
-unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
+unsigned int CollectorSPI::readWriteSPI(unsigned int payload) {
     unsigned int output = 0;
 
 
@@ -383,9 +307,9 @@ unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
 
         int payloadBit = (payload % modValue) / divValue;
         if (payloadBit > 0) {
-            PORTB |= (1 << PIN_MOSI_B);
+            PORTD |= (1 << PIN_MOSI_D);
         } else {
-            PORTB &= ~(1 << PIN_MOSI_B);
+            PORTD &= ~(1 << PIN_MOSI_D);
         }
 
         if (i == 8) {
@@ -398,7 +322,7 @@ unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
         }
 
         /* read value on rising edge of SPI */
-        if ((PINB & (1 << PIN_MISO_B)) > 0) {
+        if ((PIND & (1 << PIN_MISO_D)) > 0) {
             output += divValue;
         }
     }
@@ -412,65 +336,52 @@ unsigned int ScoutSPI::readWriteSPI(unsigned int payload) {
     return output;
 }
 
-void ScoutSPI::ADCConversionWait() {
-    // wait for conversion (at least 36 cycles of ADC_SystemClock)
-    for (int i = 0; i < 40; i++)
-        waitNextADCRisingEdge();
-    return;
+/** set timer 4
+ *
+ * @param duration in ms
+ */
+void CollectorSPI::setTimer4Interrupt(uint16_t duration){
+
+    // use this if duration 1 should correspond to be 1ms
+    // uint8_t timer = (duration * 8) - 1;        // Collector runs on 1Mhz
+
+    OCR4A = duration;
+
+    // ctc on OCR4A
+    TCCR4B |= (1 << COM4A1) | (1 << PWM4A);
+
+    // set ctc interrupt
+    TIMSK4 |= (1 << OCIE4A);
+
+    // prescaler 1024
+    TCCR4B &= ~(1 << CS42);
+    //TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS43);
+
+    // prescaler 128
+    TCCR4B |= (1 << CS43);
+
+    // enable global interrupts
+    sei();
 }
 
-int ScoutSPI::readADC(char sensorAdress) {
-    int output = 0;
+// ISR for timer4
+ISR (TIMER4_COMPA_vect) {
 
-    /* scale adress to 8 byte payload */
-    unsigned int payload = sensorAdress * 16;
-
-    /* catch illegal sensorAdresses */
-    if (sensorAdress > 11) {
-        ScoutSerial::serialWrite("W: sensorAdress > 11\n", 21);
-        return 0;
-    }
-
-    // drive SS/CS low
-    slaveSelect(SLAVE_ADC);
-
-
-    // wait for 2 rising , 1 falling edge of ADC clock
-    waitNextADCRisingEdge();
-    waitNextADCRisingEdge();
-    waitNextADCRisingEdge();
-    waitNextADCRisingEdge();
-    waitNextADCFallingEdge();
-
-
-    // TODO: fix readWriteSPI, to mimic the behaviour of the function below
-    output = readWriteSPI(payload);
-    slaveSelect(SLAVE_NONE);
-    return output;
-}
-
-// ISR for timer1
-ISR (TIMER1_COMPA_vect) {
-
-    ScoutSPI::interruptCounter = (ScoutSPI::interruptCounter + 1) % SPI_CLOCK_FACTOR;
+    CollectorSPI::interruptCounter = (CollectorSPI::interruptCounter + 1) % SPI_CLOCK_FACTOR;
 
 
     /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
-    if (ScoutSPI::interruptCounter == 0) {
-        if (ScoutSPI::SPIClock > 0) {
-            //PORTB &= (~(1 << PIN_SPI_SCK_B) & ~(1 << PIN_ADC_SCK_B));
+    if (CollectorSPI::interruptCounter == 0) {
+        if (CollectorSPI::SPIClock > 0) {
             PORTB &= (~(1 << PIN_SPI_SCK_B));
-            //ScoutSerial::serialWrite("L",1);
             delayMicroseconds(30);
-            ScoutSPI::SPIClock = 0;
+            CollectorSPI::SPIClock = 0;
         } else {
             /* only set SPI clock to 1 if allowed to run */
-            if (ScoutSPI::runSPIClock) {
-                //PORTB |= (1 << PIN_SPI_SCK_B) | (1 << PIN_ADC_SCK_B);
+            if (CollectorSPI::runSPIClock) {
                 PORTB |= (1 << PIN_SPI_SCK_B);
-                //ScoutSerial::serialWrite("H",1);
                 delayMicroseconds(30);
-                ScoutSPI::SPIClock = 1;
+                CollectorSPI::SPIClock = 1;
             }
         }
 
@@ -478,18 +389,6 @@ ISR (TIMER1_COMPA_vect) {
 
     /* DEBUG: Alert if RF module receives something */
     if ((PIND & (1 << PIN_RF_IRQ_D) == 0)){
-        ScoutSerial::serialWrite("P\n", 2);
-    }
-
-    /* switch adc system clock every time the interrupt is triggered */
-    if (ScoutSPI::ADCClock > 0) {
-        PORTB &= (~(1 << PIN_ADC_SCK_B));
-        delayMicroseconds(30);
-        ScoutSPI::ADCClock = 0;
-    } else {
-        PORTB |= (1 << PIN_ADC_SCK_B);
-        delayMicroseconds(30);
-        ScoutSPI::ADCClock = 1;
-
+        Serial1.println("P");
     }
 }

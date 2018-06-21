@@ -3,28 +3,21 @@
 #include "CollectorState.h"
 #include "Coordinates.h"
 #include "main.h"
+#include "CollectorSPI.h"
 #include <math.h>
 #include "avr/io.h"
 #include "avr/interrupt.h"
 #include "../scout/main.h"
 #include "CollectorMonitor.h"
 
+#define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
+
+
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
-const uint8_t PROXIMITY_THRESHOLD = 7;   // (10-7) * 5cm = 15cm
-
-/* used for demonstration and testing of individual functionalities */
-const uint8_t MODE_DESTINATION = 1;
-const uint8_t MODE_HUNT_OBJECT = 2;
-const uint8_t MODE_TIMER = 3;
-uint8_t modeOfOperation = MODE_DESTINATION;
-
 boolean terminate = false;
-uint16_t numInterrups = 0;
-uint16_t numInterrupsPrevCycle = 0;
-const uint8_t TIMER_DURATION = 16;      // in ms, must be at least 16
 
 void setup() {
 #ifdef COLLECTOR_MONITOR
@@ -50,55 +43,31 @@ void setup() {
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
 
-    /* Test goals to test pathfinding
-    coordinateQueue->append(20, 0);     // #2
-    coordinateQueue->append(10, 10);    // #1
-    coordinateQueue->append(-21, 0);    // #3
-     */
-
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
 
-    // initialize timer
-    setTimer(TIMER_DURATION);
-
     // initialize serial connection
-#ifdef DEBUG
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
-#endif
+
+    CollectorSPI::SPIMasterInit();
+    delay(50);
+    Serial1.println("--- SPI MASTER INITIALIZED ---");
+    CollectorSPI::initializeRFModule();
+    Serial1.println("--- RF MODULE INITIALIZED ---");
+    delay(100);
 }
 
 void loop() {
 
-    /* Default roboter code */
-    if (modeOfOperation == MODE_DESTINATION) {
-        readNewDestinations();
+    delay(150);
 
-        if (terminate) {
-            performRotation();
-        } else {
-            if (driveToDestination()) {
-                performRotation();
-            }
-            collectorState->updateRoboterPositionAndAngles();
-        }
-    } else if (modeOfOperation == MODE_HUNT_OBJECT) {
-        huntObject();
-    } else if (modeOfOperation == MODE_TIMER) {
-        if (numInterrups > numInterrupsPrevCycle) {
-            numInterrupsPrevCycle = numInterrups;
-            Serial1.print("Interrupt #");
-            Serial1.print(numInterrups);
-            Serial1.print(", calculated time: ");
-            Serial1.print(numInterrups * TIMER_DURATION);
-            Serial1.print(", real time: ");
-            Serial1.print(millis());
-            Serial1.println(" ms");
-        }
-    }
+    Serial1.println("REGISTER CHECk START:");
+    CollectorSPI::debug_RFModule();
+    Serial1.println("REGISTER CHECk END:");
+    delay(1000);
 }
 
 
@@ -106,6 +75,19 @@ void loop() {
 /* ----------------- HELPER FUNCTIONS -------------------------*/
 /* ------------------------------------------------------------*/
 
+void driveToSerialInput(){
+    readNewDestinations();
+
+    if (terminate) {
+        performRotation();
+    }
+    else {
+        if (driveToDestination()) {
+            performRotation();
+        }
+        collectorState->updateRoboterPositionAndAngles();
+    }
+}
 
 void huntObject() {
     proximitySensors->read();
@@ -304,47 +286,4 @@ void generateBrightnessLevels() {
         defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1 / 4.0f);
     }
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
-}
-
-
-/** set timer 4
- *
- * @param duration in ms
- */
-void setTimer(int duration) {
-    uint8_t timer = 0;
-
-    // select prescaler
-    if (duration < 3) {
-        // prescaler 64 suffices
-        timer = (duration * 125) - 1;      // Collector runs on 1Mhz
-        OCR4A = timer;
-
-    } else {
-        // prescaler 1024
-        timer = (duration * 8) - 1;        // Collector runs on 1Mhz
-        OCR4A = timer;
-    }
-    // ctc on OCR4A
-    TCCR4B |= (1 << COM4A1 | (1 << PWM4A));
-
-    // set ctc interrupt
-    TIMSK4 |= (1 << OCIE4A);
-
-    if (duration < 3) {
-        // prescaler 256 suffices
-        TCCR4B &= ~(1 << CS43);
-        TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS42);
-    } else {
-        // prescaler 4096
-        TCCR4B &= ~(1 << CS42);
-        TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS43);
-    }
-
-    // enable global interrupts
-    sei();
-}
-
-ISR (TIMER4_COMPA_vect) {
-    numInterrups++;
 }

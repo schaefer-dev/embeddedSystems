@@ -49,7 +49,7 @@ int main() {
         ScoutSPI::initializeRFModule();
         delay(100);
     }
-    
+
 
     while (1) {
 
@@ -68,7 +68,7 @@ int main() {
 }
 
 
-void driveToSerialInput(){
+void driveToSerialInput() {
     readNewDestinations();
     if (driveToDestination()) {
         performRotation();
@@ -78,7 +78,7 @@ void driveToSerialInput(){
 
 
 /* write Readings of all Photosensors to DEV port serial */
-void printPhotosensorReadings(){
+void printPhotosensorReadings() {
     int adcout11, adcout0, adcout1, adcout2, adcout3;
 
     adcout11 = ScoutSPI::readADC(0);
@@ -212,7 +212,7 @@ void performStraightDrive(int cmLength) {
 }
 
 
-void operator delete(void* ptr) { free(ptr); }
+void operator delete(void *ptr) { free(ptr); }
 
 void *operator new(size_t size) {
     return malloc(size);

@@ -20,4 +20,4 @@ add_pi_executable(scout
 
 # Collector Executable
 add_zumo_executable(collector
-        src/collector/main.cpp src/collector/Coordinates.cpp src/collector/CollectorState.cpp src/collector/CollectorMonitor.cpp)
+        src/collector/main.cpp src/collector/Coordinates.cpp src/collector/CollectorState.cpp src/collector/CollectorMonitor.cpp src/collector/CollectorSPI.cpp src/scout/Utility.cpp)
