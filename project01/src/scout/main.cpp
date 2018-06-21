@@ -9,6 +9,7 @@
 
 #define photophobicWaitThreshold 50
 #define photophobicDanceThreshold 100
+#define PHOTOPHOBIC_ROTATION 60
 
 
 CoordinateQueue *coordinateQueue;
@@ -59,16 +60,21 @@ int main() {
 
     while (1) {
 
-        //debug_printPhotosensorReadings();
+        debug_printPhotosensorReadings();
 
-        delay(150);
+        photophobicScout();
 
-        //ScoutSPI::queryRFModule();
+        delay(100);
 
-        ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
-        ScoutSPI::debug_RFModule();
-        ScoutSerial::serialWrite("REGISTER CHECk END:\n", 20);
-        delay(1000);
+        if (false) {
+
+            ScoutSPI::queryRFModule();
+
+            ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
+            ScoutSPI::debug_RFModule();
+            ScoutSerial::serialWrite("REGISTER CHECk END:\n", 20);
+            delay(1000);
+        }
     }
 
 }
@@ -113,6 +119,8 @@ void photophobicScout() {
     if (diffFrontBack < photophobicWaitThreshold && diffFrontLeft < photophobicWaitThreshold &&
         diffFrontRight < photophobicWaitThreshold) {
         /* stand still */
+        ScoutSerial::serialWrite("Stant still\n", 12);
+
         scoutState->setSpeeds(0,0);
     } else {
         if (scoutState->photoSensorRight < scoutState->photoSensorLeft){
@@ -122,7 +130,7 @@ void photophobicScout() {
                 if (scoutState->photoSensorRight < scoutState->photoSensorBack){
                     /* Right sensor is the lowest */
                     ScoutSerial::serialWrite("Right sensor lowest\n", 20);
-                    performRotation(30);
+                    performRotation(PHOTOPHOBIC_ROTATION);
                 } else {
                     /* Back sensor is the lowest */
                     ScoutSerial::serialWrite("Back sensor lowest\n", 20);
@@ -151,7 +159,7 @@ void photophobicScout() {
                 if (scoutState->photoSensorLeft < scoutState->photoSensorBack){
                     /* left sensor is the lowest */
                     ScoutSerial::serialWrite("Left sensor lowest\n", 20);
-                    performRotation(-30);
+                    performRotation(-PHOTOPHOBIC_ROTATION);
                 } else {
                     /* Back sensor is the lowest */
                     ScoutSerial::serialWrite("Back sensor lowest\n", 20);
@@ -261,7 +269,12 @@ void readNewDestinations() {
  */
 void performRotation(int degrees) {
     float startAngle = scoutState->currentAngle;
-    float factor = 360.0f / ((float) degrees);
+    float factor = 0.0f;
+    if (degrees < 0){
+        factor = ((float) (-1 * degrees)) / 360.0f;
+    } else {
+        factor = ((float) degrees) / 360.0f;
+    }
     bool loopCondition = true;
 
     while (loopCondition) {
