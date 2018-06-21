@@ -33,6 +33,8 @@ private:
     static void waitNextADCFallingEdge();
     static unsigned int readWriteSPI(unsigned int payload);
     static void writeRegister(uint8_t reg, uint8_t setting);
+    static int readRegister(uint8_t reg);
+    static void readAdressRegister(uint8_t reg, int* outputArray);
 
 
 

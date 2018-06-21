@@ -20,6 +20,8 @@ public:
 
     static void serialWriteInt(int input);
     static void serialWrite8Bit(int input);
+    static void serialWrite8BitBinary(int input);
+    static void serialWrite8BitHex(int input);
 
     static char receiveBuffer[100];
     static unsigned char receiveIndex;

@@ -223,6 +223,35 @@ void ScoutSPI::writeRegister(uint8_t reg, uint8_t setting){
     delay(delay_after_RF_select);
 }
 
+int ScoutSPI::readRegister(uint8_t reg){
+
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(R_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    int output = readWriteSPI(NOP);
+
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+
+    return output;
+}
+
+void ScoutSPI::readAdressRegister(uint8_t reg, int* outputArray){
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(R_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    for (int i = 0; i < 5; i++) {
+        outputArray[i] = readWriteSPI(NOP);
+        delayMicroseconds(command_delay);
+    }
+
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+}
+
+
 
 void ScoutSPI::initializeRFModule() {
 
@@ -257,10 +286,14 @@ void ScoutSPI::initializeRFModule() {
     }
 
     // write register 1D: enable dyn payload, dyn ack
+    writeRegister(0x0000001C,   63);
+
+    // write register 1D: enable dyn payload, dyn ack
     writeRegister(0x0000001D,   7);
 
 
-    for (int i = 0; i < 2; i ++) {
+    /* Recent changes: adress only written in PIPE 0 */
+    for (int i = 0; i < 1; i ++) {
 
         slaveSelect(SLAVE_RF);
         readWriteSPI(42 + i); // write roboter receive adress in register 0A
@@ -281,9 +314,8 @@ void ScoutSPI::initializeRFModule() {
     }
 
 
-    /* DEBUG CODE BEGIN */
-
-    /* write LSB receive adress in register 0C to 0F */
+    /* Recent changes: adress only written in PIPE 0, so not necessary here anymore */
+    /* write LSB receive adress in register 0C to 0F
     for (int i = 0; i < 4; i ++){
         slaveSelect(SLAVE_RF);
         readWriteSPI(44 + i); // write roboter receive adress LSB in register 0C
@@ -291,9 +323,8 @@ void ScoutSPI::initializeRFModule() {
         readWriteSPI(226); // write e2
         slaveSelect(SLAVE_NONE);
         delay(delay_after_RF_select);
-    }
+    } */
 
-    /* DEBUG CODE END */
 
     // write register 00: enable crc 16 bit, pwr up, rx mode
     writeRegister(0x00000000, 15);
@@ -307,20 +338,33 @@ void ScoutSPI::initializeRFModule() {
 
 void ScoutSPI::debug_RFModule(){
     int output = 0;
-    for (int i = 0; i < 29; i++){
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(i); // query reading of register i
-        delayMicroseconds(command_delay);
-        output = readWriteSPI(255); // write nop and read answer
-        slaveSelect(SLAVE_NONE);
+    for (int i = 0; i < 30; i++){
+        output = readRegister(i);
 
-        delay(delay_after_RF_select);
-        ScoutSerial::serialWrite("Register: (", 11);
-        ScoutSerial::serialWrite8Bit(output);
+        ScoutSerial::serialWrite("Register ", 9);
+        ScoutSerial::serialWrite8BitHex(i);
+        ScoutSerial::serialWrite(" = (", 4);
+        ScoutSerial::serialWrite8BitBinary(output);
         ScoutSerial::serialWrite(")\n", 2);
         delay(20);
 
     }
+
+    int adressArray[5];
+    readAdressRegister(0x000A, adressArray);
+    ScoutSerial::serialWrite("ADDR Register: 0A (", 19);
+    for (int i=0; i < 5; i++) {
+        ScoutSerial::serialWrite8BitHex(adressArray[i]);
+    }
+    ScoutSerial::serialWrite(")\n", 2);
+
+    readAdressRegister(0x000B, adressArray);
+    ScoutSerial::serialWrite("ADDR Register: 0B (", 19);
+    for (int i=0; i < 5; i++) {
+        ScoutSerial::serialWrite8BitHex(adressArray[i]);
+    }
+    ScoutSerial::serialWrite(")\n", 2);
+
 }
 
 
