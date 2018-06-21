@@ -211,6 +211,57 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
     sei();
 }
 
+
+void ScoutSPI::sendPongToReferee(uint16_t nonce){
+    int refereeAdress[5];
+    refereeAdress[4] = 0xe1;
+    refereeAdress[3] = 0xf0;
+    refereeAdress[2] = 0xf0;
+    refereeAdress[1] = 0xf0;
+    refereeAdress[0] = 0xf0;
+
+    /* Write Referee adress to TX Register */
+    write5ByteAdress(TX_REGISTER, refereeAdress);
+
+    /* switch to TX mode */
+    writeRegister(RF_CONFIG, 14);
+
+    int commandArray[4] = {W_TX_PAYLOAD, ((nonce % 256) + 1), (nonce/256), 0x51};
+    sendCommandWithPayload(commandArray, 4);
+    
+    ScoutSerial::serialWrite("Message should send now\n", 24);
+}
+
+
+void ScoutSPI::sendCommandWithPayload(int *commandArray, int byteCount){
+
+    slaveSelect(SLAVE_RF);
+
+    delayMicroseconds(command_delay);
+    for (int i = 0; i < byteCount; i++) {
+        readWriteSPI(commandArray[i]);
+        delayMicroseconds(command_delay);
+    }
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+}
+
+
+
+void ScoutSPI::getCommandAnswer(int *answerArray, int byteCount, int8_t command){
+
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(command); // write command for register
+    delayMicroseconds(command_delay);
+    for (int i = 0; i < byteCount; i++) {
+        answerArray[i] = readWriteSPI(NOP);
+        delayMicroseconds(command_delay);
+    }
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+}
+
 void ScoutSPI::writeRegister(uint8_t reg, uint8_t setting){
 
     slaveSelect(SLAVE_RF);
@@ -222,6 +273,24 @@ void ScoutSPI::writeRegister(uint8_t reg, uint8_t setting){
     slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
+
+
+/* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
+void ScoutSPI::write5ByteAdress(int reg, int* bytes){
+
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(W_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    for (int i = 4; i >= 0; i--){
+        readWriteSPI(bytes[i]);
+        delayMicroseconds(command_delay);
+    }
+
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+}
+
 
 int ScoutSPI::readRegister(uint8_t reg){
 
@@ -368,7 +437,6 @@ void ScoutSPI::debug_RFModule(){
 }
 
 
-
 int ScoutSPI::queryRFModule(){
     slaveSelect(SLAVE_RF);
     unsigned int payload = 255;
@@ -378,7 +446,10 @@ int ScoutSPI::queryRFModule(){
     ScoutSerial::serialWrite("RF Status Register: (", 21);
     ScoutSerial::serialWrite8Bit(statusRF);
     ScoutSerial::serialWrite(")\n", 2);
+
+    return statusRF;
 }
+
 
 
 /* TODO: change to take unsigned char argument instead and return unsigned char (or maybe uint8) */

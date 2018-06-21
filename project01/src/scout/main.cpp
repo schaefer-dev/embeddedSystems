@@ -15,6 +15,7 @@
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 bool spiEnabled = true;
+int statusRF = 0;
 
 int main() {
     /* initialization of Data structures */
@@ -55,30 +56,73 @@ int main() {
         delay(50);
         ScoutSPI::initializeRFModule();
         delay(100);
+
+        /* RF DEBUGGING
+        ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
+        ScoutSPI::debug_RFModule();
+        ScoutSerial::serialWrite("REGISTER CHECk END:\n", 20);
+        */
     }
 
 
     while (1) {
 
+        /* photophobic mode
         debug_printPhotosensorReadings();
-
         photophobicScout();
-
         delay(100);
+        */
 
-        if (false) {
+        if (spiEnabled) {
 
-            ScoutSPI::queryRFModule();
+            checkForNewRFMessage();
 
-            ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
-            ScoutSPI::debug_RFModule();
-            ScoutSerial::serialWrite("REGISTER CHECk END:\n", 20);
             delay(1000);
         }
     }
 
 }
 
+void checkForNewRFMessage(){
+    statusRF = ScoutSPI::queryRFModule();
+    char messageReceived = statusRF & (1 << 6);
+
+    if (messageReceived){
+        /* case for Message arrived */
+        int answerArray[1];
+        ScoutSPI::getCommandAnswer(answerArray, 1, R_RX_PL_WID);
+
+        /* read message from pipe */
+        int payloadArray[answerArray[0]];
+        ScoutSPI::getCommandAnswer(payloadArray, answerArray[0], R_RX_PAYLOAD);
+
+        ScoutSerial::serialWrite("Message: ", 9);
+
+        for (int i = 0; i < answerArray[0]; i++){
+            ScoutSerial::serialWrite8BitHex(payloadArray[i]);
+        }
+        ScoutSerial::serialWrite("\n",1);
+
+        /* clear status register */
+        ScoutSPI::writeRegister(RF_STATUS, 64);
+
+        switch(payloadArray[0]){
+            case 0x50:
+                /* PING case */
+                ScoutSPI::sendPongToReferee(payloadArray[1] + payloadArray[2]);
+                break;
+            case 0x60:
+                /* POS update case */
+                break;
+            case 0x70:
+                /* MESSAGE case */
+                break;
+            default:
+                ScoutSerial::serialWrite("Illegal Message Identifer\n",26);
+        }
+
+    }
+}
 
 void driveToSerialInput() {
     readNewDestinations();

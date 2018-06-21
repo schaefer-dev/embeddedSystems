@@ -21,6 +21,7 @@ void debug_printPhotosensorReadings();
 void performStraightDrive(int cmLength);
 void driveToSerialInput();
 void photophobicScout();
+void checkForNewRFMessage();
 
 #endif //EMBEDDEDSYSTEMS18_SCOUT_MAIN_H
 
