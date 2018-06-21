@@ -20,21 +20,6 @@ Zumo32U4ProximitySensors *proximitySensors;
 boolean terminate = false;
 
 void setup() {
-#ifdef COLLECTOR_MONITOR
-    CollectorMonitor::verifyState();
-    CollectorMonitor::logPingCollector();
-    CollectorMonitor::logPingCollector();
-    CollectorMonitor::logPingCollector();
-    CollectorMonitor::logPingCollector();   // should give bad trace alarm.
-    CollectorMonitor::logPongCollector();
-    CollectorMonitor::logPingCollector();   // should give bad trace alram
-
-    CollectorMonitor::logCheckProximity(true);
-    CollectorMonitor::logAtHarvest(false);
-    CollectorMonitor::logCheckProximity(false); // should give bad trace alarm.
-    CollectorMonitor::logAtHarvest(false);      // should give bad trace alarm.
-#endif
-
     proximitySensors = new Zumo32U4ProximitySensors();
     generateBrightnessLevels();
     proximitySensors->initThreeSensors();
@@ -51,6 +36,23 @@ void setup() {
     // initialize serial connection
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
+
+#ifdef COLLECTOR_MONITOR
+    CollectorMonitor::verifyState();
+    CollectorMonitor::logPingCollector();
+    CollectorMonitor::logPingCollector();
+    CollectorMonitor::logPingCollector();
+    CollectorMonitor::logPingCollector();   // should give bad trace alarm.
+    CollectorMonitor::logPongCollector();
+    CollectorMonitor::logPingCollector();
+
+    CollectorMonitor::logCheckProximity(true);
+    CollectorMonitor::logAtHarvest(false);
+    CollectorMonitor::logCheckProximity(false); // should give bad trace alarm.
+    CollectorMonitor::logAtHarvest(false);
+    //delay(600);
+    //CollectorMonitor::verifyState();
+#endif
 
     CollectorSPI::SPIMasterInit();
     delay(50);

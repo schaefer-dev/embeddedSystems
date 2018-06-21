@@ -16,18 +16,6 @@ ScoutState *scoutState;
 bool spiEnabled = true;
 
 int main() {
-    /* SETUP */
-#ifdef SCOUT_MONITOR
-    ScoutMonitor::verifyState();
-    ScoutMonitor::logPingScout();
-    ScoutMonitor::logPingScout();
-    ScoutMonitor::logPingScout();
-    ScoutMonitor::logPongScout();
-    ScoutMonitor::logPingScout();
-    ScoutMonitor::logSendHarvest();     // should give good trace alarm
-    ScoutMonitor::emptyBuffer();
-#endif
-
     /* initialization of Data structures */
     scoutState = new ScoutState();
     coordinateQueue = new CoordinateQueue();
@@ -41,6 +29,20 @@ int main() {
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
+#endif
+
+    /* SETUP */
+#ifdef SCOUT_MONITOR
+    ScoutMonitor::verifyState();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPongScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logSendHarvest();     // should give good trace alarm
+    ScoutMonitor::emptyBuffer();
+    //delay(600);
+    //ScoutMonitor::verifyState();
 #endif
 
     scoutState->lastDiffDriveCall = millis();
