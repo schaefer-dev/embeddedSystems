@@ -4,8 +4,6 @@
 #define COLLECTOR_MONITOR
 #ifdef COLLECTOR_MONITOR
 
-#include <Arduino.h>
-
 class CollectorMonitor {
 private:
     static unsigned long lastBufferEmpty;
