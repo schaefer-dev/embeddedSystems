@@ -1,14 +1,8 @@
-//
-// Created by U500304 on 18.06.2018.
-//
-
 #ifndef EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
 #define EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
 
 #define COLLECTOR_MONITOR
 #ifdef COLLECTOR_MONITOR
-
-#include <Arduino.h>
 
 class CollectorMonitor {
 private:

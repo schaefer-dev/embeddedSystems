@@ -211,6 +211,18 @@ void ScoutSPI::setTimer1Interrupt(uint16_t factor) {
     sei();
 }
 
+void ScoutSPI::writeRegister(uint8_t reg, uint8_t setting){
+
+    slaveSelect(SLAVE_RF);
+
+    readWriteSPI(W_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    readWriteSPI(setting);
+
+    slaveSelect(SLAVE_NONE);
+    delay(delay_after_RF_select);
+}
+
 
 void ScoutSPI::initializeRFModule() {
 
@@ -225,65 +237,28 @@ void ScoutSPI::initializeRFModule() {
 
     /* TODO: some of this is default set already, so can be optimized */
 
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(34); // write command register 02
-    delayMicroseconds(command_delay);
-    readWriteSPI(63); // enable all data pipes
-    slaveSelect(SLAVE_NONE);
+    // write command register 02: enable all data pipes
+    writeRegister(0x00000002,  63);
 
-    delay(delay_after_RF_select);
+    // write command register 04: enable 10 retries w delay 2ms
+    writeRegister(0x00000004, 138);
 
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(36); // write command register 04
-    delayMicroseconds(command_delay);
-    readWriteSPI(138); // enable retries, up to 10 w delay 2ms
-    slaveSelect(SLAVE_NONE);
+    // write register 05: set channel to 111
+    writeRegister(0x00000005, 111);
 
-    delay(delay_after_RF_select);
+    // write register 06: data rate 1 mbps, max power
+    writeRegister(0x00000006,   6);
 
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(37); // write command register 05
-    delayMicroseconds(command_delay);
-    readWriteSPI(111); // set channel to 111
-    slaveSelect(SLAVE_NONE);
-
-    delay(delay_after_RF_select);
-
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(38); // write command register 06
-    delayMicroseconds(command_delay);
-    readWriteSPI(6); // data rate 1 mbps, max power
-    slaveSelect(SLAVE_NONE);
-
-    delay(delay_after_RF_select);
 
 
     /* write command register 11 to 16 to maximum RX payload (32 Bytes) */
-    for (int i = 0; i < 6; i ++){
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(49 + i);
-        delayMicroseconds(command_delay);
-        readWriteSPI(32);
-        slaveSelect(SLAVE_NONE);
-
-        delay(delay_after_RF_select);
+    for (int i = 0x00000011; i < 0x00000017; i ++){
+        writeRegister( i,  32);
     }
 
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(60); // write command register 1D
-    delayMicroseconds(command_delay);
-    readWriteSPI(7); // enable dyn payload w dynamic ack
-    slaveSelect(SLAVE_NONE);
+    // write register 1D: enable dyn payload, dyn ack
+    writeRegister(0x0000001D,   7);
 
-    delay(delay_after_RF_select);
-
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(35); // write command register 03
-    delayMicroseconds(command_delay);
-    readWriteSPI(3); // adresses defined to hold 5 bytes
-    slaveSelect(SLAVE_NONE);
-
-    delay(delay_after_RF_select);
 
     for (int i = 0; i < 2; i ++) {
 
@@ -320,12 +295,9 @@ void ScoutSPI::initializeRFModule() {
 
     /* DEBUG CODE END */
 
-    slaveSelect(SLAVE_RF);
-    readWriteSPI(32); // write command register
-    delayMicroseconds(command_delay);
-    readWriteSPI(15); // enable crc in 16 bit, pwr up and set to RX mode
-    slaveSelect(SLAVE_NONE);
-
+    // write register 00: enable crc 16 bit, pwr up, rx mode
+    writeRegister(0x00000000, 15);
+    
     /* drive RF module enable pin, apparently this should happen
      * at the very end of configuration, but not 100% sure */
     PORTD |= (1 << PIN_RF_ENABLE_D);
