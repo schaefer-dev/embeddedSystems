@@ -126,6 +126,7 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
     currentY = y;
     currentAngle = a;
     lastDiffDriveCall = millis();
+    destinationReached = false;
 }
 
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {

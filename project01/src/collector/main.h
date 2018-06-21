@@ -13,7 +13,7 @@
 void setup();
 void loop();
 bool driveToDestination();
-void readNewDestinations(int[]);
+bool readNewDestinations(int[]);
 void performRotation();
 void performStraightDrive(int cmLength);
 void huntObject();

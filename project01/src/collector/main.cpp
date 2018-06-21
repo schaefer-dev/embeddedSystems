@@ -11,13 +11,14 @@
 #include "CollectorMonitor.h"
 
 #define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
-
+#define DEBUG
 
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
 boolean terminate = false;
+int home[2] = {-30, 10};      // home
 
 void setup() {
     proximitySensors = new Zumo32U4ProximitySensors();
@@ -27,6 +28,7 @@ void setup() {
     /* initialization of Data structures */
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
+    coordinateQueue->append(home[0], home[1]);
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -64,13 +66,14 @@ void setup() {
 
 void loop() {
     homing();
-    return;
+    /*
     delay(150);
 
     Serial1.println("REGISTER CHECk START:");
     CollectorSPI::debug_RFModule();
     Serial1.println("REGISTER CHECk END:");
     delay(1000);
+     */
 }
 
 
@@ -79,22 +82,17 @@ void loop() {
 /* ------------------------------------------------------------*/
 
 void homing() {
-    int home[2] = {30, 30};      // home
-
     int currentPosition[2];
-    readNewDestinations(currentPosition);
-    collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
 
-    if (terminate) {
-        performRotation();
+    // read current destination from serial
+    if (readNewDestinations(currentPosition)) {
+        // reset diff drive and append home to queue
+        collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
+        coordinateQueue->append(home[0], home[1]);
     }
-    else {
-        if (driveToDestination()) {
-            performRotation();
-            coordinateQueue->append(home[0], home[1]);
-        }
-        collectorState->updateRoboterPositionAndAngles();
-    }
+
+    driveToDestination();
+    collectorState->updateRoboterPositionAndAngles();
 }
 
 void driveToSerialInput() {
@@ -183,7 +181,7 @@ bool driveToDestination() {
  * Reads a new destination from the serial stream and adds it to the queue.
  * New destination must be given as to integers separated by some non-numeric character
  */
-void readNewDestinations(int dest[]) {
+bool readNewDestinations(int dest[]) {
 #ifdef DEBUG
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
@@ -239,7 +237,9 @@ void readNewDestinations(int dest[]) {
         dest[0] = xDestination;
         dest[1] = yDestination;
         //coordinateQueue->append(xDestination, yDestination);
+        return true;
     }
+    return false;
 #endif
 }
 
