@@ -7,38 +7,13 @@
 #include "../scout/Utility.h"
 
 
-/**
- * initialize Master node for SPI communication on Scout robot
- * PB0 - RF SCK
- * PD5 - MOSI
- * PD7 - MISO
- * PB3 - RF SS
- * PC7 - RF CE
- * PD2 - RF IRQ/DEV RX  depending on jumper position
- */
-
-
-// define Pins
-#define PIN_SS_RF_B PB3
-#define PIN_MOSI_D  PD5
-#define PIN_MISO_D  PD7
-#define PIN_SPI_SCK_B PB0
-#define PIN_RF_ENABLE_C PC7
-#define PIN_RF_IRQ_D PD2
-
-
-/* SPI_INTERRUPT_SPEED has to be 1 with the current setup */
-#define SPI_INTERRUPT_SPEED 1
-
-/* delay between each byte of communication with RF module in microseconds */
-#define command_delay 50
-#define delay_after_RF_select 1
-
 /* breaks if Clocks not volatile, because ISR has to be forced to write to disk such
  * wait conditions are getting notified on change of clocks */
-volatile unsigned char CollectorSPI::SPIClock = 0;
+unsigned volatile char CollectorSPI::SPIClock = 0;
 
-bool CollectorSPI::runSPIClock;
+bool volatile CollectorSPI::runSPIClock;
+
+unsigned int CollectorSPI::debug_interruptCounter = 0;
 
 
 // not used because static
@@ -58,11 +33,11 @@ void CollectorSPI::SPIMasterInit() {
     // Set SCK for SPI as ouput
     DDRB |= (1 << PIN_SPI_SCK_B);
     delayMicroseconds(30);
+    SPIClock = 0;
 
 
     /* drive SPICLock and ADCClock low initially */
     PORTB &= ~(1 << PIN_SPI_SCK_B);
-    SPIClock = 0;
     CollectorSPI::runSPIClock = false;
     delayMicroseconds(30);
 
@@ -143,6 +118,7 @@ void CollectorSPI::initializeRFModule() {
 
     /* TODO: some of this is default set already, so can be optimized */
 
+
     slaveSelect(SLAVE_RF);
     readWriteSPI(34); // write command register 02
     delayMicroseconds(command_delay);
@@ -157,6 +133,7 @@ void CollectorSPI::initializeRFModule() {
     readWriteSPI(138); // enable retries, up to 10 w delay 2ms
     slaveSelect(SLAVE_NONE);
 
+
     delay(delay_after_RF_select);
 
     slaveSelect(SLAVE_RF);
@@ -164,6 +141,7 @@ void CollectorSPI::initializeRFModule() {
     delayMicroseconds(command_delay);
     readWriteSPI(111); // set channel to 111
     slaveSelect(SLAVE_NONE);
+
 
     delay(delay_after_RF_select);
 
@@ -222,7 +200,6 @@ void CollectorSPI::initializeRFModule() {
 
         delay(delay_after_RF_select);
     }
-
 
     /* DEBUG CODE BEGIN */
 
@@ -324,7 +301,6 @@ unsigned int CollectorSPI::readWriteSPI(unsigned int payload) {
     waitNextSPIFallingEdge();
 
     runSPIClock = false;
-    SPIClock = 0;
 
     return output;
 }
@@ -338,20 +314,28 @@ void CollectorSPI::setTimer4Interrupt(uint16_t duration){
     // use this if duration 1 should correspond to be 1ms
     // uint8_t timer = (duration * 8) - 1;        // Collector runs on 1Mhz
 
-    OCR4A = duration;
+    OCR4A = 127;
 
     // ctc on OCR4A
-    TCCR4B |= (1 << COM4A1) | (1 << PWM4A);
+    TCCR4A |= (1 << COM4A1);
 
     // set ctc interrupt
     TIMSK4 |= (1 << OCIE4A);
 
     // prescaler 1024
-    TCCR4B &= ~(1 << CS42);
     //TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS43);
 
     // prescaler 128
-    TCCR4B |= (1 << CS43);
+    // TCCR4B |= (1 << CS43);
+
+    // prescaler 64
+    // TCCR4B |= (1 << CS42) | (1 << CS41) | (1 << CS40);
+
+    // prescaler 32
+    // TCCR4B |= (1 << CS42) | (1 << CS41);
+
+    // prescaler 8
+    TCCR4B |= (1 << CS42);
 
     // enable global interrupts
     sei();
@@ -359,6 +343,8 @@ void CollectorSPI::setTimer4Interrupt(uint16_t duration){
 
 // ISR for timer4
 ISR (TIMER4_COMPA_vect) {
+    //CollectorSPI::debug_interruptCounter += 1;
+    //Serial1.println(CollectorSPI::debug_interruptCounter);
     /* switch SPI sck every time this interrupt is triggered */
     if (CollectorSPI::SPIClock > 0) {
         PORTB &= (~(1 << PIN_SPI_SCK_B));
