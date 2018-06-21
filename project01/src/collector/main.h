@@ -13,10 +13,11 @@
 void setup();
 void loop();
 bool driveToDestination();
-void readNewDestinations();
+void readNewDestinations(int[]);
 void performRotation();
 void performStraightDrive(int cmLength);
 void huntObject();
 void generateBrightnessLevels();
 void setTimer(int);
 void driveToSerialInput();
+void homing();
