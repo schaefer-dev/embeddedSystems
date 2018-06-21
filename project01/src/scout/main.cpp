@@ -17,15 +17,16 @@ bool spiEnabled = true;
 
 int main() {
     /* SETUP */
+#ifdef SCOUT_MONITOR
+    ScoutMonitor::verifyState();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPongScout();
     ScoutMonitor::logPingScout();
-    ScoutMonitor::logSendHarvest();
-
-    char result = ScoutMonitor::verifyState(); // should return 1 (prelim good)
-    ScoutSerial::serialWriteInt(result);
+    ScoutMonitor::logSendHarvest();     // should give good trace alarm
+    ScoutMonitor::emptyBuffer();
+#endif
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
@@ -52,7 +53,7 @@ int main() {
         ScoutSPI::initializeRFModule();
         delay(100);
     }
-    
+
 
     while (1) {
 
@@ -71,7 +72,7 @@ int main() {
 }
 
 
-void driveToSerialInput(){
+void driveToSerialInput() {
     readNewDestinations();
     if (driveToDestination()) {
         performRotation(360);
@@ -319,7 +320,7 @@ void performStraightDrive(int cmLength) {
 }
 
 
-void operator delete(void* ptr) { free(ptr); }
+void operator delete(void *ptr) { free(ptr); }
 
 void *operator new(size_t size) {
     return malloc(size);

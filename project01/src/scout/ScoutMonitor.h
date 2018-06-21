@@ -5,18 +5,27 @@
 #ifndef EMBEDDEDSYSTEMS18_MONITOR_H
 #define EMBEDDEDSYSTEMS18_MONITOR_H
 
+#define SCOUT_MONITOR
+#ifdef SCOUT_MONITOR
+
 class ScoutMonitor {
 private:
+    static unsigned long lastBufferEmpty;
     static char scoutHarvestingState;
     static char scoutReactToPingState;
+    static char scoutEmptyBufferState;
 
 public:
     static void logSendHarvest();
+
     static void logPingScout();
+
     static void logPongScout();
 
-    static char verifyState();
+    static void emptyBuffer();
+
+    static void verifyState();
 };
 
-
+#endif
 #endif //EMBEDDEDSYSTEMS18_MONITOR_H
