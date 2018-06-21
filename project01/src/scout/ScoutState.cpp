@@ -23,6 +23,11 @@ ScoutState::ScoutState() {
     rightSpeed = 0;
     lastDiffDriveCall = 0;
     destinationReached = true;
+    photoSensorBack = 0;
+    photoSensorFront = 0;
+    photoSensorLeft = 0;
+    photoSensorRight = 0;
+    lastPhotoSensorUpdate = 0;
 }
 
 /*
@@ -136,4 +141,24 @@ void ScoutState::updateRoboterPositionAndAngles() {
     currentX += x_dot * timeFactor * straightImprecision;
     currentY += y_dot * timeFactor * straightImprecision;
     currentAngle += angle_dot * timeFactor * rotationImprecision;
+}
+
+/* write Readings of all Photosensors to DEV port serial */
+void ScoutState::updatePhotoSensorReadings() {
+
+    lastPhotoSensorUpdate = millis();
+
+    int adcout11 = ScoutSPI::readADC(0);
+    ScoutSPI::ADCConversionWait();
+
+    photoSensorFront = ScoutSPI::readADC(1);
+
+    photoSensorRight = ScoutSPI::readADC(2);
+    ScoutSPI::ADCConversionWait();
+
+    photoSensorBack = ScoutSPI::readADC(3);
+    ScoutSPI::ADCConversionWait();
+
+    photoSensorLeft = ScoutSPI::readADC(11);
+    ScoutSPI::ADCConversionWait();
 }

@@ -7,6 +7,10 @@
 #include "../scout/ScoutMonitor.h"
 
 
+#define photophobicWaitThreshold 50
+#define photophobicDanceThreshold 100
+
+
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 bool spiEnabled = true;
@@ -52,7 +56,7 @@ int main() {
 
     while (1) {
 
-        //printPhotosensorReadings();
+        //debug_printPhotosensorReadings();
 
         delay(150);
 
@@ -70,14 +74,109 @@ int main() {
 void driveToSerialInput(){
     readNewDestinations();
     if (driveToDestination()) {
-        performRotation();
+        performRotation(360);
     }
     scoutState->updateRoboterPositionAndAngles();
 }
 
 
+/* run photophobic Scout Controller as explained in Milestone 5
+ * If all photosensors less then 100, dance in place, if all sensors in range of
+ * defined threshold stand still, otherwise follow the shadow */
+void photophobicScout() {
+    scoutState->updatePhotoSensorReadings();
+
+    if (scoutState->photoSensorLeft < photophobicDanceThreshold &&
+        scoutState->photoSensorBack < photophobicDanceThreshold &&
+        scoutState->photoSensorRight < photophobicDanceThreshold &&
+        scoutState->photoSensorFront < photophobicDanceThreshold){
+        /* start dancing */
+        while (true){
+            performRotation(180);
+            performRotation(-180);
+        }
+    }
+
+    /* calculate abs of photosensor readings */
+    int diffFrontLeft = scoutState->photoSensorFront - scoutState->photoSensorLeft;
+    diffFrontLeft = (diffFrontLeft < 0) ? -diffFrontLeft : diffFrontLeft;
+
+    int diffFrontRight = scoutState->photoSensorFront - scoutState->photoSensorRight;
+    diffFrontRight = (diffFrontRight < 0) ? -diffFrontRight : diffFrontRight;
+
+    int diffFrontBack = scoutState->photoSensorFront - scoutState->photoSensorBack;
+    diffFrontBack = (diffFrontBack < 0) ? -diffFrontBack : diffFrontBack;
+
+    if (diffFrontBack < photophobicWaitThreshold && diffFrontLeft < photophobicWaitThreshold &&
+        diffFrontRight < photophobicWaitThreshold) {
+        /* stand still */
+        scoutState->setSpeeds(0,0);
+    } else {
+        if (scoutState->photoSensorRight < scoutState->photoSensorLeft){
+            /* Left is not an option */
+            if (scoutState->photoSensorRight < scoutState->photoSensorFront){
+                /* Front is not an option */
+                if (scoutState->photoSensorRight < scoutState->photoSensorBack){
+                    /* Right sensor is the lowest */
+                    ScoutSerial::serialWrite("Right sensor lowest\n", 20);
+                    performRotation(30);
+                } else {
+                    /* Back sensor is the lowest */
+                    ScoutSerial::serialWrite("Back sensor lowest\n", 20);
+                    scoutState->setSpeeds(-scoutState->forwardSpeed, -scoutState->forwardSpeed);
+                    /* TODO: delay maybe necessary here to achieve sufficient movement */
+                }
+            } else {
+                /* Right is not an option */
+                if (scoutState->photoSensorFront < scoutState->photoSensorBack){
+                    /* Front is the lowest */
+                    ScoutSerial::serialWrite("Front sensor lowest\n", 20);
+                    scoutState->setSpeeds(scoutState->forwardSpeed, scoutState->forwardSpeed);
+                    /* TODO: delay maybe necessary here to achieve sufficient movement */
+
+                } else {
+                    /* Back is the lowest */
+                    ScoutSerial::serialWrite("Back sensor lowest\n", 20);
+                    scoutState->setSpeeds(-scoutState->forwardSpeed, -scoutState->forwardSpeed);
+                    /* TODO: delay maybe necessary here to achieve sufficient movement */
+                }
+            }
+        } else {
+            /* Right is not an option */
+            if (scoutState->photoSensorLeft < scoutState->photoSensorFront){
+                /* Front is not an option */
+                if (scoutState->photoSensorLeft < scoutState->photoSensorBack){
+                    /* left sensor is the lowest */
+                    ScoutSerial::serialWrite("Left sensor lowest\n", 20);
+                    performRotation(-30);
+                } else {
+                    /* Back sensor is the lowest */
+                    ScoutSerial::serialWrite("Back sensor lowest\n", 20);
+                    scoutState->setSpeeds(-scoutState->forwardSpeed, -scoutState->forwardSpeed);
+                    /* TODO: delay maybe necessary here to achieve sufficient movement */
+                }
+            } else {
+                /* left is not an option */
+                if (scoutState->photoSensorFront < scoutState->photoSensorBack){
+                    /* Front is the lowest */
+                    ScoutSerial::serialWrite("Front sensor lowest\n", 20);
+                    scoutState->setSpeeds(scoutState->forwardSpeed, scoutState->forwardSpeed);
+                    /* TODO: delay maybe necessary here to achieve sufficient movement */
+
+                } else {
+                    /* Back is the lowest */
+                    ScoutSerial::serialWrite("Back sensor lowest\n", 20);
+                    scoutState->setSpeeds(-scoutState->forwardSpeed, -scoutState->forwardSpeed);
+                    /* TODO: delay maybe necessary here to achieve sufficient movement */
+                }
+            }
+        }
+    }
+}
+
+
 /* write Readings of all Photosensors to DEV port serial */
-void printPhotosensorReadings(){
+void debug_printPhotosensorReadings(){
     int adcout11, adcout0, adcout1, adcout2, adcout3;
 
     adcout11 = ScoutSPI::readADC(0);
@@ -155,27 +254,36 @@ void readNewDestinations() {
 }
 
 /**
- * Performs the celebration rotation
+ * Perform rotation defined by degree
  */
-void performRotation() {
+void performRotation(int degrees) {
     float startAngle = scoutState->currentAngle;
+    float factor = 360.0f / ((float) degrees);
     bool loopCondition = true;
 
     while (loopCondition) {
+        if (degrees == 0)
+            return;
 
-        // turn right
-        scoutState->setSpeeds(scoutState->turningSpeed, -scoutState->turningSpeed);
-        scoutState->updateRoboterPositionAndAngles();
+        if (degrees > 0) {
+            // turn right
+            scoutState->setSpeeds(scoutState->turningSpeed, -scoutState->turningSpeed);
+            scoutState->updateRoboterPositionAndAngles();
+        } else {
+            // turn left
+            scoutState->setSpeeds(-scoutState->turningSpeed, scoutState->turningSpeed);
+            scoutState->updateRoboterPositionAndAngles();
+        }
 
         /* rotation completed condition */
-        if (scoutState->currentAngle > startAngle + 2 * M_PI ||
-            scoutState->currentAngle < startAngle - 2 * M_PI) {
+        if (scoutState->currentAngle > startAngle + 2 * M_PI * factor ||
+            scoutState->currentAngle < startAngle - 2 * M_PI * factor) {
             loopCondition = false;
+
 #ifdef DEBUG
             //serial_send("One rotation performed!\n", 24);
 #endif
             scoutState->setSpeeds(0, 0);
-
         }
     }
 }

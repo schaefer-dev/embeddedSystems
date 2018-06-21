@@ -16,10 +16,11 @@
 int main();
 bool driveToDestination();
 void readNewDestinations();
-void performRotation();
-void printPhotosensorReadings();
+void performRotation(int degrees);
+void debug_printPhotosensorReadings();
 void performStraightDrive(int cmLength);
 void driveToSerialInput();
+void photophobicScout();
 
 #endif //EMBEDDEDSYSTEMS18_SCOUT_MAIN_H
 

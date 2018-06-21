@@ -27,12 +27,9 @@ public:
 
     static void slaveSelect(unsigned char slave);
 
-    static int readADC(char sensorAdress);
     static void initializeRFModule();
 
     static void setTimer4Interrupt(uint16_t duration);
-
-    static unsigned int interruptCounter;
 
     static volatile unsigned char SPIClock;
 

@@ -21,6 +21,13 @@ public:
     long lastDiffDriveCall;
     bool destinationReached;
 
+    /* last photosensorReadings */
+    int photoSensorLeft;
+    int photoSensorFront;
+    int photoSensorRight;
+    int photoSensorBack;
+    long lastPhotoSensorUpdate;
+
     const int forwardSpeed = 160;
     const int turningSpeed = 100;
 
@@ -32,6 +39,7 @@ public:
     void resetDifferentialDrive(float x, float y, float a);
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
+    void updatePhotoSensorReadings();
 
 private:
     /* TODO */

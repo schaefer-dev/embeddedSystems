@@ -30,14 +30,9 @@
 /* SPI_INTERRUPT_SPEED has to be 1 with the current setup */
 #define SPI_INTERRUPT_SPEED 1
 
-/* SPI_CLOCK_FACTOR defines every how many interrupts the SPI clock is inverted */
-#define SPI_CLOCK_FACTOR 2
-
 /* delay between each byte of communication with RF module in microseconds */
 #define command_delay 50
 #define delay_after_RF_select 1
-
-unsigned int CollectorSPI::interruptCounter = 0;
 
 /* breaks if Clocks not volatile, because ISR has to be forced to write to disk such
  * wait conditions are getting notified on change of clocks */
@@ -51,8 +46,6 @@ CollectorSPI::CollectorSPI() {
 }
 
 void CollectorSPI::SPIMasterInit() {
-
-    CollectorSPI::interruptCounter = 0;
 
     // Set MISO pin as input
     DDRD &= ~(1 << PIN_MISO_D);
@@ -366,26 +359,20 @@ void CollectorSPI::setTimer4Interrupt(uint16_t duration){
 
 // ISR for timer4
 ISR (TIMER4_COMPA_vect) {
-
-    CollectorSPI::interruptCounter = (CollectorSPI::interruptCounter + 1) % SPI_CLOCK_FACTOR;
-
-
-    /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
-    if (CollectorSPI::interruptCounter == 0) {
-        if (CollectorSPI::SPIClock > 0) {
-            PORTB &= (~(1 << PIN_SPI_SCK_B));
+    /* switch SPI sck every time this interrupt is triggered */
+    if (CollectorSPI::SPIClock > 0) {
+        PORTB &= (~(1 << PIN_SPI_SCK_B));
+        delayMicroseconds(30);
+        CollectorSPI::SPIClock = 0;
+    } else {
+        /* only set SPI clock to 1 if allowed to run */
+        if (CollectorSPI::runSPIClock) {
+            PORTB |= (1 << PIN_SPI_SCK_B);
             delayMicroseconds(30);
-            CollectorSPI::SPIClock = 0;
-        } else {
-            /* only set SPI clock to 1 if allowed to run */
-            if (CollectorSPI::runSPIClock) {
-                PORTB |= (1 << PIN_SPI_SCK_B);
-                delayMicroseconds(30);
-                CollectorSPI::SPIClock = 1;
-            }
+            CollectorSPI::SPIClock = 1;
         }
-
     }
+
 
     /* DEBUG: Alert if RF module receives something */
     if ((PIND & (1 << PIN_RF_IRQ_D) == 0)){
