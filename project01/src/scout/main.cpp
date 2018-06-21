@@ -13,15 +13,16 @@ bool spiEnabled = true;
 
 int main() {
     /* SETUP */
+#ifdef SCOUT_MONITOR
+    ScoutMonitor::verifyState();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPongScout();
     ScoutMonitor::logPingScout();
-    ScoutMonitor::logSendHarvest();
-
-    char result = ScoutMonitor::verifyState(); // should return 1 (prelim good)
-    ScoutSerial::serialWriteInt(result);
+    ScoutMonitor::logSendHarvest();     // should give good trace alarm
+    ScoutMonitor::emptyBuffer();
+#endif
 
     /* initialization of Data structures */
     scoutState = new ScoutState();

@@ -27,11 +27,20 @@ uint16_t numInterrupsPrevCycle = 0;
 const uint8_t TIMER_DURATION = 16;      // in ms, must be at least 16
 
 void setup() {
+#ifdef COLLECTOR_MONITOR
+    CollectorMonitor::verifyState();
     CollectorMonitor::logPingCollector();
     CollectorMonitor::logPingCollector();
     CollectorMonitor::logPingCollector();
-    CollectorMonitor::logPingCollector();
-    char result = CollectorMonitor::verifyState();  // should return 0 (bad)
+    CollectorMonitor::logPingCollector();   // should give bad trace alarm.
+    CollectorMonitor::logPongCollector();
+    CollectorMonitor::logPingCollector();   // should give bad trace alram
+
+    CollectorMonitor::logCheckProximity(true);
+    CollectorMonitor::logAtHarvest(false);
+    CollectorMonitor::logCheckProximity(false); // should give bad trace alarm.
+    CollectorMonitor::logAtHarvest(false);      // should give bad trace alarm.
+#endif
 
     proximitySensors = new Zumo32U4ProximitySensors();
     generateBrightnessLevels();
@@ -59,7 +68,6 @@ void setup() {
 #ifdef DEBUG
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
-    Serial1.println(result);
 #endif
 }
 
@@ -71,18 +79,15 @@ void loop() {
 
         if (terminate) {
             performRotation();
-        }
-        else {
+        } else {
             if (driveToDestination()) {
                 performRotation();
             }
             collectorState->updateRoboterPositionAndAngles();
         }
-    }
-    else if (modeOfOperation == MODE_HUNT_OBJECT) {
+    } else if (modeOfOperation == MODE_HUNT_OBJECT) {
         huntObject();
-    }
-    else if (modeOfOperation == MODE_TIMER) {
+    } else if (modeOfOperation == MODE_TIMER) {
         if (numInterrups > numInterrupsPrevCycle) {
             numInterrupsPrevCycle = numInterrups;
             Serial1.print("Interrupt #");
@@ -102,7 +107,7 @@ void loop() {
 /* ------------------------------------------------------------*/
 
 
-void huntObject(){
+void huntObject() {
     proximitySensors->read();
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
     uint8_t frontRightSensorValue = proximitySensors->countsFrontWithRightLeds();
@@ -122,27 +127,27 @@ void huntObject(){
     Serial1.println("");
 #endif
 
-    if (frontLeftSensorValue > PROXIMITY_THRESHOLD && frontRightSensorValue > PROXIMITY_THRESHOLD){
+    if (frontLeftSensorValue > PROXIMITY_THRESHOLD && frontRightSensorValue > PROXIMITY_THRESHOLD) {
         collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
         return;
     }
 
-    if (frontLeftSensorValue > PROXIMITY_THRESHOLD){
+    if (frontLeftSensorValue > PROXIMITY_THRESHOLD) {
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
         return;
     }
 
-    if (frontRightSensorValue > PROXIMITY_THRESHOLD){
+    if (frontRightSensorValue > PROXIMITY_THRESHOLD) {
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
         return;
     }
 
-    if (leftSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < leftSensorValue){
+    if (leftSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < leftSensorValue) {
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
         return;
     }
 
-    if (rightSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < rightSensorValue){
+    if (rightSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < rightSensorValue) {
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
         return;
     }
@@ -155,7 +160,8 @@ void huntObject(){
  */
 bool driveToDestination() {
     if (collectorState->destinationReached) {
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(collectorState->currentX, collectorState->currentY);
+        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(collectorState->currentX,
+                                                                            collectorState->currentY);
         if (node == nullptr) {
             collectorState->setSpeeds(0, 0);
             return false;
@@ -186,16 +192,16 @@ void readNewDestinations() {
         char inStringLeft[4];
         char inStringRight[4];
 
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < 4; i++) {
             inStringLeft[i] = '\0';
             inStringRight[i] = '\0';
         }
 
         int commandIndex = 0;
         char command[10];
-        while(Serial1.available() > 0) {
+        while (Serial1.available() > 0) {
             int inChar = Serial1.read();
-            command[commandIndex] = (char)inChar;
+            command[commandIndex] = (char) inChar;
             commandIndex += 1;
             if (!isDigit(inChar) && !leftFull) {
                 leftFull = true;
@@ -204,9 +210,9 @@ void readNewDestinations() {
             } else {
                 // convert the incoming byte to a char and add it to the string:
                 if (!leftFull)
-                    inStringLeft[stringIndex] = (char)inChar;
+                    inStringLeft[stringIndex] = (char) inChar;
                 else
-                    inStringRight[stringIndex] = (char)inChar;
+                    inStringRight[stringIndex] = (char) inChar;
                 stringIndex += 1;
             }
         }
@@ -295,7 +301,7 @@ void generateBrightnessLevels() {
      * proximity 0. 25cm will return proximity of 5 etc. */
     for (uint16_t i = 0; i < numBrightnessLevels; ++i) {
         double magic = (2.236 + 1.0975 * (i / 2.0f));
-        defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1/4.0f);
+        defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1 / 4.0f);
     }
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
 }
@@ -305,13 +311,13 @@ void generateBrightnessLevels() {
  *
  * @param duration in ms
  */
-void setTimer(int duration){
+void setTimer(int duration) {
     uint8_t timer = 0;
 
     // select prescaler
-    if (duration < 3){
+    if (duration < 3) {
         // prescaler 64 suffices
-        timer = (duration * 125) -1 ;      // Collector runs on 1Mhz
+        timer = (duration * 125) - 1;      // Collector runs on 1Mhz
         OCR4A = timer;
 
     } else {
@@ -325,7 +331,7 @@ void setTimer(int duration){
     // set ctc interrupt
     TIMSK4 |= (1 << OCIE4A);
 
-    if (duration < 3){
+    if (duration < 3) {
         // prescaler 256 suffices
         TCCR4B &= ~(1 << CS43);
         TCCR4B |= (1 << CS40) | (1 << CS41) | (1 << CS42);
@@ -339,7 +345,6 @@ void setTimer(int duration){
     sei();
 }
 
-ISR (TIMER4_COMPA_vect)
-{
+ISR (TIMER4_COMPA_vect) {
     numInterrups++;
 }
