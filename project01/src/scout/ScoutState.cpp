@@ -152,6 +152,7 @@ void ScoutState::updatePhotoSensorReadings() {
     ScoutSPI::ADCConversionWait();
 
     photoSensorFront = ScoutSPI::readADC(1);
+    ScoutSPI::ADCConversionWait();
 
     photoSensorRight = ScoutSPI::readADC(2);
     ScoutSPI::ADCConversionWait();
