@@ -41,8 +41,6 @@ public:
 
     static void getCommandAnswer(int *answerArray, int byteCount, int8_t command);
     static void sendCommandWithPayload(uint8_t *commandArray, int byteCount);
-
-    static void sendPongToReferee(uint16_t nonce);
     static void write5ByteAdress(int reg, int* bytes);
 
     static void readAdressRegister(uint8_t reg, int* outputArray);
@@ -52,7 +50,6 @@ public:
     static void flushRXTX();
 
     static void sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength);
-    static void echoMessageToScout(int *payloadArray, int payloadArrayLength);
 
     static int refereeAdress[5];
     static int scoutAdress[5];

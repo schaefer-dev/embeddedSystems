@@ -158,9 +158,15 @@ void CollectorRF::processReceivedMessage() {
     writeRegister(RF_REGISTER_STATUS, 64);
 
     switch(payloadArray[0]){
-        case 0x50:
-            /* PING case */
-            sendPongToReferee(payloadArray[1] * 256 + payloadArray[2]);
+        case 0x50: {
+                /* PING case -> simply respond with PONG which contains nonce+1 */
+                uint16_t incNonce = 0;
+                incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
+                payloadArray[0] = 0x51;
+                payloadArray[1] = (uint8_t) (incNonce / 256);
+                payloadArray[2] = (uint8_t) (incNonce % 256);
+                sendMessageTo(refereeAdress, payloadArray, 3);
+            }
             break;
         case 0x60:
             /* POS update case */
@@ -173,7 +179,8 @@ void CollectorRF::processReceivedMessage() {
             break;
         case 0x80:
             /* case for RELAY, scount sends and collector echos sends message back to scout */
-            echoMessageToScout(payloadArray, answerArray[0]);
+            payloadArray[0] = 0x81;
+            sendMessageTo(scoutAdress, payloadArray, answerArray[0]);
             break;
 
         default:
@@ -240,21 +247,6 @@ void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payl
 
     /* switch back to RX mode */
     writeRegister(RF_REGISTER_CONFIG, 15);
-}
-
-void CollectorRF::echoMessageToScout(int *payloadArray, int payloadArrayLength){
-
-
-}
-
-
-void CollectorRF::sendPongToReferee(uint16_t nonce){
-
-    uint16_t incNonce = nonce + 1;
-
-    int payloadArray[3] = {0x51, (uint8_t)(incNonce/256), (uint8_t)(incNonce % 256)};
-
-    sendMessageTo(refereeAdress, payloadArray, 3);
 }
 
 
