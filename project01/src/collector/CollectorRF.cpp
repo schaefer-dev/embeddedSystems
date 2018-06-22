@@ -198,7 +198,7 @@ void CollectorRF::writeRegister(uint8_t reg, uint8_t setting){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
 
-    CollectorSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     CollectorSPI::readWriteSPI(setting);
 
@@ -212,7 +212,7 @@ void CollectorRF::write5ByteAdress(int reg, int* bytes){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
 
-    CollectorSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 4; i >= 0; i--){
         CollectorSPI::readWriteSPI(bytes[i]);
@@ -228,7 +228,7 @@ int CollectorRF::readRegister(uint8_t reg){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
 
-    CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     int output = CollectorSPI::readWriteSPI(RF_COMMAND_NOP);
 
@@ -241,7 +241,7 @@ int CollectorRF::readRegister(uint8_t reg){
 void CollectorRF::readAdressRegister(uint8_t reg, int* outputArray){
     CollectorSPI::slaveSelect(SLAVE_RF);
 
-    CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 0; i < 5; i++) {
         outputArray[i] = CollectorSPI::readWriteSPI(RF_COMMAND_NOP);

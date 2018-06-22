@@ -5,10 +5,11 @@
 #ifndef EMBEDDEDSYSTEMS18_MAIN_H
 #define EMBEDDEDSYSTEMS18_MAIN_H
 
-#endif //EMBEDDEDSYSTEMS18_MAIN_H
 
 /* debug define to enable serial output/inputs to save program memory */
 #define DEBUG
+
+#define ROBOT_SCOUT
 
 void setup();
 void loop();
@@ -21,3 +22,6 @@ void generateBrightnessLevels();
 void setTimer(int);
 void driveToSerialInput();
 void homing();
+
+
+#endif //EMBEDDEDSYSTEMS18_MAIN_H

@@ -106,7 +106,7 @@ void CollectorSPI::writeRegister(uint8_t reg, uint8_t setting){
 
     slaveSelect(SLAVE_RF);
 
-    readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     readWriteSPI(setting);
 

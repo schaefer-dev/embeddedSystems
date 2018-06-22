@@ -11,7 +11,6 @@
 // RF module command bytes
 #define RF_COMMAND_R_REGISTER		0x00
 #define RF_COMMAND_W_REGISTER		0x20
-#define RF_COMMAND_REGISTER_MASK	0x1F
 #define RF_COMMAND_R_RX_PL_WID      0x60
 #define RF_COMMAND_R_RX_PAYLOAD	    0x61
 #define RF_COMMAND_W_TX_PAYLOAD	    0xA0
@@ -25,6 +24,7 @@
 #define RF_REGISTER_STATUS          0x07
 #define RF_REGISTER_TX_REG          0x10
 #define RF_REGISTER_CONFIG          0x00
+#define RF_MASK_REGISTER	        0x1F
 
 
 class CollectorRF {

@@ -198,7 +198,7 @@ void ScoutRF::writeRegister(uint8_t reg, uint8_t setting){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     ScoutSPI::readWriteSPI(setting);
 
@@ -212,7 +212,7 @@ void ScoutRF::write5ByteAdress(int reg, int* bytes){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 4; i >= 0; i--){
         ScoutSPI::readWriteSPI(bytes[i]);
@@ -228,7 +228,7 @@ int ScoutRF::readRegister(uint8_t reg){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     int output = ScoutSPI::readWriteSPI(RF_COMMAND_NOP);
 
@@ -241,7 +241,7 @@ int ScoutRF::readRegister(uint8_t reg){
 void ScoutRF::readAdressRegister(uint8_t reg, int* outputArray){
     ScoutSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 0; i < 5; i++) {
         outputArray[i] = ScoutSPI::readWriteSPI(RF_COMMAND_NOP);
