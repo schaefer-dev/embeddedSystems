@@ -7,7 +7,12 @@
 #include "ScoutSerial.h"
 #include <OrangutanTime.h>
 #include "avr/io.h"
+#include "main.h"
 
+
+int ScoutRF::refereeAdress[5];
+int ScoutRF::scoutAdress[5];
+int ScoutRF::collectorAdress[5];
 
 void ScoutRF::initializeRFModule() {
 
@@ -19,6 +24,27 @@ void ScoutRF::initializeRFModule() {
      * deselect slave
      * short delay
      * */
+
+    /* create arrays to store the adress values of referee,
+     * collector and scout (already inverted) */
+    refereeAdress[4] = 0x00e1;
+    refereeAdress[3] = 0x00f0;
+    refereeAdress[2] = 0x00f0;
+    refereeAdress[1] = 0x00f0;
+    refereeAdress[0] = 0x00f0;
+    scoutAdress[4] = 0x00e2;
+    scoutAdress[3] = 0x0091;
+    scoutAdress[2] = 0x00a8;
+    scoutAdress[1] = 0x0027;
+    scoutAdress[0] = 0x0085;
+    collectorAdress[4] = 0x0098;
+    collectorAdress[3] = 0x0065;
+    collectorAdress[2] = 0x00fa;
+    collectorAdress[1] = 0x0029;
+    collectorAdress[0] = 0x00e6;
+
+
+
 
     /* TODO: some of this is default set already, so can be optimized */
 
@@ -48,47 +74,28 @@ void ScoutRF::initializeRFModule() {
     writeRegister(0x0000001D,   7);
 
 
-    /* Recent changes: adress only written in PIPE 0 */
-    for (int i = 0; i < 1; i ++) {
-
-        ScoutSPI::slaveSelect(SLAVE_RF);
-        ScoutSPI::readWriteSPI(42 + i); // write roboter receive adress in register 0A
-        delayMicroseconds(command_delay);
-        /* write  receive adress 14: 0x8527a891e2 LSByte to MSByte */
-        ScoutSPI::readWriteSPI(226); // write e2
-        delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(145); // write 91
-        delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(168); // write a8
-        delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(39); // write 27
-        delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(133); // write 85
-        ScoutSPI::slaveSelect(SLAVE_NONE);
-
-        delay(delay_after_RF_select);
-    }
-
-
-    /* Recent changes: adress only written in PIPE 0, so not necessary here anymore */
-    /* write LSB receive adress in register 0C to 0F
-    for (int i = 0; i < 4; i ++){
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(44 + i); // write roboter receive adress LSB in register 0C
-        delayMicroseconds(command_delay);
-        readWriteSPI(226); // write e2
-        slaveSelect(SLAVE_NONE);
-        delay(delay_after_RF_select);
-    } */
+    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, scoutAdress);
 
 
     // write register 00: enable crc 16 bit, pwr up, rx mode
     writeRegister(0x00000000, 15);
 
+    flushRXTX();
+
     /* drive RF module enable pin, apparently this should happen
      * at the very end of configuration, but not 100% sure */
     PORTD |= (1 << PIN_RF_ENABLE_D);
     delayMicroseconds(30);
+
+}
+
+void ScoutRF::flushRXTX() {
+
+    /* flush TX and RX */
+    uint8_t payload[1] = {RF_COMMAND_FLUSH_RX};
+    sendCommandWithPayload(payload, 1);
+    payload[0] = RF_COMMAND_FLUSH_TX;
+    sendCommandWithPayload(payload, 1);
 
 }
 
@@ -130,42 +137,126 @@ int ScoutRF::queryRFModule(){
     unsigned int statusRF = ScoutSPI::readWriteSPI(payload);
     ScoutSPI::slaveSelect(SLAVE_NONE);
 
-    ScoutSerial::serialWrite("RF Status Register: (", 21);
-    ScoutSerial::serialWrite8Bit(statusRF);
-    ScoutSerial::serialWrite(")\n", 2);
+    //ScoutSerial::serialWrite("RF Status Register: (", 21);
+    //ScoutSerial::serialWrite8Bit(statusRF);
+    //ScoutSerial::serialWrite(")\n", 2);
 
     return statusRF;
+}
+
+void ScoutRF::processReceivedMessage() {
+    /* case for Message arrived */
+    int answerArray[1];
+    ScoutRF::getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
+
+    /* if no next payload there */
+    if (answerArray[0] == 0) {
+        return;
+    }
+
+    /* read message from pipe */
+    int payloadArray[answerArray[0]];
+    ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
+
+    ScoutSerial::serialWrite("Message: ", 9);
+
+    for (int i = 0; i < answerArray[0]; i++){
+        ScoutSerial::serialWrite8BitHex(payloadArray[i]);
+    }
+    ScoutSerial::serialWrite("\n",1);
+
+    /* clear status register */
+    ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
+
+    switch(payloadArray[0]){
+        case 0x50:
+            /* PING case */
+            ScoutRF::sendPongToReferee(payloadArray[1] * 256 + payloadArray[2]);
+            break;
+        case 0x60:
+            /* POS update case */
+            break;
+        case 0x70:
+            /* MESSAGE case */
+            break;
+        default:
+            ScoutSerial::serialWrite("Illegal Message Identifer\n",26);
+    }
 }
 
 
 
 
 void ScoutRF::sendPongToReferee(uint16_t nonce){
-    int refereeAdress[5];
-    refereeAdress[4] = 0xe1;
-    refereeAdress[3] = 0xf0;
-    refereeAdress[2] = 0xf0;
-    refereeAdress[1] = 0xf0;
-    refereeAdress[0] = 0xf0;
 
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_TX_REG, refereeAdress);
+    /* Write Referee adress to TX Register */
+    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, refereeAdress);
 
     /* switch to TX mode */
     writeRegister(RF_REGISTER_CONFIG, 14);
 
-    int commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, ((nonce % 256) + 1), (nonce/256), 0x51};
+    uint16_t incNonce = nonce + 1;
+
+    uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, 0x51, (uint8_t)(incNonce/256), (uint8_t)(incNonce % 256)};
+    //uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD,  0x51, 0xab, 0x12};
     sendCommandWithPayload(commandArray, 4);
 
+#ifdef DEBUG
     ScoutSerial::serialWrite("PONG with nonce (", 17);
-    ScoutSerial::serialWrite8BitHex((nonce/256));
-    ScoutSerial::serialWrite8BitHex((nonce%256) + 1);
+    ScoutSerial::serialWrite8BitHex(incNonce / 256);
+    ScoutSerial::serialWrite8BitHex(incNonce % 256);
 
     ScoutSerial::serialWrite(") should send now\n", 18);
+#endif
+
+    int status = 0;
+    long timeout = millis();
+
+    delay(10);
+    flushRXTX();
+    while (true){
+        status = queryRFModule();
+
+        /* either message sent or max retries reached case */
+        if (((1 << 4) & status) > 0) {
+#ifdef DEBUG
+            ScoutSerial::serialWrite("PONG sending maxRetries\n", 24);
+#endif
+            break;
+        }
+
+
+        if (((1 << 5) & status) > 0) {
+#ifdef DEBUG
+            ScoutSerial::serialWrite("PONG sent succesfully\n", 22);
+#endif
+            break;
+        }
+
+        /* in case something goes wrong cancel after 1s */
+        if (millis() - timeout > 2000) {
+#ifdef DEBUG
+            ScoutSerial::serialWrite("Manual sending timeout\n", 23);
+#endif
+            flushRXTX();
+            break;
+        }
+    }
+
+    /* clear received status */
+    writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );
+
+    /* Write Scout adress in RX Register Pipe 0 */
+    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, scoutAdress);
+
+    /* switch back to RX mode */
+    writeRegister(RF_REGISTER_CONFIG, 15);
 }
 
 
-void ScoutRF::sendCommandWithPayload(int *commandArray, int byteCount){
+void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 

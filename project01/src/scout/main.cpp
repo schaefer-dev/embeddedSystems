@@ -89,38 +89,8 @@ void checkForNewRFMessage(){
     char messageReceived = statusRF & (1 << 6);
 
     if (messageReceived){
-        /* case for Message arrived */
-        int answerArray[1];
-        ScoutRF::getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
+        ScoutRF::processReceivedMessage();
 
-        /* read message from pipe */
-        int payloadArray[answerArray[0]];
-        ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
-
-        ScoutSerial::serialWrite("Message: ", 9);
-
-        for (int i = 0; i < answerArray[0]; i++){
-            ScoutSerial::serialWrite8BitHex(payloadArray[i]);
-        }
-        ScoutSerial::serialWrite("\n",1);
-
-        /* clear status register */
-        ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
-
-        switch(payloadArray[0]){
-            case 0x50:
-                /* PING case */
-                ScoutRF::sendPongToReferee(payloadArray[1] + payloadArray[2]);
-                break;
-            case 0x60:
-                /* POS update case */
-                break;
-            case 0x70:
-                /* MESSAGE case */
-                break;
-            default:
-                ScoutSerial::serialWrite("Illegal Message Identifer\n",26);
-        }
 
     }
 }
@@ -377,6 +347,10 @@ void performStraightDrive(int cmLength) {
 #endif
         }
     }
+}
+
+void debug_sendPingToCollector(){
+
 }
 
 

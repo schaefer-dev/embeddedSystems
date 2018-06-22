@@ -24,6 +24,7 @@ void performStraightDrive(int cmLength);
 void driveToSerialInput();
 void photophobicScout();
 void checkForNewRFMessage();
+void debug_sendPingToCollector();
 
 #endif //EMBEDDEDSYSTEMS18_SCOUT_MAIN_H
 

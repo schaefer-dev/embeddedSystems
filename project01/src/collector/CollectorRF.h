@@ -23,6 +23,7 @@
 /* RF Register adresses */
 #define RF_REGISTER_STATUS          0x07
 #define RF_REGISTER_TX_REG          0x10
+#define RF_REGISTER_RX_ADDR_P0      0x0A
 #define RF_REGISTER_CONFIG          0x00
 #define RF_MASK_REGISTER	        0x1F
 
@@ -39,12 +40,16 @@ public:
     static int readRegister(uint8_t reg);
 
     static void getCommandAnswer(int *answerArray, int byteCount, int8_t command);
-    static void sendCommandWithPayload(int *commandArray, int byteCount);
+    static void sendCommandWithPayload(uint8_t *commandArray, int byteCount);
 
     static void sendPongToReferee(uint16_t nonce);
     static void write5ByteAdress(int reg, int* bytes);
 
     static void readAdressRegister(uint8_t reg, int* outputArray);
+
+    static int refereeAdress[5];
+    static int scoutAdress[5];
+    static int collectorAdress[5];
 
 };
 
