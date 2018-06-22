@@ -44,8 +44,6 @@ void ScoutRF::initializeRFModule() {
     collectorAdress[0] = 0x00e6;
 
 
-
-
     /* TODO: some of this is default set already, so can be optimized */
 
     // write command register 02: enable all data pipes
@@ -163,15 +161,21 @@ void ScoutRF::processReceivedMessage() {
     for (int i = 0; i < answerArray[0]; i++){
         ScoutSerial::serialWrite8BitHex(payloadArray[i]);
     }
-    ScoutSerial::serialWrite("\n",1);
+    ScoutSerial::serialWrite(" (only first 3 bytes displayed)\n", 32);
 
     /* clear status register */
     ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
 
     switch(payloadArray[0]){
-        case 0x50:
-            /* PING case */
-            ScoutRF::sendPongToReferee(payloadArray[1] * 256 + payloadArray[2]);
+        case 0x50: {
+            /* PING case -> simply respond with PONG which contains nonce+1 */
+            uint16_t incNonce = 0;
+            incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
+            payloadArray[0] = 0x51;
+            payloadArray[1] = (uint8_t) (incNonce / 256);
+            payloadArray[2] = (uint8_t) (incNonce % 256);
+            sendMessageTo(refereeAdress, payloadArray, 3);
+        }
             break;
         case 0x60:
             /* POS update case */
@@ -184,6 +188,13 @@ void ScoutRF::processReceivedMessage() {
             break;
         case 0x81:
             /* case for RELAY, scount sends and collector echos message with prefix 81 */
+            /* Scout has to print messages here to serial */
+
+            for (int i = 0; i < answerArray[0]; i++){
+                char buffer[1] = {payloadArray[i]};
+                ScoutSerial::serialWrite(buffer, 1);
+            }
+            ScoutSerial::serialWrite("\n",1);
 
             break;
         default:
@@ -194,29 +205,23 @@ void ScoutRF::processReceivedMessage() {
 
 
 
-void ScoutRF::sendPongToReferee(uint16_t nonce){
+void ScoutRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength){
 
     /* Write Referee adress to TX Register */
-    write5ByteAdress(RF_REGISTER_TX_REG, refereeAdress);
+    write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
-    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, refereeAdress);
+    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, receiverAdress);
 
     /* switch to TX mode */
     writeRegister(RF_REGISTER_CONFIG, 14);
 
-    uint16_t incNonce = nonce + 1;
+    uint8_t commandArray[payloadArrayLength + 1];
+    commandArray[0] = RF_COMMAND_W_TX_PAYLOAD;
+    for (int i = 1; i < payloadArrayLength + 1; i++){
+        commandArray[i] = payloadArray[i-1];
+    }
 
-    uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, 0x51, (uint8_t)(incNonce/256), (uint8_t)(incNonce % 256)};
-    //uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD,  0x51, 0xab, 0x12};
-    sendCommandWithPayload(commandArray, 4);
-
-#ifdef DEBUG
-    ScoutSerial::serialWrite("PONG with nonce (", 17);
-    ScoutSerial::serialWrite8BitHex(incNonce / 256);
-    ScoutSerial::serialWrite8BitHex(incNonce % 256);
-
-    ScoutSerial::serialWrite(") should send now\n", 18);
-#endif
+    sendCommandWithPayload(commandArray, payloadArrayLength + 1);
 
     int status = 0;
     long timeout = millis();
@@ -229,7 +234,7 @@ void ScoutRF::sendPongToReferee(uint16_t nonce){
         /* either message sent or max retries reached case */
         if (((1 << 4) & status) > 0) {
 #ifdef DEBUG
-            ScoutSerial::serialWrite("PONG sending maxRetries\n", 24);
+            ScoutSerial::serialWrite("Message sending maxRetries\n", 27);
 #endif
             break;
         }
@@ -237,7 +242,7 @@ void ScoutRF::sendPongToReferee(uint16_t nonce){
 
         if (((1 << 5) & status) > 0) {
 #ifdef DEBUG
-            ScoutSerial::serialWrite("PONG sent succesfully\n", 22);
+            ScoutSerial::serialWrite("Message sent succesfully\n", 25);
 #endif
             break;
         }

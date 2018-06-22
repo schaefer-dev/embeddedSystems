@@ -66,10 +66,50 @@ int main() {
         */
     }
 
+    char serialMessage[31];
+    for (int i = 0; i < 31; i++){
+        serialMessage[i] = 32;
+    }
+    int serialMessageLength = 0;
+
 
     while (1) {
+        /* DEBUG: send message continiously
+        int payload[10];
+        payload[0] = 0x80;
+        payload[1] = (int)'T';
+        payload[2] = (int)'E';
+        payload[3] = (int)'S';
+        payload[4] = (int)'T';
+        serialMessageLength = 5;
+        ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength);
+        ScoutSerial::serialWrite("sent\n", 5);
+        delay(2000);
+         */
 
-        homing();
+        //homing();
+
+        delay(100);
+        serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
+        if (serialMessageLength != 0){
+            /* Message over serial was read */
+            ScoutSerial::serialWrite("sending Message with Content: '", 31);
+            ScoutSerial::serialWrite(serialMessage, serialMessageLength);
+            ScoutSerial::serialWrite("' to collector\n", 15);
+
+            int payload[serialMessageLength + 1];
+            payload[0] = 0x80;
+            for (int i = 0; i < serialMessageLength; i++){
+                payload[i + 1] = (int) serialMessage[i];
+            }
+
+            ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength + 1);
+
+            /* clear message again */
+            for (int i = 0; i < 31; i++){
+                serialMessage[i] = 32;
+            }
+        }
 
         checkForNewRFMessage();
 

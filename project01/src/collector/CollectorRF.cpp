@@ -178,6 +178,7 @@ void CollectorRF::processReceivedMessage() {
             /* MESSAGE case */
             break;
         case 0x80:
+            Serial1.println("Message from scout arrived, echo performing ...");
             /* case for RELAY, scount sends and collector echos sends message back to scout */
             payloadArray[0] = 0x81;
             sendMessageTo(scoutAdress, payloadArray, answerArray[0]);
