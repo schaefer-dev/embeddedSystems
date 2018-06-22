@@ -9,6 +9,7 @@
 #include "avr/interrupt.h"
 #include "../scout/main.h"
 #include "CollectorMonitor.h"
+#include "CollectorRF.h"
 
 #define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
 #define DEBUG
@@ -59,7 +60,7 @@ void setup() {
     CollectorSPI::SPIMasterInit();
     delay(50);
     Serial1.println("--- SPI MASTER INITIALIZED ---");
-    CollectorSPI::initializeRFModule();
+    CollectorRF::initializeRFModule();
     Serial1.println("--- RF MODULE INITIALIZED ---");
     delay(100);
 }

@@ -2,11 +2,10 @@
 // Created by Daniel Schäfer on 22.06.18.
 //
 
-#ifndef EMBEDDEDSYSTEMS18_SCOUTRF_H
-#define EMBEDDEDSYSTEMS18_SCOUTRF_H
+#ifndef EMBEDDEDSYSTEMS18_COLLECTORRF_H
+#define EMBEDDEDSYSTEMS18_COLLECTORRF_H
 
 #include <stdint.h>
-
 
 
 // RF module command bytes
@@ -28,7 +27,7 @@
 #define RF_REGISTER_CONFIG          0x00
 
 
-class ScoutRF {
+class CollectorRF {
 
 public:
 
@@ -50,4 +49,4 @@ public:
 };
 
 
-#endif //EMBEDDEDSYSTEMS18_SCOUTRF_H
+#endif //EMBEDDEDSYSTEMS18_COLLECTORRF_H

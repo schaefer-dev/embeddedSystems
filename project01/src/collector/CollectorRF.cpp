@@ -2,14 +2,13 @@
 // Created by Daniel Schäfer on 22.06.18.
 //
 
-#include "ScoutRF.h"
-#include "ScoutSPI.h"
-#include "ScoutSerial.h"
-#include <OrangutanTime.h>
-#include "avr/io.h"
+#include "CollectorRF.h"
+#include "CollectorSPI.h"
+#include <Arduino.h>
 
 
-void ScoutRF::initializeRFModule() {
+
+void CollectorRF::initializeRFModule() {
 
     /* for every register in RF module:
      * select RF as slave
@@ -51,20 +50,20 @@ void ScoutRF::initializeRFModule() {
     /* Recent changes: adress only written in PIPE 0 */
     for (int i = 0; i < 1; i ++) {
 
-        ScoutSPI::slaveSelect(SLAVE_RF);
-        ScoutSPI::readWriteSPI(42 + i); // write roboter receive adress in register 0A
+        CollectorSPI::slaveSelect(SLAVE_RF);
+        CollectorSPI::readWriteSPI(42 + i); // write roboter receive adress in register 0A
         delayMicroseconds(command_delay);
         /* write  receive adress 14: 0x8527a891e2 LSByte to MSByte */
-        ScoutSPI::readWriteSPI(226); // write e2
+        CollectorSPI::readWriteSPI(226); // write e2
         delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(145); // write 91
+        CollectorSPI::readWriteSPI(145); // write 91
         delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(168); // write a8
+        CollectorSPI::readWriteSPI(168); // write a8
         delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(39); // write 27
+        CollectorSPI::readWriteSPI(39); // write 27
         delayMicroseconds(command_delay);
-        ScoutSPI::readWriteSPI(133); // write 85
-        ScoutSPI::slaveSelect(SLAVE_NONE);
+        CollectorSPI::readWriteSPI(133); // write 85
+        CollectorSPI::slaveSelect(SLAVE_NONE);
 
         delay(delay_after_RF_select);
     }
@@ -87,52 +86,53 @@ void ScoutRF::initializeRFModule() {
 
     /* drive RF module enable pin, apparently this should happen
      * at the very end of configuration, but not 100% sure */
-    PORTD |= (1 << PIN_RF_ENABLE_D);
+    PORTC |= (1 << PIN_RF_ENABLE_C);
     delayMicroseconds(30);
 
 }
 
-void ScoutRF::debug_RFModule(){
+void CollectorRF::debug_RFModule(){
     int output = 0;
     for (int i = 0; i < 30; i++){
         output = readRegister(i);
 
-        ScoutSerial::serialWrite("Register ", 9);
-        ScoutSerial::serialWrite8BitHex(i);
-        ScoutSerial::serialWrite(" = (", 4);
-        ScoutSerial::serialWrite8BitBinary(output);
-        ScoutSerial::serialWrite(")\n", 2);
+        Serial1.print("Register ");
+        Serial1.print(i);
+        Serial1.print(" = (");
+        Serial1.print(output);
+        Serial1.print(")");
+
         delay(20);
 
     }
 
     int adressArray[5];
     readAdressRegister(0x000A, adressArray);
-    ScoutSerial::serialWrite("ADDR Register: 0A (", 19);
+    Serial1.print("ADDR Register: 0A (");
     for (int i=0; i < 5; i++) {
-        ScoutSerial::serialWrite8BitHex(adressArray[i]);
+        Serial1.print(adressArray[i]);
     }
-    ScoutSerial::serialWrite(")\n", 2);
+    Serial1.println(")");
 
     readAdressRegister(0x000B, adressArray);
-    ScoutSerial::serialWrite("ADDR Register: 0B (", 19);
+    Serial1.print("ADDR Register: 0B (");
     for (int i=0; i < 5; i++) {
-        ScoutSerial::serialWrite8BitHex(adressArray[i]);
+        Serial1.print(adressArray[i]);
     }
-    ScoutSerial::serialWrite(")\n", 2);
+    Serial1.println(")");
 
 }
 
 
-int ScoutRF::queryRFModule(){
-    ScoutSPI::slaveSelect(SLAVE_RF);
+int CollectorRF::queryRFModule(){
+    CollectorSPI::slaveSelect(SLAVE_RF);
     unsigned int payload = 255;
-    unsigned int statusRF = ScoutSPI::readWriteSPI(payload);
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    unsigned int statusRF = CollectorSPI::readWriteSPI(payload);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
 
-    ScoutSerial::serialWrite("RF Status Register: (", 21);
-    ScoutSerial::serialWrite8Bit(statusRF);
-    ScoutSerial::serialWrite(")\n", 2);
+    Serial1.print("RF Status Register: (");
+    Serial1.print(statusRF);
+    Serial1.println(")");
 
     return statusRF;
 }
@@ -140,7 +140,7 @@ int ScoutRF::queryRFModule(){
 
 
 
-void ScoutRF::sendPongToReferee(uint16_t nonce){
+void CollectorRF::sendPongToReferee(uint16_t nonce){
     int refereeAdress[5];
     refereeAdress[4] = 0xe1;
     refereeAdress[3] = 0xf0;
@@ -157,97 +157,97 @@ void ScoutRF::sendPongToReferee(uint16_t nonce){
     int commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, ((nonce % 256) + 1), (nonce/256), 0x51};
     sendCommandWithPayload(commandArray, 4);
 
-    ScoutSerial::serialWrite("PONG with nonce (", 17);
-    ScoutSerial::serialWrite8BitHex((nonce/256));
-    ScoutSerial::serialWrite8BitHex((nonce%256) + 1);
+    Serial1.print("PONG with nonce (");
+    Serial1.print((nonce/256));
+    Serial1.print((nonce%256) + 1);
+    Serial1.println(") should send now");
 
-    ScoutSerial::serialWrite(") should send now\n", 18);
 }
 
 
-void ScoutRF::sendCommandWithPayload(int *commandArray, int byteCount){
+void CollectorRF::sendCommandWithPayload(int *commandArray, int byteCount){
 
-    ScoutSPI::slaveSelect(SLAVE_RF);
+    CollectorSPI::slaveSelect(SLAVE_RF);
 
     delayMicroseconds(command_delay);
     for (int i = 0; i < byteCount; i++) {
-        ScoutSPI::readWriteSPI(commandArray[i]);
+        CollectorSPI::readWriteSPI(commandArray[i]);
         delayMicroseconds(command_delay);
     }
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
 
 
 
-void ScoutRF::getCommandAnswer(int *answerArray, int byteCount, int8_t command){
+void CollectorRF::getCommandAnswer(int *answerArray, int byteCount, int8_t command){
 
-    ScoutSPI::slaveSelect(SLAVE_RF);
+    CollectorSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(command); // write command for register
+    CollectorSPI::readWriteSPI(command); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 0; i < byteCount; i++) {
-        answerArray[i] = ScoutSPI::readWriteSPI(RF_COMMAND_NOP);
+        answerArray[i] = CollectorSPI::readWriteSPI(RF_COMMAND_NOP);
         delayMicroseconds(command_delay);
     }
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
 
-void ScoutRF::writeRegister(uint8_t reg, uint8_t setting){
+void CollectorRF::writeRegister(uint8_t reg, uint8_t setting){
 
-    ScoutSPI::slaveSelect(SLAVE_RF);
+    CollectorSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
     delayMicroseconds(command_delay);
-    ScoutSPI::readWriteSPI(setting);
+    CollectorSPI::readWriteSPI(setting);
 
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
 
 
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
-void ScoutRF::write5ByteAdress(int reg, int* bytes){
+void CollectorRF::write5ByteAdress(int reg, int* bytes){
 
-    ScoutSPI::slaveSelect(SLAVE_RF);
+    CollectorSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 4; i >= 0; i--){
-        ScoutSPI::readWriteSPI(bytes[i]);
+        CollectorSPI::readWriteSPI(bytes[i]);
         delayMicroseconds(command_delay);
     }
 
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
 
 
-int ScoutRF::readRegister(uint8_t reg){
+int CollectorRF::readRegister(uint8_t reg){
 
-    ScoutSPI::slaveSelect(SLAVE_RF);
+    CollectorSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
     delayMicroseconds(command_delay);
-    int output = ScoutSPI::readWriteSPI(RF_COMMAND_NOP);
+    int output = CollectorSPI::readWriteSPI(RF_COMMAND_NOP);
 
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 
     return output;
 }
 
-void ScoutRF::readAdressRegister(uint8_t reg, int* outputArray){
-    ScoutSPI::slaveSelect(SLAVE_RF);
+void CollectorRF::readAdressRegister(uint8_t reg, int* outputArray){
+    CollectorSPI::slaveSelect(SLAVE_RF);
 
-    ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
+    CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
     delayMicroseconds(command_delay);
     for (int i = 0; i < 5; i++) {
-        outputArray[i] = ScoutSPI::readWriteSPI(RF_COMMAND_NOP);
+        outputArray[i] = CollectorSPI::readWriteSPI(RF_COMMAND_NOP);
         delayMicroseconds(command_delay);
     }
 
-    ScoutSPI::slaveSelect(SLAVE_NONE);
+    CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }

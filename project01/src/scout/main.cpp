@@ -91,11 +91,11 @@ void checkForNewRFMessage(){
     if (messageReceived){
         /* case for Message arrived */
         int answerArray[1];
-        ScoutRF::getCommandAnswer(answerArray, 1, R_RX_PL_WID);
+        ScoutRF::getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
 
         /* read message from pipe */
         int payloadArray[answerArray[0]];
-        ScoutRF::getCommandAnswer(payloadArray, answerArray[0], R_RX_PAYLOAD);
+        ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
         ScoutSerial::serialWrite("Message: ", 9);
 
@@ -105,7 +105,7 @@ void checkForNewRFMessage(){
         ScoutSerial::serialWrite("\n",1);
 
         /* clear status register */
-        ScoutRF::writeRegister(RF_STATUS, 64);
+        ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
 
         switch(payloadArray[0]){
             case 0x50:

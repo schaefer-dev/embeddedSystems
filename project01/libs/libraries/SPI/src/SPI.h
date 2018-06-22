@@ -208,7 +208,7 @@ public:
   inline static uint8_t transfer(uint8_t data) {
     SPDR = data;
     /*
-     * The following NOP introduces a small delay that can prevent the wait
+     * The following RF_COMMAND_NOP introduces a small delay that can prevent the wait
      * loop form iterating when running at the maximum speed. This gives
      * about 10% more speed, even if it seems counter-intuitive. At lower
      * speeds it is unnoticed.

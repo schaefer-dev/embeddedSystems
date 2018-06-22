@@ -41,15 +41,15 @@
 //#define SPI_CLOCK_VALUE (PINB & (1 << PIN_SPI_SCK_B))
 
 // RF module command bytes
-#define R_REGISTER		0x00
-#define W_REGISTER		0x20
-#define REGISTER_MASK	0x1F
-#define R_RX_PAYLOAD	0x61
-#define W_TX_PAYLOAD	0xA0
-#define FLUSH_TX		0xE1
-#define FLUSH_RX		0xE2
-#define REUSE_TX_PL		0xE3
-#define NOP				0xFF
+#define RF_COMMAND_R_REGISTER		0x00
+#define RF_COMMAND_W_REGISTER		0x20
+#define RF_COMMAND_REGISTER_MASK	0x1F
+#define RF_COMMAND_R_RX_PAYLOAD	0x61
+#define RF_COMMAND_W_TX_PAYLOAD	0xA0
+#define RF_COMMAND_FLUSH_TX		0xE1
+#define RF_COMMAND_FLUSH_RX		0xE2
+#define RF_COMMAND_REUSE_TX_PL		0xE3
+#define RF_COMMAND_NOP				0xFF
 
 
 class CollectorSPI {
@@ -57,8 +57,6 @@ class CollectorSPI {
 private:
     static void waitNextSPIRisingEdge();
     static void waitNextSPIFallingEdge();
-    static unsigned int readWriteSPI(unsigned int payload);
-    static void writeRegister(uint8_t reg, uint8_t setting);
 
 
 public:
@@ -69,18 +67,14 @@ public:
 
     static void slaveSelect(unsigned char slave);
 
-    static void initializeRFModule();
-
     static void setTimer4Interrupt(uint16_t duration);
 
     static unsigned volatile char SPIClock;
 
     static bool volatile runSPIClock;
 
-    static int queryRFModule();
-    static void debug_RFModule();
-
-    static unsigned int debug_interruptCounter;
+    static unsigned int readWriteSPI(unsigned int payload);
+    static void writeRegister(uint8_t reg, uint8_t setting);
 
 };
 

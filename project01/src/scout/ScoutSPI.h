@@ -7,6 +7,11 @@
 
 #include <stdint.h>
 
+// slave select ids
+#define SLAVE_NONE 0
+#define SLAVE_ADC 1
+#define SLAVE_RF 2
+
 /**
  * initialize Master node for SPI communication on Scout robot
  * PB0 -- MISO
@@ -40,12 +45,6 @@
 /* delay between each byte of communication with RF module in microseconds */
 #define command_delay 50
 #define delay_after_RF_select 1
-
-
-// slave select ids
-#define SLAVE_NONE 0
-#define SLAVE_ADC 1
-#define SLAVE_RF 2
 
 class ScoutSPI
 {

@@ -13,8 +13,6 @@ unsigned volatile char CollectorSPI::SPIClock = 0;
 
 bool volatile CollectorSPI::runSPIClock;
 
-unsigned int CollectorSPI::debug_interruptCounter = 0;
-
 
 // not used because static
 CollectorSPI::CollectorSPI() {
@@ -104,130 +102,16 @@ void CollectorSPI::slaveSelect(unsigned char slave) {
     }
 }
 
-
-void CollectorSPI::initializeRFModule() {
-
-    /* for every register in RF module:
-    * select RF as slave
-    * command address write register XX
-    * at least one clock cycle delay
-    * payload for register setup
-    * deselect slave
-    * short delay
-    * */
-
-    /* TODO: some of this is default set already, so can be optimized */
-
-    // write command register 02: enable all data pipes
-    writeRegister(0x00000002,  63);
-
-    // write command register 04: enable 10 retries w delay 2ms
-    writeRegister(0x00000004, 138);
-
-    // write register 05: set channel to 111
-    writeRegister(0x00000005, 111);
-
-    // write register 06: data rate 1 mbps, max power
-    writeRegister(0x00000006,   6);
-
-
-
-    /* write command register 11 to 16 to maximum RX payload (32 Bytes) */
-    for (int i = 0x00000011; i < 0x00000017; i ++){
-        writeRegister( i,  32);
-    }
-
-    // write register 1D: enable dyn payload, dyn ack
-    writeRegister(0x0000001C,   63);
-
-    // write register 1D: enable dyn payload, dyn ack
-    writeRegister(0x0000001D,   7);
-
-
-    /* Recent changes: adress only written in PIPE 0 */
-    for (int i = 0; i < 1; i ++) {
-
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(42 + i); // write roboter receive adress in register 0A
-        delayMicroseconds(command_delay);
-        /* write  receive adress 15: 0xE629FA6598 LSByte to MSByte */
-        readWriteSPI(0x0098); // write 98
-        delayMicroseconds(command_delay);
-        readWriteSPI(0x0065); // write 65
-        delayMicroseconds(command_delay);
-        readWriteSPI(0x00FA); // write FA
-        delayMicroseconds(command_delay);
-        readWriteSPI(0x0029); // write 29
-        delayMicroseconds(command_delay);
-        readWriteSPI(0x00E6); // write E6
-        slaveSelect(SLAVE_NONE);
-
-        delay(delay_after_RF_select);
-    }
-
-
-    /* Recent changes: adress only written in PIPE 0, so not necessary here anymore */
-    /* write LSB receive adress in register 0C to 0F
-    for (int i = 0; i < 4; i ++){
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(44 + i); // write roboter receive adress LSB in register 0C
-        delayMicroseconds(command_delay);
-        readWriteSPI(0x0098); // write 98
-        slaveSelect(SLAVE_NONE);
-        delay(delay_after_RF_select);
-    } */
-
-
-    // write register 00: enable crc 16 bit, pwr up, rx mode
-    writeRegister(0x00000000, 15);
-
-    /* drive RF module enable pin, apparently this should happen
-     * at the very end of configuration, but not 100% sure */
-    PORTC |= (1 << PIN_RF_ENABLE_C);
-    delayMicroseconds(30);
-
-}
-
 void CollectorSPI::writeRegister(uint8_t reg, uint8_t setting){
 
     slaveSelect(SLAVE_RF);
 
-    readWriteSPI(W_REGISTER | (REGISTER_MASK & reg)); // write command for register
+    readWriteSPI(RF_COMMAND_W_REGISTER | (RF_COMMAND_REGISTER_MASK & reg)); // write command for register
     delayMicroseconds(command_delay);
     readWriteSPI(setting);
 
     slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
-}
-
-void CollectorSPI::debug_RFModule(){
-    int output = 0;
-    for (int i = 0; i < 30; i++){
-        slaveSelect(SLAVE_RF);
-        readWriteSPI(i); // query reading of register i
-        delayMicroseconds(command_delay);
-        output = readWriteSPI(255); // write nop and read answer
-        slaveSelect(SLAVE_NONE);
-
-        delay(delay_after_RF_select);
-        Serial1.print("Register: (");
-        Serial1.print(output);
-        Serial1.println(")");
-        delay(20);
-
-    }
-}
-
-
-int CollectorSPI::queryRFModule(){
-    slaveSelect(SLAVE_RF);
-    unsigned int payload = 255;
-    unsigned int statusRF = readWriteSPI(payload);
-    slaveSelect(SLAVE_NONE);
-
-    Serial1.print("RF Status Register: (");
-    Serial1.print(statusRF);
-    Serial1.println(")");
 }
 
 
