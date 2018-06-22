@@ -13,6 +13,8 @@
 /* debug define to enable serial output/inputs to save program memory */
 #define DEBUG
 
+#define ROBOT_SCOUT
+
 int main();
 bool driveToDestination();
 void readNewDestinations();
