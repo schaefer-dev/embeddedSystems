@@ -182,6 +182,10 @@ void ScoutRF::processReceivedMessage() {
         case 0x70:
             /* MESSAGE case */
             break;
+        case 0x81:
+            /* case for RELAY, scount sends and collector echos message with prefix 81 */
+
+            break;
         default:
             ScoutSerial::serialWrite("Illegal Message Identifer\n",26);
     }

@@ -70,7 +70,7 @@ void setup() {
 
 void loop() {
 
-    homing();
+    //homing();
 
     checkForNewRFMessage();
 

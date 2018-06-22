@@ -51,6 +51,9 @@ public:
 
     static void flushRXTX();
 
+    static void sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength);
+    static void echoMessageToScout(int *payloadArray, int payloadArrayLength);
+
     static int refereeAdress[5];
     static int scoutAdress[5];
     static int collectorAdress[5];
