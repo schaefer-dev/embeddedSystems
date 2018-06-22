@@ -12,6 +12,11 @@
 #define photophobicDanceThreshold 100
 #define PHOTOPHOBIC_ROTATION 60
 
+#define SCENARIO_RELAY
+#define SCENARIO_HOMING
+#define SCENARIO_PHOTOPHOBIC
+//define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
@@ -74,24 +79,27 @@ int main() {
 
 
     while (1) {
-        /* DEBUG: send message continiously
+#ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
         payload[0] = 0x80;
-        payload[1] = (int)'T';
-        payload[2] = (int)'E';
-        payload[3] = (int)'S';
-        payload[4] = (int)'T';
+        payload[1] = (int) 'T';
+        payload[2] = (int) 'E';
+        payload[3] = (int) 'S';
+        payload[4] = (int) 'T';
         serialMessageLength = 5;
         ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength);
         ScoutSerial::serialWrite("sent\n", 5);
         delay(2000);
-         */
+#endif
 
-        //homing();
+#ifdef SCENARIO_HOMING
+        homing();
+#endif
 
+#ifdef SCENARIO_RELAY
         delay(100);
         serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
-        if (serialMessageLength != 0){
+        if (serialMessageLength != 0) {
             /* Message over serial was read */
             ScoutSerial::serialWrite("sending Message with Content: '", 31);
             ScoutSerial::serialWrite(serialMessage, serialMessageLength);
@@ -99,25 +107,28 @@ int main() {
 
             int payload[serialMessageLength + 1];
             payload[0] = 0x80;
-            for (int i = 0; i < serialMessageLength; i++){
+            for (int i = 0; i < serialMessageLength; i++) {
                 payload[i + 1] = (int) serialMessage[i];
             }
 
             ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength + 1);
 
             /* clear message again */
-            for (int i = 0; i < 31; i++){
+            for (int i = 0; i < 31; i++) {
                 serialMessage[i] = 32;
             }
         }
+#endif
 
         checkForNewRFMessage();
 
-        /* photophobic mode
+
+#ifdef SCENARIO_PHOTOPHOBIC
+        /* photophobic mode */
         debug_printPhotosensorReadings();
         photophobicScout();
         delay(100);
-        */
+#endif
 
     }
 
