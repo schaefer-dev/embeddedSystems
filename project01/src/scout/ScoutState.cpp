@@ -110,6 +110,8 @@ void ScoutState::resetDifferentialDrive(float x, float y, float a) {
     currentX = x;
     currentY = y;
     currentAngle = a;
+    lastDiffDriveCall = millis();
+    destinationReached = false;
 }
 
 void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
