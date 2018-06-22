@@ -3,8 +3,9 @@
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
-#include "../collector/Coordinates.h"
+#include "../utils/Coordinates.h"
 #include "../scout/ScoutMonitor.h"
+#include "ScoutRF.h"
 
 
 #define photophobicWaitThreshold 50
@@ -54,7 +55,7 @@ int main() {
     if (spiEnabled) {
         ScoutSPI::SPIMasterInit();
         delay(50);
-        ScoutSPI::initializeRFModule();
+        ScoutRF::initializeRFModule();
         delay(100);
 
         /* RF DEBUGGING
@@ -84,17 +85,17 @@ int main() {
 }
 
 void checkForNewRFMessage(){
-    statusRF = ScoutSPI::queryRFModule();
+    statusRF = ScoutRF::queryRFModule();
     char messageReceived = statusRF & (1 << 6);
 
     if (messageReceived){
         /* case for Message arrived */
         int answerArray[1];
-        ScoutSPI::getCommandAnswer(answerArray, 1, R_RX_PL_WID);
+        ScoutRF::getCommandAnswer(answerArray, 1, R_RX_PL_WID);
 
         /* read message from pipe */
         int payloadArray[answerArray[0]];
-        ScoutSPI::getCommandAnswer(payloadArray, answerArray[0], R_RX_PAYLOAD);
+        ScoutRF::getCommandAnswer(payloadArray, answerArray[0], R_RX_PAYLOAD);
 
         ScoutSerial::serialWrite("Message: ", 9);
 
@@ -104,12 +105,12 @@ void checkForNewRFMessage(){
         ScoutSerial::serialWrite("\n",1);
 
         /* clear status register */
-        ScoutSPI::writeRegister(RF_STATUS, 64);
+        ScoutRF::writeRegister(RF_STATUS, 64);
 
         switch(payloadArray[0]){
             case 0x50:
                 /* PING case */
-                ScoutSPI::sendPongToReferee(payloadArray[1] + payloadArray[2]);
+                ScoutRF::sendPongToReferee(payloadArray[1] + payloadArray[2]);
                 break;
             case 0x60:
                 /* POS update case */

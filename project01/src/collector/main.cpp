@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Zumo32U4ProximitySensors.h>
 #include "CollectorState.h"
-#include "Coordinates.h"
+#include "../utils/Coordinates.h"
 #include "main.h"
 #include "CollectorSPI.h"
 #include <math.h>

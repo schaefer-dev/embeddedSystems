@@ -4,7 +4,7 @@
 #include "main.h"
 #include "avr/interrupt.h"
 #include "avr/io.h"
-#include "../scout/Utility.h"
+#include "../utils/Utility.h"
 
 
 /* breaks if Clocks not volatile, because ISR has to be forced to write to disk such

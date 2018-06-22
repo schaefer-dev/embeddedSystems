@@ -6,7 +6,7 @@
 #define EMBEDDEDSYSTEMS18_SCOUTSERIAL_H
 
 
-#include "../collector/Coordinates.h"
+#include "../utils/Coordinates.h"
 
 class ScoutSerial{
 
