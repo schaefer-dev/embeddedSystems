@@ -25,6 +25,8 @@ public:
 
     struct CoordinateNode* pop(float, float);
 
+    bool isEmpty();
+
 
 private:
     struct CoordinateNode *head;

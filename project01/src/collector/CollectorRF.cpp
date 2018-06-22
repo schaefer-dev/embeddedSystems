@@ -164,6 +164,9 @@ void CollectorRF::processReceivedMessage() {
             break;
         case 0x60:
             /* POS update case */
+            receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
+                             payloadArray[3] * 256 + payloadArray[4],
+                             payloadArray[5] * 256 + payloadArray[6]);
             break;
         case 0x70:
             /* MESSAGE case */
@@ -172,7 +175,6 @@ void CollectorRF::processReceivedMessage() {
             Serial1.println("Illegal Message Identifer");
     }
 }
-
 
 
 

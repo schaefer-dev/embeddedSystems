@@ -9,13 +9,15 @@
 /* debug define to enable serial output/inputs to save program memory */
 #define DEBUG
 
+#define ARENA_SIZE_X 140
+
 #define ROBOT_SCOUT
 
 void setup();
 void loop();
 bool driveToDestination();
 bool readNewDestinations(int[]);
-void performRotation();
+void performRotation(int degrees);
 void performStraightDrive(int cmLength);
 void huntObject();
 void generateBrightnessLevels();
@@ -24,5 +26,6 @@ void driveToSerialInput();
 void homing();
 void checkForNewRFMessage();
 
+void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 
 #endif //EMBEDDEDSYSTEMS18_MAIN_H

@@ -19,7 +19,7 @@ CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
 boolean terminate = false;
-int home[2] = {-30, 10};      // home
+int home[2] = {50, 50};      // home
 int statusRF = 0;
 
 void setup() {
@@ -31,8 +31,6 @@ void setup() {
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
     statusRF = 0;
-
-    coordinateQueue->append(home[0], home[1]);
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -66,14 +64,15 @@ void setup() {
     CollectorRF::initializeRFModule();
     Serial1.println("--- RF MODULE INITIALIZED ---");
     delay(100);
+
+    delay(5000);
 }
 
 void loop() {
-    //homing();
 
+    homing();
 
     checkForNewRFMessage();
-
 
     /*
     delay(150);
@@ -90,6 +89,30 @@ void loop() {
 /* ----------------- HELPER FUNCTIONS -------------------------*/
 /* ------------------------------------------------------------*/
 
+
+void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
+    float currentAngle = (float)angle / 10000.0f;
+    currentAngle += 0.5f * M_PI;
+    int currentX = ARENA_SIZE_X - x / 10.0f;
+    int currentY = y / 10.0f;
+
+#ifdef DEBUG
+    Serial1.print("Received POS update, Angle: ");
+    Serial1.print(currentAngle);
+    Serial1.print(" X: ");
+    Serial1.print(currentX);
+    Serial1.print(" Y: ");
+    Serial1.println(currentY);
+#endif
+
+    collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
+
+
+    if (coordinateQueue->isEmpty()){
+        coordinateQueue->append(home[0], home[1]);
+    }
+};
+
 void checkForNewRFMessage(){
     statusRF = CollectorRF::queryRFModule();
     char messageReceived = statusRF & (1 << 6);
@@ -100,16 +123,18 @@ void checkForNewRFMessage(){
 }
 
 void homing() {
-    int currentPosition[2];
+
+    //int currentPosition[2];
 
     // read current destination from serial
-    if (readNewDestinations(currentPosition)) {
+    //if (readNewDestinations(currentPosition)) {
         // reset diff drive and append home to queue
-        collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
-        coordinateQueue->append(home[0], home[1]);
-    }
+        //collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
+        //coordinateQueue->append(home[0], home[1]);
+    //}
 
     driveToDestination();
+    delay(50);
     collectorState->updateRoboterPositionAndAngles();
 }
 
@@ -119,10 +144,10 @@ void driveToSerialInput() {
     coordinateQueue->append(destination[0], destination[1]);
 
     if (terminate) {
-        performRotation();
+        performRotation(360);
     } else {
         if (driveToDestination()) {
-            performRotation();
+            performRotation(360);
         }
         collectorState->updateRoboterPositionAndAngles();
     }
@@ -261,28 +286,43 @@ bool readNewDestinations(int dest[]) {
 #endif
 }
 
+
 /**
- * Performs the celebration rotation
+ * Perform rotation defined by degree
  */
-void performRotation() {
+void performRotation(int degrees) {
     float startAngle = collectorState->currentAngle;
+    float factor = 0.0f;
+    if (degrees < 0){
+        factor = ((float) (-1 * degrees)) / 360.0f;
+    } else {
+        factor = ((float) degrees) / 360.0f;
+    }
     bool loopCondition = true;
 
     while (loopCondition) {
+        if (degrees == 0)
+            return;
 
-        // turn right
-        collectorState->setSpeeds(collectorState->turningSpeed, -collectorState->turningSpeed);
-        collectorState->updateRoboterPositionAndAngles();
+        if (degrees > 0) {
+            // turn right
+            collectorState->setSpeeds(collectorState->turningSpeed, -collectorState->turningSpeed);
+            collectorState->updateRoboterPositionAndAngles();
+        } else {
+            // turn left
+            collectorState->setSpeeds(-collectorState->turningSpeed, collectorState->turningSpeed);
+            collectorState->updateRoboterPositionAndAngles();
+        }
 
         /* rotation completed condition */
-        if (collectorState->currentAngle > startAngle + 2 * M_PI ||
-            collectorState->currentAngle < startAngle - 2 * M_PI) {
+        if (collectorState->currentAngle > startAngle + 2 * M_PI * factor ||
+                collectorState->currentAngle < startAngle - 2 * M_PI * factor) {
             loopCondition = false;
+
 #ifdef DEBUG
-            Serial1.println("One rotation performed!");
+            //serial_send("One rotation performed!\n", 24);
 #endif
             collectorState->setSpeeds(0, 0);
-
         }
     }
 }

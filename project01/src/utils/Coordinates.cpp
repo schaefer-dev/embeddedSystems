@@ -15,6 +15,12 @@ CoordinateQueue::~CoordinateQueue(){
     }
 }
 
+bool CoordinateQueue::isEmpty(){
+    if (head == nullptr)
+        return true;
+    return false;
+}
+
 //append to queue
 void CoordinateQueue::append(int x, int y){
     auto *coordinateNode = new CoordinateNode();
