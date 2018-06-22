@@ -5,6 +5,7 @@
 #include "CollectorRF.h"
 #include "CollectorSPI.h"
 #include <Arduino.h>
+#include "main.h"
 
 
 int CollectorRF::refereeAdress[5];
@@ -122,11 +123,54 @@ int CollectorRF::queryRFModule(){
     unsigned int statusRF = CollectorSPI::readWriteSPI(payload);
     CollectorSPI::slaveSelect(SLAVE_NONE);
 
-    Serial1.print("RF Status Register: (");
-    Serial1.print(statusRF);
-    Serial1.println(")");
+    //Serial1.print("RF Status Register: (");
+    //Serial1.print(statusRF);
+    //Serial1.println(")");
 
     return statusRF;
+}
+
+
+
+
+void CollectorRF::processReceivedMessage() {
+    /* case for Message arrived */
+    int answerArray[1];
+    getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
+
+    /* if no next payload there */
+    if (answerArray[0] == 0) {
+        return;
+    }
+
+    /* read message from pipe */
+    int payloadArray[answerArray[0]];
+    getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
+
+    Serial1.print("Message: ");
+
+    for (int i = 0; i < answerArray[0]; i++){
+        Serial1.print(payloadArray[i]);
+    }
+    Serial1.print("\n");
+
+    /* clear status register */
+    writeRegister(RF_REGISTER_STATUS, 64);
+
+    switch(payloadArray[0]){
+        case 0x50:
+            /* PING case */
+            sendPongToReferee(payloadArray[1] * 256 + payloadArray[2]);
+            break;
+        case 0x60:
+            /* POS update case */
+            break;
+        case 0x70:
+            /* MESSAGE case */
+            break;
+        default:
+            Serial1.println("Illegal Message Identifer");
+    }
 }
 
 
@@ -142,13 +186,72 @@ void CollectorRF::sendPongToReferee(uint16_t nonce){
     /* switch to TX mode */
     writeRegister(RF_REGISTER_CONFIG, 14);
 
-    uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, 0x51, (nonce/256), ((nonce % 256) + 1)};
+    uint16_t incNonce = nonce + 1;
+
+    uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, 0x51, (uint8_t)(incNonce/256), (uint8_t)(incNonce % 256)};
+    //uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD,  0x51, 0xab, 0x12};
     sendCommandWithPayload(commandArray, 4);
 
+#ifdef DEBUG
     Serial1.print("PONG with nonce (");
-    Serial1.print((nonce/256));
-    Serial1.print((nonce%256) + 1);
+    Serial1.print(incNonce / 256);
+    Serial1.print(incNonce % 256);
+
     Serial1.println(") should send now");
+#endif
+
+    int status = 0;
+    long timeout = millis();
+
+    delay(10);
+    flushRXTX();
+    while (true){
+        status = queryRFModule();
+
+        /* either message sent or max retries reached case */
+        if (((1 << 4) & status) > 0) {
+#ifdef DEBUG
+            Serial1.println("PONG sending maxRetries");
+#endif
+            break;
+        }
+
+
+        if (((1 << 5) & status) > 0) {
+#ifdef DEBUG
+            Serial1.println("PONG sent succesfully");
+#endif
+            break;
+        }
+
+        /* in case something goes wrong cancel after 1s */
+        if (millis() - timeout > 2000) {
+#ifdef DEBUG
+            Serial1.println("Manual sending timeout");
+#endif
+            flushRXTX();
+            break;
+        }
+    }
+
+    /* clear received status */
+    writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );
+
+    /* Write Scout adress in RX Register Pipe 0 */
+    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, collectorAdress);
+
+    /* switch back to RX mode */
+    writeRegister(RF_REGISTER_CONFIG, 15);
+}
+
+
+void CollectorRF::flushRXTX() {
+
+    /* flush TX and RX */
+    uint8_t payload[1] = {RF_COMMAND_FLUSH_RX};
+    sendCommandWithPayload(payload, 1);
+    payload[0] = RF_COMMAND_FLUSH_TX;
+    sendCommandWithPayload(payload, 1);
 
 }
 

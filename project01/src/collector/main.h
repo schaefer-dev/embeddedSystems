@@ -22,6 +22,7 @@ void generateBrightnessLevels();
 void setTimer(int);
 void driveToSerialInput();
 void homing();
+void checkForNewRFMessage();
 
 
 #endif //EMBEDDEDSYSTEMS18_MAIN_H

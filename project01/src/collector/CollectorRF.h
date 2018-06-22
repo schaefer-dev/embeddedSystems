@@ -47,6 +47,10 @@ public:
 
     static void readAdressRegister(uint8_t reg, int* outputArray);
 
+    static void processReceivedMessage();
+
+    static void flushRXTX();
+
     static int refereeAdress[5];
     static int scoutAdress[5];
     static int collectorAdress[5];

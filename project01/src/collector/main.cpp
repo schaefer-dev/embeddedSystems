@@ -20,6 +20,7 @@ Zumo32U4ProximitySensors *proximitySensors;
 
 boolean terminate = false;
 int home[2] = {-30, 10};      // home
+int statusRF = 0;
 
 void setup() {
     proximitySensors = new Zumo32U4ProximitySensors();
@@ -29,6 +30,8 @@ void setup() {
     /* initialization of Data structures */
     collectorState = new CollectorState();
     coordinateQueue = new CoordinateQueue();
+    statusRF = 0;
+
     coordinateQueue->append(home[0], home[1]);
 
     // initialize differential updateRoboterPositionAndAngles
@@ -66,7 +69,12 @@ void setup() {
 }
 
 void loop() {
-    homing();
+    //homing();
+
+
+    checkForNewRFMessage();
+
+
     /*
     delay(150);
 
@@ -81,6 +89,15 @@ void loop() {
 /* ------------------------------------------------------------*/
 /* ----------------- HELPER FUNCTIONS -------------------------*/
 /* ------------------------------------------------------------*/
+
+void checkForNewRFMessage(){
+    statusRF = CollectorRF::queryRFModule();
+    char messageReceived = statusRF & (1 << 6);
+
+    if (messageReceived){
+        CollectorRF::processReceivedMessage();
+    }
+}
 
 void homing() {
     int currentPosition[2];
