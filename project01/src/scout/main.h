@@ -17,7 +17,7 @@
 
 int main();
 bool driveToDestination();
-void readNewDestinations();
+bool readNewDestinations(int[]);
 void performRotation(int degrees);
 void debug_printPhotosensorReadings();
 void performStraightDrive(int cmLength);

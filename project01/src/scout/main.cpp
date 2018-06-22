@@ -96,7 +96,10 @@ void checkForNewRFMessage(){
 }
 
 void driveToSerialInput() {
-    readNewDestinations();
+    int destination[2];
+    readNewDestinations(destination);
+    coordinateQueue->append(destination[0], destination[1]);
+
     if (driveToDestination()) {
         performRotation(360);
     }
@@ -260,7 +263,7 @@ bool driveToDestination() {
  * Reads a new destination from the serial stream and adds it to the queue.
  * New destination must be given as to integers separated by some non-numeric character
  */
-void readNewDestinations() {
+bool readNewDestinations(int dest[]) {
     // read new destination entry
 /* IMPORTANT:
  * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
@@ -270,13 +273,13 @@ void readNewDestinations() {
     bool newCoordinates = ScoutSerial::readCoordinates(coordinates);
 
     if (!newCoordinates) {
-        return;
+        return false;
     }
 
-    int xDestination = coordinates[0];
-    int yDestination = coordinates[1];
+    dest[0] = coordinates[0];
+    dest[1] = coordinates[1];
 
-    coordinateQueue->append(xDestination, yDestination);
+    return true;
 }
 
 /**
