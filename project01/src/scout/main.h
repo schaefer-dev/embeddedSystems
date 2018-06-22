@@ -13,6 +13,8 @@
 /* debug define to enable serial output/inputs to save program memory */
 #define DEBUG
 
+#define ARENA_SIZE_X 140
+
 #define ROBOT_SCOUT
 
 int main();
@@ -25,6 +27,9 @@ void driveToSerialInput();
 void photophobicScout();
 void checkForNewRFMessage();
 void debug_sendPingToCollector();
+void homing();
+
+void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 
 #endif //EMBEDDEDSYSTEMS18_SCOUT_MAIN_H
 

@@ -17,6 +17,7 @@ CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 bool spiEnabled = true;
 int statusRF = 0;
+int home[2] = {50, 50};      // home
 
 int main() {
     /* initialization of Data structures */
@@ -68,21 +69,50 @@ int main() {
 
     while (1) {
 
+        homing();
+
+        checkForNewRFMessage();
+
         /* photophobic mode
         debug_printPhotosensorReadings();
         photophobicScout();
         delay(100);
         */
 
-        if (spiEnabled) {
-
-            checkForNewRFMessage();
-
-            delay(1000);
-        }
     }
 
 }
+
+void homing() {
+
+    //int currentPosition[2];
+
+    // read current destination from serial
+    //if (readNewDestinations(currentPosition)) {
+    // reset diff drive and append home to queue
+    //collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
+    //coordinateQueue->append(home[0], home[1]);
+    //}
+
+    driveToDestination();
+    delay(50);
+    scoutState->updateRoboterPositionAndAngles();
+}
+
+void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
+    float currentAngle = (float)angle / 10000.0f;
+    currentAngle += 0.5f * M_PI;
+    int currentX = ARENA_SIZE_X - x / 10.0f;
+    int currentY = y / 10.0f;
+
+    scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
+
+
+    if (coordinateQueue->isEmpty()){
+        coordinateQueue->append(home[0], home[1]);
+    }
+};
+
 
 void checkForNewRFMessage(){
     statusRF = ScoutRF::queryRFModule();
