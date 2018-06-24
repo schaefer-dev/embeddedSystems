@@ -8,6 +8,7 @@
 #include <OrangutanTime.h>
 #include "avr/io.h"
 #include "main.h"
+#include "ScoutMonitor.h"
 
 
 int ScoutRF::refereeAdress[5];
@@ -169,6 +170,9 @@ void ScoutRF::processReceivedMessage() {
     switch(payloadArray[0]){
         case 0x50: {
             /* PING case -> simply respond with PONG which contains nonce+1 */
+#ifdef SCOUT_MONITOR
+            ScoutMonitor::logPingScout();
+#endif
             uint16_t incNonce = 0;
             incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
             payloadArray[0] = 0x51;
@@ -256,6 +260,13 @@ void ScoutRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payloadA
             break;
         }
     }
+
+#ifdef SCOUT_MONITOR
+    if (payloadArray[0] == 0x51) {
+        /* the message was the pong response, log it */
+        ScoutMonitor::logPongScout();
+    }
+#endif
 
     /* clear received status */
     writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );
