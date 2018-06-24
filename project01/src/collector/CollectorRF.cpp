@@ -6,6 +6,7 @@
 #include "CollectorSPI.h"
 #include <Arduino.h>
 #include "main.h"
+#include "CollectorMonitor.h"
 
 
 int CollectorRF::refereeAdress[5];
@@ -160,6 +161,9 @@ void CollectorRF::processReceivedMessage() {
     switch(payloadArray[0]){
         case 0x50: {
                 /* PING case -> simply respond with PONG which contains nonce+1 */
+#ifdef COLLECTOR_MONITOR
+                CollectorMonitor::logPingCollector();
+#endif
                 uint16_t incNonce = 0;
                 incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
                 payloadArray[0] = 0x51;
@@ -239,6 +243,13 @@ void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payl
             break;
         }
     }
+
+#ifdef COLLECTOR_MONITOR
+    if (payloadArray[0] == 0x51) {
+        /* the message was the pong response, log it */
+        CollectorMonitor::logPongCollector();
+    }
+#endif
 
     /* clear received status */
     writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );

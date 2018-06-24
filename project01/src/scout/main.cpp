@@ -43,15 +43,21 @@ int main() {
     /* SETUP */
 #ifdef SCOUT_MONITOR
     ScoutMonitor::verifyState();
+    /* TEST LOGGING SERIES */
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPongScout();
     ScoutMonitor::logPingScout();
+    ScoutMonitor::verifyState();        // should be all fine until here
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();       // should give bad trace alarm
     ScoutMonitor::logSendHarvest();     // should give good trace alarm
     ScoutMonitor::emptyBuffer();
-    //delay(600);
-    //ScoutMonitor::verifyState();
+    delay(600);                         // will cause buffer trace to become bad
+    ScoutMonitor::verifyState();
 #endif
 
     scoutState->lastDiffDriveCall = millis();

@@ -11,9 +11,9 @@ bool CollectorMonitor::atHarvest = false;
 bool CollectorMonitor::checkProximity = false;
 unsigned long CollectorMonitor::lastBufferEmpty = 0;
 
-const char messageBadCheckProximity[] = "Bad trace. Did not check proximity while not harvesting.";
-const char messageBadPing[] = "Bad trace. Ignored 3 consecutive PING messages.";
-const char messageBadEmptyBuffer[] = "Bad trace. Did not empty buffer for more than 500ms.";
+const char messageBadCheckProximity[] = "Bad. Did not check proximity while not harvesting.";
+const char messageBadPing[] = "Bad. Ignored 3 PING messages.";
+const char messageBadEmptyBuffer[] = "Bad. Did not empty buffer.";
 
 void CollectorMonitor::logAtHarvest(bool state) {
     atHarvest = state;
@@ -65,19 +65,19 @@ void CollectorMonitor::verifyState() {
     if (collectorCheckProximityState == 1)
         Serial1.println(messageBadCheckProximity);
     else
-        Serial1.println("Prelim good trace. Always checked proximity when not harvesting.");
+        Serial1.println("Prelim good. Always checked proximity when not harvesting.");
 
     if (collectorReactToPingState == 4)
         Serial1.println(messageBadPing);
     else
-        Serial1.println("Prelim good trace. Never Ignored 3 consecutive PING messages.");
+        Serial1.println("Prelim good. Never Ignored 3 consecutive PING messages.");
 
     unsigned long now = millis();
     if (now - lastBufferEmpty > 500 || collectorEmptyBufferState == 1) {
         collectorEmptyBufferState = 1;
         Serial1.println(messageBadEmptyBuffer);
     } else {
-        Serial1.println("Prelim good trace. Buffer always emptied.");
+        Serial1.println("Prelim good. Buffer always emptied.");
     }
 }
 

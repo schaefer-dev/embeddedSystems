@@ -10,14 +10,14 @@ char ScoutMonitor::scoutReactToPingState;
 char ScoutMonitor::scoutEmptyBufferState;
 unsigned long ScoutMonitor::lastBufferEmpty;
 
-char messageGoodSendHarvest[] = "Good trace. Sent at least one harvesting position.\n";
-char messageBadPing[] = "Bad trace. Ignored 3 consecutive PING messages.\n";
-char messageBadEmptyBuffer[] = "Bad trace. Did not empty buffer for more than 500ms.\n";
+char messageGoodSendHarvest[] = "Good. Harvesting position sent.\n";
+char messageBadPing[] = "Bad. Ignored 3 PINGs.\n";
+char messageBadEmptyBuffer[] = "Bad. Buffer not emptied.\n";
 
 void ScoutMonitor::logSendHarvest() {
     if (scoutHarvestingState < 1) {
         scoutHarvestingState = 1;
-        ScoutSerial::serialWrite(messageGoodSendHarvest, 51);
+        ScoutSerial::serialWrite(messageGoodSendHarvest, 32);
     }
 }
 
@@ -25,7 +25,7 @@ void ScoutMonitor::logPingScout() {
     if (scoutReactToPingState < 4) {
         scoutReactToPingState++;
         if (scoutReactToPingState == 4) {
-            ScoutSerial::serialWrite(messageBadPing, 48);
+            ScoutSerial::serialWrite(messageBadPing, 22);
         }
     }
 }
@@ -40,28 +40,28 @@ void ScoutMonitor::emptyBuffer() {
     unsigned long now = millis();
     if (now - lastBufferEmpty > 500) {
         scoutEmptyBufferState = 1;
-        ScoutSerial::serialWrite(messageBadEmptyBuffer, 53);
+        ScoutSerial::serialWrite(messageBadEmptyBuffer, 25);
     }
     lastBufferEmpty = now;
 }
 
 void ScoutMonitor::verifyState() {
     if (scoutReactToPingState == 4)
-        ScoutSerial::serialWrite(messageBadPing, 48);
+        ScoutSerial::serialWrite(messageBadPing, 22);
     else
-        ScoutSerial::serialWrite("Prelim good trace. Never Ignored 3 consecutive PING messages.\n", 62);
+        ScoutSerial::serialWrite("Prelim good. Pings not ignored.\n", 32);
 
     if (scoutHarvestingState == 1)
-        ScoutSerial::serialWrite(messageGoodSendHarvest, 51);
+        ScoutSerial::serialWrite(messageGoodSendHarvest, 32);
     else
-        ScoutSerial::serialWrite("Prelim bad trace. No harvesting position sent yet.\n", 51);
+        ScoutSerial::serialWrite("Prelim bad. No harvesting position sent yet.\n", 45);
 
     unsigned long now = millis();
     if (now - lastBufferEmpty > 500 || scoutEmptyBufferState == 1) {
         scoutEmptyBufferState = 1;
-        ScoutSerial::serialWrite(messageBadEmptyBuffer, 53);
+        ScoutSerial::serialWrite(messageBadEmptyBuffer, 22);
     } else {
-        ScoutSerial::serialWrite("Prelim good trace. Buffer always emptied.\n", 42);
+        ScoutSerial::serialWrite("Prelim good. Buffer emptied.\n", 29);
     }
 }
 

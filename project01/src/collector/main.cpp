@@ -47,10 +47,11 @@ void setup() {
 
 #ifdef COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
+    /* TEST LOGGING SERIES */
     CollectorMonitor::logPingCollector();
     CollectorMonitor::logPingCollector();
     CollectorMonitor::logPingCollector();
-    CollectorMonitor::logPingCollector();   // should give bad trace alarm.
+    CollectorMonitor::logPingCollector();       // should give bad trace alarm.
     CollectorMonitor::logPongCollector();
     CollectorMonitor::logPingCollector();
 
@@ -58,8 +59,10 @@ void setup() {
     CollectorMonitor::logAtHarvest(false);
     CollectorMonitor::logCheckProximity(false); // should give bad trace alarm.
     CollectorMonitor::logAtHarvest(false);
-    //delay(600);
-    //CollectorMonitor::verifyState();
+    CollectorMonitor::emptyBuffer();
+    delay(600);
+    CollectorMonitor::emptyBuffer();            // will come too late, bad trace
+    CollectorMonitor::verifyState();
 #endif
 
     CollectorSPI::SPIMasterInit();
