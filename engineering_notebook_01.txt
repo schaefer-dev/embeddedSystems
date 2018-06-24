@@ -502,3 +502,38 @@ No success in intergrating our implementation.
       timer1 is prescaled for SPI and triggers interrupt currently on compare with constant and clears after interrupt. This might change in the future
 	
 	
+-------------------------- Engineering Notebook 05 --------------------------
+---------------------------- Week 15.06 - 25.06 -----------------------------
+-----------------------------------------------------------------------------
+--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
+-----------------------------------------------------------------------------
+	
+
+# Sat 16.06
+
+# Sun 17.06
+
+# Mon 18.06
+- Kevin: 
+	Study RF Module documentation. Use existing SPI communication to talk to the RF.
+	Reviewed lecture on LTL and translated specifications into LTL formulas.
+	Drew monitoring automata in drawio and did first rough monitor implementation.
+	
+# Wed 20.06
+- Kevin:
+	Written down milestone solution in latex.
+	
+# Thu 21.06
+- Kevin:
+	Finished monitor implementation with the given set of specs.
+	Tested monitor using sequence of fake logging calls that result in (prelim) good and bad traces.
+	Implemented homing functionality (over serial input).
+	
+# Fri 22.06
+- Kevin:
+	Fixed bug in differential drive reset for homing use case.
+	Optimized monitor for better performance.
+	
+# Sun 24.06
+- Kevin:
+	Actual monitor log calls for ping pong messages inserted into RF.
