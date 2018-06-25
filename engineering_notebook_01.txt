@@ -500,5 +500,89 @@ No success in intergrating our implementation.
       Timer0, Timer2 used for motors
       Current state of SPI/Timers:
       timer1 is prescaled for SPI and triggers interrupt currently on compare with constant and clears after interrupt. This might change in the future
+	  
+# Thu 14.06
+- Daniel:
+      Timer0, Timer2 used for motors
+      Current state of SPI/Timers:
+      timer1 is prescaled for SPI and triggers interrupt currently on compare with constant and clears after interrupt. This might change in the future
+	  Implementation approached changed to use busywait funcitons on rising/falling edge conditions
+	  
+	 
+	
+
 	
 	
+-------------------------- Engineering Notebook 05 --------------------------
+---------------------------- Week 15.06 - 25.06 -----------------------------
+-----------------------------------------------------------------------------
+--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
+-----------------------------------------------------------------------------
+	
+		  
+	  
+# Fri. 15.06
+- Daniel:
+	Rewriting of existing class structure, to be mainly static and additional defines to reduce risk of assinging pins values to the wrong port
+	Debugging Code for ADC communication (not working yet)
+
+# Sat 16.06
+
+# Sun 17.06
+- Daniel:
+	Changes in ADC reading and writing by specifically setting Clock of ADC in interrupt and waiting on rising and falling conditions of that clock entirely seperated to the SPI clock
+	Implemented: Brute Forcing Delays of ADC after slave select
+	Implemented: Alternative Communication with ADC by keeping slave select active and idling spi clock
+	Fixed: Pin reading now uses PINX instead of PORTX, which was the only issue all along
+
+# Mon 18.06
+- Kevin: 
+	Study RF Module documentation. Use existing SPI communication to talk to the RF.
+	Reviewed lecture on LTL and translated specifications into LTL formulas.
+	Drew monitoring automata in drawio and did first rough monitor implementation.
+- Daniel:
+	Debugging of ADC output, as there still seem to be some timing issues, which causes our adress to not be read correctly by ADC
+	FIX: ADC communication working now
+	SPI communication now no longer specific to ADC, instead functions in place which can fullfill all criteria of SPI communication in BOTH directions (readWriteSPI)
+	FIX: Issue with power function detected when working with int, as double was expected and floating point imprecision messes our values up
+	
+	
+# Wed 20.06
+- Kevin:
+	Written down milestone solution in latex.
+- Daniel:
+	Optimization allows removal of some volatile values which had to be tracked previously.
+	FIX: Race condition of reading status register of RF Module removed
+	Implemented: Query function which will receive the status register of the RF module
+	Implemented: SPI functionality ported to collector, but issues caused by uneven interrupts being triggered
+	
+	
+# Thu 21.06
+- Kevin:
+	Finished monitor implementation with the given set of specs.
+	Tested monitor using sequence of fake logging calls that result in (prelim) good and bad traces.
+	Implemented homing functionality (over serial input).
+- Daniel:
+	Photophobic scout scenario implemented (not tested yet)
+	FIX: Collector Timing interrupts fixed, Rafael found double triggers - fixed by interrupting at value 120 instead of <10
+	FIX: Communication and initialization of RF module fixed, scout can now receive messages at PIPE 0
+	Implemented: Collector can now also receive messages at pipe 0
+	FIX: Photophobic sensor state debugged and fixed error with condition and initialization
+	Implemented: SPI updates receive pings and send respective pongs now automatically
+	
+	
+# Fri 22.06
+- Kevin:
+	Fixed bug in differential drive reset for homing use case.
+	Optimized monitor for better performance.
+- Daniel:
+	Refactoring of RF and SPI implementation to reduce code space
+	FIX: Ping Pong Scout and Collector fixed
+	Implemented: Homing with position update verified to be working perfectly
+	Refactor: Changing of how messages with variable payload are handled, now lo longer require a seperate function/handling -> reducing code space
+	Implemented: Collector and Scout relay working perfectly
+	Implemented: Easy switching of seperate scenarios to be shown on monday
+	
+# Sun 24.06
+- Kevin:
+	Actual monitor log calls for ping pong messages inserted into RF.

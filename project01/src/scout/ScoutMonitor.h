@@ -6,7 +6,7 @@
 #define EMBEDDEDSYSTEMS18_MONITOR_H
 
 //TODO: for debugging reasons currently disabled
-//#define SCOUT_MONITOR
+// #define SCOUT_MONITOR
 
 #ifdef SCOUT_MONITOR
 

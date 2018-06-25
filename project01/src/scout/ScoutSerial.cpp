@@ -96,6 +96,29 @@ void ScoutSerial::serialWrite8BitBinary(int input) {
     serialWrite(toBePrinted, 8);
 }
 
+/* returns number of bytes read and fills into returnArray, writes at most 31 bytes */
+unsigned int ScoutSerial::readMessageFromSerial(char *returnArray){
+    delay(5);
+    int newReceiveIndex = OrangutanSerial::getReceivedBytes();
+    if (receiveIndex == newReceiveIndex)
+        return 0;
+
+    int iterator = receiveIndex;
+    int byteCount = 0;
+
+    while(true){
+        returnArray[byteCount] = (char)receiveBuffer[iterator];
+        if (iterator == newReceiveIndex | byteCount == 30)
+            break;
+        iterator += 1;
+        byteCount += 1;
+    }
+
+    receiveIndex = newReceiveIndex;
+
+    return (byteCount);
+}
+
 bool ScoutSerial::readCoordinates(int *returnArray){
 
     delay(50);

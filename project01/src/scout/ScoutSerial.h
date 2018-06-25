@@ -23,6 +23,9 @@ public:
     static void serialWrite8BitBinary(int input);
     static void serialWrite8BitHex(int input);
 
+
+    static unsigned int readMessageFromSerial(char *returnArray);
+
     static char receiveBuffer[100];
     static unsigned char receiveIndex;
 };

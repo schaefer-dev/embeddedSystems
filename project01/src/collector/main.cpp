@@ -14,6 +14,10 @@
 #define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
 #define DEBUG
 
+#define SCENARIO_RELAY
+#define SCENARIO_HOMING
+//#define SCENARIO_DEBUG_RF_REGISTER_CHECK
+
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
@@ -43,10 +47,11 @@ void setup() {
 
 #ifdef COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
+    /* TEST LOGGING SERIES */
     CollectorMonitor::logPingCollector();
     CollectorMonitor::logPingCollector();
     CollectorMonitor::logPingCollector();
-    CollectorMonitor::logPingCollector();   // should give bad trace alarm.
+    CollectorMonitor::logPingCollector();       // should give bad trace alarm.
     CollectorMonitor::logPongCollector();
     CollectorMonitor::logPingCollector();
 
@@ -54,8 +59,10 @@ void setup() {
     CollectorMonitor::logAtHarvest(false);
     CollectorMonitor::logCheckProximity(false); // should give bad trace alarm.
     CollectorMonitor::logAtHarvest(false);
-    //delay(600);
-    //CollectorMonitor::verifyState();
+    CollectorMonitor::emptyBuffer();
+    delay(600);
+    CollectorMonitor::emptyBuffer();            // will come too late, bad trace
+    CollectorMonitor::verifyState();
 #endif
 
     CollectorSPI::SPIMasterInit();
@@ -70,18 +77,21 @@ void setup() {
 
 void loop() {
 
-    homing();
+#ifdef SCENARIO_HOMING
+        homing();
+#endif
 
     checkForNewRFMessage();
 
-    /*
+
+#ifdef SCENARIO_DEBUG_RF_REGISTER_CHECK
     delay(150);
 
     Serial1.println("REGISTER CHECk START:");
     CollectorSPI::debug_RFModule();
     Serial1.println("REGISTER CHECk END:");
     delay(1000);
-     */
+#endif
 }
 
 

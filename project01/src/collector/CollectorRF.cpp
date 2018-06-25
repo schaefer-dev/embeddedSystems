@@ -6,6 +6,7 @@
 #include "CollectorSPI.h"
 #include <Arduino.h>
 #include "main.h"
+#include "CollectorMonitor.h"
 
 
 int CollectorRF::refereeAdress[5];
@@ -158,9 +159,18 @@ void CollectorRF::processReceivedMessage() {
     writeRegister(RF_REGISTER_STATUS, 64);
 
     switch(payloadArray[0]){
-        case 0x50:
-            /* PING case */
-            sendPongToReferee(payloadArray[1] * 256 + payloadArray[2]);
+        case 0x50: {
+                /* PING case -> simply respond with PONG which contains nonce+1 */
+#ifdef COLLECTOR_MONITOR
+                CollectorMonitor::logPingCollector();
+#endif
+                uint16_t incNonce = 0;
+                incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
+                payloadArray[0] = 0x51;
+                payloadArray[1] = (uint8_t) (incNonce / 256);
+                payloadArray[2] = (uint8_t) (incNonce % 256);
+                sendMessageTo(refereeAdress, payloadArray, 3);
+            }
             break;
         case 0x60:
             /* POS update case */
@@ -171,36 +181,34 @@ void CollectorRF::processReceivedMessage() {
         case 0x70:
             /* MESSAGE case */
             break;
+        case 0x80:
+            Serial1.println("Message from scout arrived, echo performing ...");
+            /* case for RELAY, scount sends and collector echos sends message back to scout */
+            payloadArray[0] = 0x81;
+            sendMessageTo(scoutAdress, payloadArray, answerArray[0]);
+            break;
+
         default:
             Serial1.println("Illegal Message Identifer");
     }
 }
 
-
-
-void CollectorRF::sendPongToReferee(uint16_t nonce){
-
+void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength){
     /* Write Referee adress to TX Register */
-    write5ByteAdress(RF_REGISTER_TX_REG, refereeAdress);
+    write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
-    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, refereeAdress);
+    write5ByteAdress(RF_REGISTER_RX_ADDR_P0, receiverAdress);
 
     /* switch to TX mode */
     writeRegister(RF_REGISTER_CONFIG, 14);
 
-    uint16_t incNonce = nonce + 1;
+    uint8_t commandArray[payloadArrayLength + 1];
+    commandArray[0] = RF_COMMAND_W_TX_PAYLOAD;
+    for (int i = 1; i < payloadArrayLength + 1; i++){
+        commandArray[i] = payloadArray[i-1];
+    }
 
-    uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD, 0x51, (uint8_t)(incNonce/256), (uint8_t)(incNonce % 256)};
-    //uint8_t commandArray[4] = {RF_COMMAND_W_TX_PAYLOAD,  0x51, 0xab, 0x12};
-    sendCommandWithPayload(commandArray, 4);
-
-#ifdef DEBUG
-    Serial1.print("PONG with nonce (");
-    Serial1.print(incNonce / 256);
-    Serial1.print(incNonce % 256);
-
-    Serial1.println(") should send now");
-#endif
+    sendCommandWithPayload(commandArray, payloadArrayLength + 1);
 
     int status = 0;
     long timeout = millis();
@@ -235,6 +243,13 @@ void CollectorRF::sendPongToReferee(uint16_t nonce){
             break;
         }
     }
+
+#ifdef COLLECTOR_MONITOR
+    if (payloadArray[0] == 0x51) {
+        /* the message was the pong response, log it */
+        CollectorMonitor::logPongCollector();
+    }
+#endif
 
     /* clear received status */
     writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );

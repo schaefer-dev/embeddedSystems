@@ -12,6 +12,11 @@
 #define photophobicDanceThreshold 100
 #define PHOTOPHOBIC_ROTATION 60
 
+#define SCENARIO_RELAY
+#define SCENARIO_HOMING
+#define SCENARIO_PHOTOPHOBIC
+//define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
@@ -38,15 +43,21 @@ int main() {
     /* SETUP */
 #ifdef SCOUT_MONITOR
     ScoutMonitor::verifyState();
+    /* TEST LOGGING SERIES */
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPingScout();
     ScoutMonitor::logPongScout();
     ScoutMonitor::logPingScout();
+    ScoutMonitor::verifyState();        // should be all fine until here
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();
+    ScoutMonitor::logPingScout();       // should give bad trace alarm
     ScoutMonitor::logSendHarvest();     // should give good trace alarm
     ScoutMonitor::emptyBuffer();
-    //delay(600);
-    //ScoutMonitor::verifyState();
+    delay(600);                         // will cause buffer trace to become bad
+    ScoutMonitor::verifyState();
 #endif
 
     scoutState->lastDiffDriveCall = millis();
@@ -66,18 +77,64 @@ int main() {
         */
     }
 
+    char serialMessage[31];
+    for (int i = 0; i < 31; i++){
+        serialMessage[i] = 32;
+    }
+    int serialMessageLength = 0;
+
 
     while (1) {
+#ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+        int payload[10];
+        payload[0] = 0x80;
+        payload[1] = (int) 'T';
+        payload[2] = (int) 'E';
+        payload[3] = (int) 'S';
+        payload[4] = (int) 'T';
+        serialMessageLength = 5;
+        ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength);
+        ScoutSerial::serialWrite("sent\n", 5);
+        delay(2000);
+#endif
 
+#ifdef SCENARIO_HOMING
         homing();
+#endif
+
+#ifdef SCENARIO_RELAY
+        delay(100);
+        serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
+        if (serialMessageLength != 0) {
+            /* Message over serial was read */
+            ScoutSerial::serialWrite("sending Message with Content: '", 31);
+            ScoutSerial::serialWrite(serialMessage, serialMessageLength);
+            ScoutSerial::serialWrite("' to collector\n", 15);
+
+            int payload[serialMessageLength + 1];
+            payload[0] = 0x80;
+            for (int i = 0; i < serialMessageLength; i++) {
+                payload[i + 1] = (int) serialMessage[i];
+            }
+
+            ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength + 1);
+
+            /* clear message again */
+            for (int i = 0; i < 31; i++) {
+                serialMessage[i] = 32;
+            }
+        }
+#endif
 
         checkForNewRFMessage();
 
-        /* photophobic mode
+
+#ifdef SCENARIO_PHOTOPHOBIC
+        /* photophobic mode */
         debug_printPhotosensorReadings();
         photophobicScout();
         delay(100);
-        */
+#endif
 
     }
 
