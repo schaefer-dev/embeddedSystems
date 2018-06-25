@@ -493,15 +493,16 @@ No success in intergrating our implementation.
 	Fixed Collector timer
 	Fixed Serial input problem
 	
-	
-
-# Thu 14.06
+# Wed 13.06
+- Rafael:
+	Implemented first version of ADC for Scout 
+	with new approach; (no spi module)
 - Daniel:
       Timer0, Timer2 used for motors
       Current state of SPI/Timers:
       timer1 is prescaled for SPI and triggers interrupt currently on compare with constant and clears after interrupt. This might change in the future
 	  
-# Thu 14.06
+# Fri 15.06
 - Daniel:
       Timer0, Timer2 used for motors
       Current state of SPI/Timers:
@@ -534,6 +535,8 @@ No success in intergrating our implementation.
 	Implemented: Brute Forcing Delays of ADC after slave select
 	Implemented: Alternative Communication with ADC by keeping slave select active and idling spi clock
 	Fixed: Pin reading now uses PINX instead of PORTX, which was the only issue all along
+- Rafael:
+	Rereading adc specification. Fixing SPI on Scout with PINB for reading MISO pin.
 
 # Mon 18.06
 - Kevin: 
@@ -545,6 +548,8 @@ No success in intergrating our implementation.
 	FIX: ADC communication working now
 	SPI communication now no longer specific to ADC, instead functions in place which can fullfill all criteria of SPI communication in BOTH directions (readWriteSPI)
 	FIX: Issue with power function detected when working with int, as double was expected and floating point imprecision messes our values up
+- Rafael:
+	Read nRF240L specification, should work analogous to ADC communication
 	
 	
 # Wed 20.06
@@ -555,6 +560,11 @@ No success in intergrating our implementation.
 	FIX: Race condition of reading status register of RF Module removed
 	Implemented: Query function which will receive the status register of the RF module
 	Implemented: SPI functionality ported to collector, but issues caused by uneven interrupts being triggered
+- Rafael:
+	Implemented general SPI functionality for RF module, 
+	including initialisation according to milestone description
+	defined register names for better readability
+	Implemented functions to write and read registers of SPI
 	
 	
 # Thu 21.06
@@ -569,6 +579,10 @@ No success in intergrating our implementation.
 	Implemented: Collector can now also receive messages at pipe 0
 	FIX: Photophobic sensor state debugged and fixed error with condition and initialization
 	Implemented: SPI updates receive pings and send respective pongs now automatically
+- Rafael:
+	Testing RX mode of Scout RF module with Referee Ping messages
+	Debug Collector Timer 
+	Proof read LTL formulas and reasoning for monitor submission
 	
 	
 # Fri 22.06
@@ -586,3 +600,9 @@ No success in intergrating our implementation.
 # Sun 24.06
 - Kevin:
 	Actual monitor log calls for ping pong messages inserted into RF.
+- Rafael:
+	Extended spi state machine from last milestone to include RF module.
+	proofreading of milestone submission
+	
+
+
