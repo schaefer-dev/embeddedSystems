@@ -10,7 +10,7 @@
 
 
 unsigned char ScoutSerial::receiveIndex = 0;
-char ScoutSerial::receiveBuffer[100];
+char ScoutSerial::receiveBuffer[200];
 
 // not used because static
 ScoutSerial::ScoutSerial() {
@@ -18,10 +18,10 @@ ScoutSerial::ScoutSerial() {
 
 
 void ScoutSerial::initScoutSerial() {
-    for (int i = 0; i < 99; i++){
+    for (int i = 0; i < 199; i++){
         receiveBuffer[i] = 0;
     }
-    OrangutanSerial::receive(receiveBuffer, 100);
+    OrangutanSerial::receive(receiveBuffer, 200);
     ScoutSerial::receiveIndex = 0;
 }
 

@@ -185,6 +185,8 @@ void CollectorRF::processReceivedMessage() {
             Serial1.println("Message from scout arrived, echo performing ...");
             /* case for RELAY, scount sends and collector echos sends message back to scout */
             payloadArray[0] = 0x81;
+            // Give scout time to switch back into Listening Mode
+            delay(100);
             sendMessageTo(scoutAdress, payloadArray, answerArray[0]);
             break;
 
