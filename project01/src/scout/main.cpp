@@ -13,8 +13,8 @@
 #define PHOTOPHOBIC_ROTATION 60
 
 #define SCENARIO_RELAY
-//#define SCENARIO_HOMING
-//#define SCENARIO_PHOTOPHOBIC
+#define SCENARIO_HOMING
+// #define SCENARIO_PHOTOPHOBIC
 //#define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
 
 
@@ -124,10 +124,9 @@ int main() {
                 serialMessage[i] = 32;
             }
         }
-#endif
 
         checkForNewRFMessage();
-
+#endif
 
 #ifdef SCENARIO_PHOTOPHOBIC
         /* photophobic mode */
@@ -153,10 +152,11 @@ void homing() {
 
     if (!driveToDestination()){
         // already home -> dancing
-        /* TODO not tested */
+        /*
         performRotation(90);
         performRotation(-180);
         performRotation(90);
+         */
     }
     delay(1);
     scoutState->updateRoboterPositionAndAngles();

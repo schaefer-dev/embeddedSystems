@@ -15,7 +15,7 @@
 #define DEBUG
 
 #define SCENARIO_RELAY
-#define SCENARIO_HOMING
+// #define SCENARIO_HOMING
 //#define SCENARIO_DEBUG_RF_REGISTER_CHECK
 
 CoordinateQueue *coordinateQueue;
