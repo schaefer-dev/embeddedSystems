@@ -37,7 +37,7 @@
 
 % Fancy Header on every Page
 \pagestyle{fancy}
-\lhead{\textbf{Embedded Systems Milestone 1}}
+\lhead{\textbf{Embedded Systems Milestone 5}}
 \rhead{Daniel Schäfer (2549458)\\ Rafael Dewes (2548365)\\ Kevin M\"uller (2550062)}
 \renewcommand{\headrulewidth}{1.2pt}
 \setlength{\headheight}{110pt}
@@ -83,6 +83,7 @@ position to the Collector.
 \item When receiving a message, the robot copies the data over into a buffer. This buffer should be emptied at least every 500ms.
 	\begin{itemize}
 		\item \textbf{LTL:} This specification cannot be expressed in LTL but only in TLTL.
+		\item \textbf{TLTL:} $\mathbf{G}(\triangleright \textsubscript{ emptyBuffer} \in [0, 500])$. The time until emptyBuffer occurs lies within the interval [0, 500].
 		\item \textbf{Safety:} Every trace not in L has at least one prefix where the buffer is not emptied for more than 500ms, which is a bad prefix.
 		\item \textbf{Not Co-Safety:} $\{( \text{emptyBuffer}, t)\}^ {\omega}$ does not have a good prefix for all $t \in \mathbb{N}$ with $0 \leq t \leq 500$. We can extend every such good trace to a bad trace by appending $\{( \text{emptyBuffer}, t + 501)\}$.
 		\item \textbf{Monitorable:} Every finite trace be extended to a bad prefix, therefore we do not have an ugly prefix.
