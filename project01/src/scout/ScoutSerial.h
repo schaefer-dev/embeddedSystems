@@ -26,7 +26,7 @@ public:
 
     static unsigned int readMessageFromSerial(char *returnArray);
 
-    static char receiveBuffer[100];
+    static char receiveBuffer[200];
     static unsigned char receiveIndex;
 };
 

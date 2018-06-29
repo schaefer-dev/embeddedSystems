@@ -14,8 +14,8 @@
 
 #define SCENARIO_RELAY
 #define SCENARIO_HOMING
-#define SCENARIO_PHOTOPHOBIC
-//define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+// #define SCENARIO_PHOTOPHOBIC
+//#define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
 
 
 CoordinateQueue *coordinateQueue;
@@ -124,10 +124,9 @@ int main() {
                 serialMessage[i] = 32;
             }
         }
-#endif
 
         checkForNewRFMessage();
-
+#endif
 
 #ifdef SCENARIO_PHOTOPHOBIC
         /* photophobic mode */
@@ -151,8 +150,15 @@ void homing() {
     //coordinateQueue->append(home[0], home[1]);
     //}
 
-    driveToDestination();
-    delay(50);
+    if (!driveToDestination()){
+        // already home -> dancing
+        /*
+        performRotation(90);
+        performRotation(-180);
+        performRotation(90);
+         */
+    }
+    delay(1);
     scoutState->updateRoboterPositionAndAngles();
 }
 
