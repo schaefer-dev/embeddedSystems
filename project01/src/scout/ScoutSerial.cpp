@@ -100,7 +100,7 @@ void ScoutSerial::serialWrite8BitBinary(int input) {
 
 
 #ifdef ROBOT_SIMULATOR
-/* checks if the synchronizing prefix 0x01 has been send over serial, if yes return true */
+/* checks if the synchronizing prefix 0x7A (z) has been send over serial, if yes return true */
 bool ScoutSerial::simulatorMessageIncoming(){
     delay(5);
     int newReceiveIndex = OrangutanSerial::getReceivedBytes();
@@ -109,12 +109,12 @@ bool ScoutSerial::simulatorMessageIncoming(){
 
     int iterator = receiveIndex;
 
-    if(0x01 == (char)receiveBuffer[iterator]){
-        return true;;
+    if ('z' == (char)receiveBuffer[iterator]) {
+        initScoutSerial();
+        return true;
     }
 
     initScoutSerial();
-
     return false;
 }
 #endif

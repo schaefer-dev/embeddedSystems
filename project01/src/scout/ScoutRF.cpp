@@ -157,10 +157,12 @@ int ScoutRF::queryRFModule(){
 #endif
 
 #ifdef ROBOT_SIMULATOR
-    if (ScoutSerial::simulatorMessageIncoming())
+    if (ScoutSerial::simulatorMessageIncoming()) {
+        ScoutSerial::serialWrite("Message arrived\n", 16);
         return (1 << 6);
-    else
+    } else {
         return 0;
+    }
 #endif
 }
 
@@ -222,11 +224,17 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             break;
         case 0x60:
             /* POS update case */
+#ifdef ROBOT_SIMULATOR
+            ScoutSerial::serialWrite("Position update received!\n",26);
+#endif
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
         case 0x61:
+#ifdef ROBOT_SIMULATOR
+            ScoutSerial::serialWrite("OOB Message received!\n",22);
+#endif
             /* Out of Bounds Message */
             scoutState->outOfBoundsMessage();
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
