@@ -17,13 +17,16 @@
 // #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
 // #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
-
-#define LINE_SENSOR_READINGS
+// #define LINE_SENSOR_READINGS
+#define DEBUG_SERIAL_PORT
 
 
 bool spiEnabled = true;
 int statusRF = 0;
 int home[2] = {160, 50};      // home
+
+CoordinateQueue *coordinateQueue;
+ScoutState *scoutState;
 
 
 void initialize(){
@@ -94,16 +97,17 @@ void initialize(){
         */
     }
 
-    char serialMessage[31];
-    for (int i = 0; i < 31; i++){
-        serialMessage[i] = 32;
-    }
-    int serialMessageLength = 0;
 }
 
 int main() {
 
     initialize();
+
+    char serialMessage[50];
+    for (int i = 0; i < 50; i++){
+        serialMessage[i] = 32;
+    }
+    int serialMessageLength = 0;
 
     while (1) {
 
@@ -118,6 +122,21 @@ int main() {
         ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength);
         ScoutSerial::serialWrite("sent\n", 5);
         delay(2000);
+#endif
+
+#ifdef DEBUG_SERIAL_PORT
+
+        serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
+        if (serialMessageLength > 0) {
+            ScoutSerial::serialWrite(serialMessage, serialMessageLength);
+            ScoutSerial::serialWrite("\n", 1);
+        }
+
+        for (int i = 0; i < 50; i++){
+            serialMessage[i] = 32;
+        }
+        delay(100);
+
 #endif
 
 
@@ -225,7 +244,7 @@ void checkForNewRFMessage(){
     char messageReceived = statusRF & (1 << 6);
 
     if (messageReceived){
-        ScoutRF::processReceivedMessage();
+        ScoutRF::processReceivedMessage(scoutState);
 
 
     }
