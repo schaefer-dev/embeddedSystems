@@ -14,7 +14,7 @@
 #define DEBUG
 
 #define ARENA_SIZE_X 140
-#define ROBOT_SIMULATOR
+//#define ROBOT_SIMULATOR
 
 void initialize();
 int main();

@@ -41,22 +41,22 @@ public:
     static void writeRegister(uint8_t reg, uint8_t setting);
     static int readRegister(uint8_t reg);
 
-    static void getCommandAnswer(int *answerArray, int byteCount, int8_t command);
+    static void getCommandAnswer(char *answerArray, int byteCount, int8_t command);
     static void sendCommandWithPayload(uint8_t *commandArray, int byteCount);
 
-    static void write5ByteAdress(int reg, int* bytes);
+    static void write5ByteAdress(int reg, char* bytes);
 
-    static void readAdressRegister(uint8_t reg, int* outputArray);
+    static void readAdressRegister(uint8_t reg, char* outputArray);
 
     static void processReceivedMessage(ScoutState *scoutState);
 
     static void flushRXTX();
 
-    static void sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength);
+    static void sendMessageTo(char* receiverAdress, char* payloadArray, int payloadArrayLength);
 
-    static int refereeAdress[5];
-    static int scoutAdress[5];
-    static int collectorAdress[5];
+    static char refereeAdress[5];
+    static char scoutAdress[5];
+    static char collectorAdress[5];
 };
 
 

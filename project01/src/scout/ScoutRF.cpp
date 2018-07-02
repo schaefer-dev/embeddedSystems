@@ -19,9 +19,9 @@
  */
 
 
-int ScoutRF::refereeAdress[5];
-int ScoutRF::scoutAdress[5];
-int ScoutRF::collectorAdress[5];
+char ScoutRF::refereeAdress[5];
+char ScoutRF::scoutAdress[5];
+char ScoutRF::collectorAdress[5];
 
 void ScoutRF::initializeRFModule() {
 
@@ -36,21 +36,21 @@ void ScoutRF::initializeRFModule() {
 #ifndef ROBOT_SIMULATOR
     /* create arrays to store the adress values of referee,
      * collector and scout (already inverted) */
-    refereeAdress[4] = 0x00e1;
-    refereeAdress[3] = 0x00f0;
-    refereeAdress[2] = 0x00f0;
-    refereeAdress[1] = 0x00f0;
-    refereeAdress[0] = 0x00f0;
-    scoutAdress[4] = 0x00e2;
-    scoutAdress[3] = 0x0091;
-    scoutAdress[2] = 0x00a8;
-    scoutAdress[1] = 0x0027;
-    scoutAdress[0] = 0x0085;
-    collectorAdress[4] = 0x0098;
-    collectorAdress[3] = 0x0065;
-    collectorAdress[2] = 0x00fa;
-    collectorAdress[1] = 0x0029;
-    collectorAdress[0] = 0x00e6;
+    refereeAdress[4] = 0xe1;
+    refereeAdress[3] = 0xf0;
+    refereeAdress[2] = 0xf0;
+    refereeAdress[1] = 0xf0;
+    refereeAdress[0] = 0xf0;
+    scoutAdress[4] = 0xe2;
+    scoutAdress[3] = 0x91;
+    scoutAdress[2] = 0xa8;
+    scoutAdress[1] = 0x27;
+    scoutAdress[0] = 0x85;
+    collectorAdress[4] = 0x98;
+    collectorAdress[3] = 0x65;
+    collectorAdress[2] = 0xfa;
+    collectorAdress[1] = 0x29;
+    collectorAdress[0] = 0xe6;
 
 
     /* TODO: some of this is default set already, so can be optimized */
@@ -124,15 +124,15 @@ void ScoutRF::debug_RFModule(){
 
     }
 
-    int adressArray[5];
-    readAdressRegister(0x000A, adressArray);
+    char adressArray[5];
+    readAdressRegister(0x0A, adressArray);
     ScoutSerial::serialWrite("ADDR Register: 0A (", 19);
     for (int i=0; i < 5; i++) {
         ScoutSerial::serialWrite8BitHex(adressArray[i]);
     }
     ScoutSerial::serialWrite(")\n", 2);
 
-    readAdressRegister(0x000B, adressArray);
+    readAdressRegister(0x0B, adressArray);
     ScoutSerial::serialWrite("ADDR Register: 0B (", 19);
     for (int i=0; i < 5; i++) {
         ScoutSerial::serialWrite8BitHex(adressArray[i]);
@@ -169,7 +169,7 @@ int ScoutRF::queryRFModule(){
 void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 #ifndef ROBOT_SIMULATOR
     /* case for Message arrived */
-    int answerArray[1];
+    char answerArray[1];
     ScoutRF::getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
 
     /* if no next payload there */
@@ -178,7 +178,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     }
 
     /* read message from pipe */
-    int payloadArray[answerArray[0]];
+    char payloadArray[answerArray[0]];
     ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
     ScoutSerial::serialWrite("Message: ", 9);
@@ -262,7 +262,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
 
 
-void ScoutRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength){
+void ScoutRF::sendMessageTo(char* receiverAdress, char* payloadArray, int payloadArrayLength){
 #ifndef ROBOT_SIMULATOR
 
     /* Write Referee adress to TX Register */
@@ -376,7 +376,7 @@ void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
 
 
 #ifndef ROBOT_SIMULATOR
-void ScoutRF::getCommandAnswer(int *answerArray, int byteCount, int8_t command){
+void ScoutRF::getCommandAnswer(char *answerArray, int byteCount, int8_t command){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -409,7 +409,7 @@ void ScoutRF::writeRegister(uint8_t reg, uint8_t setting){
 
 #ifndef ROBOT_SIMULATOR
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
-void ScoutRF::write5ByteAdress(int reg, int* bytes){
+void ScoutRF::write5ByteAdress(int reg, char* bytes){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -444,7 +444,7 @@ int ScoutRF::readRegister(uint8_t reg){
 
 
 #ifndef ROBOT_SIMULATOR
-void ScoutRF::readAdressRegister(uint8_t reg, int* outputArray){
+void ScoutRF::readAdressRegister(uint8_t reg, char* outputArray){
     ScoutSPI::slaveSelect(SLAVE_RF);
 
     ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
