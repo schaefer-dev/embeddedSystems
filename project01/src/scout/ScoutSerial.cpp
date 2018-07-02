@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <OrangutanTime.h>
+#include "main.h"
 
 
 unsigned char ScoutSerial::receiveIndex = 0;
@@ -95,6 +96,41 @@ void ScoutSerial::serialWrite8BitBinary(int input) {
     }
     serialWrite(toBePrinted, 8);
 }
+
+
+
+#ifdef ROBOT_SIMULATOR
+/* checks if the synchronizing prefix 0x01 has been send over serial, if yes return true */
+bool ScoutSerial::simulatorMessageIncoming(){
+    delay(5);
+    int newReceiveIndex = OrangutanSerial::getReceivedBytes();
+    if (receiveIndex == newReceiveIndex)
+        return false;
+
+    int iterator = receiveIndex;
+
+    if(0x01 == (char)receiveBuffer[iterator]){
+        return true;;
+    }
+
+    initScoutSerial();
+
+    return false;
+}
+#endif
+
+
+
+#ifdef ROBOT_SIMULATOR
+/* reads exactly 32 bytes blocking into array */
+void ScoutSerial::receiveSerialBlocking(char *returnArray){
+    OrangutanSerial::receiveBlocking(returnArray, 32, TIMEOUT_BLOCKING_READING);
+    return;
+}
+#endif
+
+
+
 
 /* returns number of bytes read and fills into returnArray, writes at most 50 bytes */
 unsigned int ScoutSerial::readMessageFromSerial(char *returnArray){

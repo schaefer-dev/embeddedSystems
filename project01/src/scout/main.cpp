@@ -170,9 +170,8 @@ int main() {
                 serialMessage[i] = 32;
             }
         }
-
-        checkForNewRFMessage();
 #endif
+        checkForNewRFMessage();
 
 #ifdef SCENARIO_PHOTOPHOBIC
         /* photophobic mode */

@@ -9,6 +9,7 @@
 #include "../utils/Coordinates.h"
 
 #define SERIAL_BUFFER_SIZE 50
+#define TIMEOUT_BLOCKING_READING 10000
 
 class ScoutSerial{
 
@@ -27,6 +28,9 @@ public:
 
 
     static unsigned int readMessageFromSerial(char *returnArray);
+    static bool simulatorMessageIncoming();
+    static void receiveSerialBlocking(char *returnArray);
+
 
     static char receiveBuffer[SERIAL_BUFFER_SIZE];
     static unsigned char receiveIndex;
