@@ -12,9 +12,24 @@
 
 /* debug define to enable serial output/inputs to save program memory */
 #define DEBUG
-
 #define ARENA_SIZE_X 140
-//#define ROBOT_SIMULATOR
+
+#define photophobicWaitThreshold 50
+#define photophobicDanceThreshold 100
+#define PHOTOPHOBIC_ROTATION 60
+
+/* Scenarios enabling disabling */
+// #define SCENARIO_RELAY
+// #define SCENARIO_HOMING
+// #define SCENARIO_PHOTOPHOBIC
+// #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+// #define LINE_SENSOR_READINGS
+// #define DEBUG_SERIAL_PORT_ECHO
+
+#define SCOUT_MONITOR
+
+#define ROBOT_SIMULATOR
+
 
 void initialize();
 int main();

@@ -5,8 +5,7 @@
 #ifndef EMBEDDEDSYSTEMS18_MONITOR_H
 #define EMBEDDEDSYSTEMS18_MONITOR_H
 
-//TODO: for debugging reasons currently disabled
-#define SCOUT_MONITOR
+#include "main.h"
 
 #ifdef SCOUT_MONITOR
 

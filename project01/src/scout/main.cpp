@@ -9,18 +9,6 @@
 #include <Pololu3pi.h>
 
 
-#define photophobicWaitThreshold 50
-#define photophobicDanceThreshold 100
-#define PHOTOPHOBIC_ROTATION 60
-
-// #define SCENARIO_RELAY
-// #define SCENARIO_HOMING
-// #define SCENARIO_PHOTOPHOBIC
-// #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
-// #define LINE_SENSOR_READINGS
-// #define DEBUG_SERIAL_PORT_ECHO
-
-
 bool spiEnabled = true;
 int statusRF = 0;
 int home[2] = {160, 50};      // home

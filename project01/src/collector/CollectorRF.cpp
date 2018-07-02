@@ -28,21 +28,21 @@ void CollectorRF::initializeRFModule() {
 
     /* create arrays to store the adress values of referee,
      * collector and scout (already inverted) */
-    refereeAdress[4] = 0x00e1;
-    refereeAdress[3] = 0x00f0;
-    refereeAdress[2] = 0x00f0;
-    refereeAdress[1] = 0x00f0;
-    refereeAdress[0] = 0x00f0;
-    scoutAdress[4] = 0x00e2;
-    scoutAdress[3] = 0x0091;
-    scoutAdress[2] = 0x00a8;
-    scoutAdress[1] = 0x0027;
-    scoutAdress[0] = 0x0085;
-    collectorAdress[4] = 0x0098;
-    collectorAdress[3] = 0x0065;
-    collectorAdress[2] = 0x00fa;
-    collectorAdress[1] = 0x0029;
-    collectorAdress[0] = 0x00e6;
+    refereeAdress[4] = 0xe1;
+    refereeAdress[3] = 0xf0;
+    refereeAdress[2] = 0xf0;
+    refereeAdress[1] = 0xf0;
+    refereeAdress[0] = 0xf0;
+    scoutAdress[4] = 0xe2;
+    scoutAdress[3] = 0x91;
+    scoutAdress[2] = 0xa8;
+    scoutAdress[1] = 0x27;
+    scoutAdress[0] = 0x85;
+    collectorAdress[4] = 0x98;
+    collectorAdress[3] = 0x65;
+    collectorAdress[2] = 0xfa;
+    collectorAdress[1] = 0x29;
+    collectorAdress[0] = 0xe6;
 
     /* TODO: some of this is default set already, so can be optimized */
 

@@ -49,7 +49,7 @@ public:
 
     static void flushRXTX();
 
-    static void sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength);
+    static void sendMessageTo(char* receiverAdress, int* payloadArray, int payloadArrayLength);
 
     static int refereeAdress[5];
     static int scoutAdress[5];

@@ -11,13 +11,6 @@
 #include "CollectorMonitor.h"
 #include "CollectorRF.h"
 
-#define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
-#define DEBUG
-
-#define SCENARIO_RELAY
-// #define SCENARIO_HOMING
-//#define SCENARIO_DEBUG_RF_REGISTER_CHECK
-
 CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;

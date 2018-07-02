@@ -325,22 +325,22 @@ void ScoutRF::sendMessageTo(char* receiverAdress, char* payloadArray, int payloa
 
 
 #ifdef ROBOT_SIMULATOR
-ScoutSerial::serialWrite("Sending Message to ", 19);
-if (receiverAdress == refereeAdress)
-    ScoutSerial::serialWrite("referee ", 8);
-if (receiverAdress == collectorAdress)
-    ScoutSerial::serialWrite("collector ", 10);
-if (receiverAdress == scoutAdress)
-    ScoutSerial::serialWrite("scout ", 10);
+    ScoutSerial::serialWrite("Sending Message to ", 19);
+    if (receiverAdress == refereeAdress)
+        ScoutSerial::serialWrite("referee ", 8);
+    if (receiverAdress == collectorAdress)
+        ScoutSerial::serialWrite("collector ", 10);
+    if (receiverAdress == scoutAdress)
+        ScoutSerial::serialWrite("scout ", 10);
 
-ScoutSerial::serialWrite("with content: ", 14);
-char outputArray[32];
-for (int i = 0; i < 32; i++){
-    outputArray[i] = payloadArray[i];
-}
+    ScoutSerial::serialWrite("with content: ", 14);
+    char outputArray[32];
+    for (int i = 0; i < 32; i++){
+        outputArray[i] = payloadArray[i];
+    }
 
-ScoutSerial::serialWrite(outputArray, payloadArrayLength);
-ScoutSerial::serialWrite("\n", 1);
+    ScoutSerial::serialWrite(outputArray, payloadArrayLength);
+    ScoutSerial::serialWrite("\n", 1);
 #endif
 
 

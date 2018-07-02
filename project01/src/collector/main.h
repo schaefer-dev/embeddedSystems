@@ -11,7 +11,20 @@
 
 #define ARENA_SIZE_X 140
 
+
+#define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
+#define DEBUG
+
+
+/* Scenario enabling disabling */
+#define SCENARIO_RELAY
+// #define SCENARIO_HOMING
+//#define SCENARIO_DEBUG_RF_REGISTER_CHECK
+
+
 #define ROBOT_SIMULATOR
+
+#define COLLECTOR_MONITOR
 
 void setup();
 void loop();

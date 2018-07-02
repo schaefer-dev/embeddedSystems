@@ -1,7 +1,9 @@
 #ifndef EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
 #define EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
 
-#define COLLECTOR_MONITOR
+
+#include "main.h"
+
 #ifdef COLLECTOR_MONITOR
 
 class CollectorMonitor {
