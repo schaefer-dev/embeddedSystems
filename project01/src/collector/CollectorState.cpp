@@ -3,6 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <Arduino.h>
+#include "main.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -130,10 +131,26 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (outOfBounds){
+        if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
+            outOfBounds = false;
+            Serial1.println("OOB Punish over");
+        } else {
+            return;
+        }
+    }
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
+#ifndef ROBOT_SIMULATOR
     Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
+#endif
+#ifdef ROBOT_SIMULATOR
+    Serial1.print("Speed left: ");
+    Serial1.print(newLeftSpeed);
+    Serial1.print(" right: ");
+    Serial1.println(newRightSpeed);
+#endif
     leftSpeed = newLeftSpeed;
     rightSpeed = newRightSpeed;
 }
@@ -158,4 +175,13 @@ void CollectorState::updateRoboterPositionAndAngles() {
     currentX += x_dot * timeFactor * straightImprecision;
     currentY += y_dot * timeFactor * straightImprecision;
     currentAngle += angle_dot * timeFactor * rotationImprecision;
+}
+
+
+/* notifies the robot, that it drove out of bounds, disable all motor activity for 30s */
+void CollectorState::outOfBoundsMessage() {
+    setSpeeds(0,0);
+    outOfBounds = true;
+    Serial1.println("OOB Punish start");
+    outOfBoundsTime = millis();
 }

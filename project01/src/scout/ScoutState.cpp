@@ -128,7 +128,16 @@ void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
+#ifndef ROBOT_SIMULATOR
     OrangutanMotors::setSpeeds(newLeftSpeed, newRightSpeed);
+#endif
+#ifdef ROBOT_SIMULATOR
+    ScoutSerial::serialWrite("Speed left: ", 12);
+    ScoutSerial::serialWrite8Bit(newLeftSpeed);
+    ScoutSerial::serialWrite(" right: ", 8);
+    ScoutSerial::serialWrite8Bit(newRightSpeed);
+    ScoutSerial::serialWrite("\n", 1);
+#endif
     leftSpeed = newLeftSpeed;
     rightSpeed = newRightSpeed;
 }

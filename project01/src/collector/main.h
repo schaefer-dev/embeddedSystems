@@ -11,7 +11,7 @@
 
 #define ARENA_SIZE_X 140
 
-#define ROBOT_SCOUT
+#define ROBOT_SIMULATOR
 
 void setup();
 void loop();

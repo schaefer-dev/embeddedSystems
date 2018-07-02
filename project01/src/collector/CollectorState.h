@@ -1,6 +1,10 @@
 #ifndef Collector_state_H
 #define Collector_state_H
 
+
+#define OOB_PUNISH_TIME_MS 10000
+
+
 class CollectorState
 {
 
@@ -16,6 +20,8 @@ public:
     int rightSpeed;
     long lastDiffDriveCall;
     bool destinationReached;
+    bool outOfBounds;
+    unsigned long outOfBoundsTime;
 
     const int forwardSpeed = 200;
     const int turningSpeed = 100;
@@ -30,6 +36,7 @@ public:
     void resetDifferentialDrive(float x, float y, float a);
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
+    void outOfBoundsMessage();
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;
