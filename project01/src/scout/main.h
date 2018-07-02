@@ -17,6 +17,10 @@
 
 #define ROBOT_SCOUT
 
+CoordinateQueue *coordinateQueue;
+ScoutState *scoutState;
+
+void initialize();
 int main();
 bool driveToDestination();
 bool readNewDestinations(int[]);
@@ -28,6 +32,7 @@ void photophobicScout();
 void checkForNewRFMessage();
 void debug_sendPingToCollector();
 void homing();
+void checkForLines();
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 

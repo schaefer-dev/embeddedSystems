@@ -187,6 +187,13 @@ void ScoutRF::processReceivedMessage() {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
+        case 0x61:
+            /* Out of Bounds Message */
+            scoutState->outOfBoundsMessage();
+            receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
+                             payloadArray[3] * 256 + payloadArray[4],
+                             payloadArray[5] * 256 + payloadArray[6]);
+            break;
         case 0x70:
             /* MESSAGE case */
             break;
@@ -199,7 +206,6 @@ void ScoutRF::processReceivedMessage() {
                 ScoutSerial::serialWrite(buffer, 1);
             }
             ScoutSerial::serialWrite("\n",1);
-
             break;
         default:
             ScoutSerial::serialWrite("Illegal Message Identifer\n",26);

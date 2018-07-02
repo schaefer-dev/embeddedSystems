@@ -6,25 +6,27 @@
 #include "../utils/Coordinates.h"
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
+#include <Pololu3pi.h>
 
 
 #define photophobicWaitThreshold 50
 #define photophobicDanceThreshold 100
 #define PHOTOPHOBIC_ROTATION 60
 
-#define SCENARIO_RELAY
-#define SCENARIO_HOMING
+// #define SCENARIO_RELAY
+// #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
-//#define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+// #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
+
+#define LINE_SENSOR_READINGS
 
 
-CoordinateQueue *coordinateQueue;
-ScoutState *scoutState;
 bool spiEnabled = true;
 int statusRF = 0;
-int home[2] = {50, 50};      // home
+int home[2] = {160, 50};      // home
 
-int main() {
+
+void initialize(){
     /* initialization of Data structures */
     scoutState = new ScoutState();
     coordinateQueue = new CoordinateQueue();
@@ -32,6 +34,21 @@ int main() {
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
     scoutState->resetDifferentialDrive(0, 0, 0);
+
+
+    /* init line sensors */
+    pololu_3pi_init(2000);
+
+    for (int i = 0; i < 80; i++) {
+        if(i < 20 || i >= 60)
+            set_motors(40,-40);
+        else
+            set_motors(-40,40);
+        calibrate_line_sensors(IR_EMITTERS_ON);
+        delay_ms(20);
+    }
+    set_motors(0,0);
+
 
 #ifdef DEBUG
     // initialize serial connection
@@ -82,9 +99,14 @@ int main() {
         serialMessage[i] = 32;
     }
     int serialMessageLength = 0;
+}
 
+int main() {
+
+    initialize();
 
     while (1) {
+
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
         payload[0] = 0x80;
@@ -96,6 +118,11 @@ int main() {
         ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, serialMessageLength);
         ScoutSerial::serialWrite("sent\n", 5);
         delay(2000);
+#endif
+
+
+#ifdef LINE_SENSOR_READINGS
+        checkForLines();
 #endif
 
 #ifdef SCENARIO_HOMING
@@ -136,6 +163,22 @@ int main() {
 #endif
 
     }
+
+}
+
+void checkForLines() {
+
+    unsigned int sensorReadings[5];
+
+    unsigned int position = read_line(sensorReadings, IR_EMITTERS_ON);
+
+    ScoutSerial::serialWriteInt(position);
+
+    for (int i = 0; i < 5; i++){
+        ScoutSerial::serialWriteInt(sensorReadings[i]);
+    }
+
+    delay(1000);
 
 }
 

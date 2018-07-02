@@ -5,6 +5,8 @@
 #ifndef EMBEDDEDSYSTEMS18_SCOUTSTATE_H
 #define EMBEDDEDSYSTEMS18_SCOUTSTATE_H
 
+#define OOB_PUNISH_TIME_MS 10000
+
 class ScoutState
 {
 
@@ -20,6 +22,8 @@ public:
     int rightSpeed;
     long lastDiffDriveCall;
     bool destinationReached;
+    bool outOfBounds;
+    unsigned long outOfBoundsTime;
 
     /* last photosensorReadings */
     int photoSensorLeft;
@@ -40,6 +44,7 @@ public:
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
     void updatePhotoSensorReadings();
+    void outOfBoundsMessage();
 
 private:
     /* TODO */
