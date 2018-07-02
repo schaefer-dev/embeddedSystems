@@ -28,6 +28,8 @@ ScoutState::ScoutState() {
     photoSensorLeft = 0;
     photoSensorRight = 0;
     lastPhotoSensorUpdate = 0;
+    outOfBounds = false;
+    outOfBoundsTime = 0;
 }
 
 /*
@@ -115,6 +117,14 @@ void ScoutState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (outOfBounds){
+        if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
+            outOfBounds = false;
+            ScoutSerial::serialWrite("OOB Punish over\n",16);
+        } else {
+            return;
+        }
+    }
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
@@ -164,4 +174,13 @@ void ScoutState::updatePhotoSensorReadings() {
 
     photoSensorLeft = ScoutSPI::readADC(11);
     ScoutSPI::ADCConversionWait();
+}
+
+
+/* notifies the robot, that it drove out of bounds, disable all motor activity for 30s */
+void ScoutState::outOfBoundsMessage() {
+    setSpeeds(0,0);
+    outOfBounds = true;
+    ScoutSerial::serialWrite("OOB Punish start\n",16);
+    outOfBoundsTime = millis();
 }
