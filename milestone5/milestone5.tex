@@ -63,7 +63,7 @@ position to the Collector.
 	\begin{itemize}
 		\item \textbf{LTL:} $\mathbf{G}(\text{atHarvest} \lor \text{checkingProximity})$
 		\item \textbf{Safety:} Every trace not in L has at least one prefix \\
-		$\{ \sim \text{atHarvest}  \implies \neg \text{checkingProximity}\}$ which is a bad prefix.
+		$\{ \neg \text{atHarvest}  \implies \neg \text{checkingProximity}\}$ which is a bad prefix.
 		\item \textbf{Not Co-Safety:} $\{ \text{atHarvest, checkProximity}\}^ {\omega}$ does not have a good prefix. Every trace that is in L does not have a good prefix because we can always do $\{ \neg \text{atHarvest}  \land \neg \text{checkingProximity}\}$ in the next step.
 		\item \textbf{Monitorable:} Every finite trace can be extended to a bad prefix so it does not have an ugly prefix.
 		\item \textbf{Automaton:} \\
