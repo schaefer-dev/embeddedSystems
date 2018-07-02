@@ -17,9 +17,6 @@
 
 #define ROBOT_SCOUT
 
-CoordinateQueue *coordinateQueue;
-ScoutState *scoutState;
-
 void initialize();
 int main();
 bool driveToDestination();

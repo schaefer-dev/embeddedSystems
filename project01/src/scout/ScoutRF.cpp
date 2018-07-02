@@ -143,7 +143,7 @@ int ScoutRF::queryRFModule(){
     return statusRF;
 }
 
-void ScoutRF::processReceivedMessage() {
+void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     /* case for Message arrived */
     int answerArray[1];
     ScoutRF::getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);

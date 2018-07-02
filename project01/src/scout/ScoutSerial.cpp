@@ -10,7 +10,7 @@
 
 
 unsigned char ScoutSerial::receiveIndex = 0;
-char ScoutSerial::receiveBuffer[200];
+char ScoutSerial::receiveBuffer[SERIAL_BUFFER_SIZE];
 
 // not used because static
 ScoutSerial::ScoutSerial() {
@@ -21,7 +21,7 @@ void ScoutSerial::initScoutSerial() {
     for (int i = 0; i < 199; i++){
         receiveBuffer[i] = 0;
     }
-    OrangutanSerial::receive(receiveBuffer, 200);
+    OrangutanSerial::receive(receiveBuffer, SERIAL_BUFFER_SIZE);
     ScoutSerial::receiveIndex = 0;
 }
 
@@ -96,7 +96,7 @@ void ScoutSerial::serialWrite8BitBinary(int input) {
     serialWrite(toBePrinted, 8);
 }
 
-/* returns number of bytes read and fills into returnArray, writes at most 31 bytes */
+/* returns number of bytes read and fills into returnArray, writes at most 50 bytes */
 unsigned int ScoutSerial::readMessageFromSerial(char *returnArray){
     delay(5);
     int newReceiveIndex = OrangutanSerial::getReceivedBytes();
@@ -108,13 +108,15 @@ unsigned int ScoutSerial::readMessageFromSerial(char *returnArray){
 
     while(true){
         returnArray[byteCount] = (char)receiveBuffer[iterator];
-        if (iterator == newReceiveIndex | byteCount == 30)
+        if (iterator == newReceiveIndex | byteCount == 49)
             break;
         iterator += 1;
         byteCount += 1;
     }
 
     receiveIndex = newReceiveIndex;
+
+    initScoutSerial();
 
     return (byteCount);
 }

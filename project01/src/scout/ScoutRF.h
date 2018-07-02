@@ -6,6 +6,7 @@
 #define EMBEDDEDSYSTEMS18_SCOUTRF_H
 
 #include <stdint.h>
+#include "ScoutState.h"
 
 
 
@@ -47,7 +48,7 @@ public:
 
     static void readAdressRegister(uint8_t reg, int* outputArray);
 
-    static void processReceivedMessage();
+    static void processReceivedMessage(ScoutState *scoutState);
 
     static void flushRXTX();
 

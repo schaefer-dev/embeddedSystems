@@ -8,6 +8,8 @@
 
 #include "../utils/Coordinates.h"
 
+#define SERIAL_BUFFER_SIZE 50
+
 class ScoutSerial{
 
 public:
@@ -26,7 +28,7 @@ public:
 
     static unsigned int readMessageFromSerial(char *returnArray);
 
-    static char receiveBuffer[200];
+    static char receiveBuffer[SERIAL_BUFFER_SIZE];
     static unsigned char receiveIndex;
 };
 
