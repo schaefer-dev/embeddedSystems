@@ -121,7 +121,7 @@ int main() {
 
 #ifdef SCENARIO_HOMING
         homing();
-        delay(100);
+        delay(50);
 #endif
 
 #ifdef SCENARIO_RELAY
@@ -178,11 +178,8 @@ void checkForLines() {
 
 void homing() {
 
-    if (!driveToDestination()){
-        // already home -> dancing
-        //performRotation(90);
-        //performRotation(-90);
-    }
+    scoutState->navigate(coordinateQueue);
+
     delay(1);
     scoutState->updateRoboterPositionAndAngles();
 }
@@ -194,7 +191,6 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
     int currentY = y / 10.0f;
 
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
-
 
     /* if position update arrives, append home */
     if (coordinateQueue->isEmpty()){
@@ -344,26 +340,6 @@ void debug_printPhotosensorReadings(){
     ScoutSerial::serialWrite("\n", 1);
 }
 
-
-/**
- * When the current destination is reached, calls @readNewDestinations.
- * Drives to the current destination.
- * @return True iff the last destination is reached.
- */
-bool driveToDestination() {
-    if (scoutState->destinationReached) {
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(scoutState->currentX, scoutState->currentY);
-        if (node == nullptr) {
-            scoutState->setSpeeds(0, 0);
-            return false;
-        }
-
-        scoutState->destinationX = node->x;
-        scoutState->destinationY = node->y;
-        scoutState->destinationReached = false;
-    }
-    return scoutState->navigateToDestination();
-}
 
 /**
  * Perform rotation defined by degree

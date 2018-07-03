@@ -1,5 +1,7 @@
 #include "Coordinates.h"
 #include "math.h"
+#include "../scout/ScoutSerial.h"
+
 //constructor
 CoordinateQueue::CoordinateQueue(){
     head = nullptr;
@@ -23,6 +25,9 @@ bool CoordinateQueue::isEmpty(){
 
 //append to queue
 void CoordinateQueue::append(int x, int y){
+    ScoutSerial::serialWrite("appending to queue\n", 19);
+    ScoutSerial::serialWriteInt(x);
+    ScoutSerial::serialWriteInt(y);
     auto *coordinateNode = new CoordinateNode();
     coordinateNode->x = x;
     coordinateNode->y = y;
@@ -44,6 +49,7 @@ void CoordinateQueue::append(int x, int y){
  * @return Pointer to the destination CoordinateNode
  */
 struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, float currentY){
+    ScoutSerial::serialWrite("popping from queue\n", 19);
     if (head == nullptr){
         return nullptr;
     }
@@ -67,7 +73,10 @@ struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, flo
     }
     if (bestNode != nullptr) {
         if (bestNodePrev == bestNode) {
+            /* if best element equals head */
             head = bestNode->next;
+            if (tail == bestNode)
+                tail = nullptr;
         } else {
             bestNodePrev->next = bestNode->next;
         }

@@ -17,8 +17,8 @@ ScoutState::ScoutState() {
     currentX = 0.0f;
     currentY = 0.0f;
     currentAngle = 0.0f;
-    destinationX = 0.0f;
-    destinationY = 0.0f;
+    destinationX = NO_DESTINATION;
+    destinationY = NO_DESTINATION;
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
@@ -31,6 +31,8 @@ ScoutState::ScoutState() {
     outOfBounds = false;
     outOfBoundsTime = 0;
     drivingDisabled = true;
+    earliestNextRotationTime = millis();
+    navigationStep = NAV_NONE;
 }
 
 /*
@@ -46,15 +48,38 @@ float ScoutState::getAngle() {
 }
 
 
-/* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
-bool ScoutState::navigateToDestination() {
-#ifdef DEBUG
-    //Serial1.print("POS: (");
-    //Serial1.print(currentX);
-    //Serial1.print(", ");
-    //Serial1.print(currentY);
-    //Serial1.print(")");
-#endif
+/* drives towards current destination */
+void ScoutState::navigate(CoordinateQueue *coordinateQueue){
+
+    if (drivingDisabled) {
+        setSpeeds(0,0);
+        ScoutSerial::serialWrite("driving disabled\n",17);
+        return;
+    }
+
+    /* read new destination if no destination currently */
+    if (destinationReached == true){
+        /* take new destination from queue */
+        if (coordinateQueue->isEmpty()) {
+            setSpeeds(0,0);
+            ScoutSerial::serialWrite("no new destination in queue\n",28);
+            return;
+        }
+
+        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(currentX, currentY);
+
+        ScoutSerial::serialWrite("set new destination from queue\n",31);
+        ScoutSerial::serialWrite("X: ",2);
+        ScoutSerial::serialWriteInt(node->x);
+        ScoutSerial::serialWrite("Y: ",3);
+        ScoutSerial::serialWriteInt(node->y);
+        ScoutSerial::serialWrite("\n",1);
+
+        destinationX = node->x;
+        destinationY = node->y;
+        destinationReached = false;
+    }
+
 
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
@@ -63,8 +88,10 @@ bool ScoutState::navigateToDestination() {
 #ifdef DEBUG
         serial_send_blocking("\nDestination Reached!\n", 22);
 #endif
+        destinationX = NO_DESTINATION;
+        destinationY = NO_DESTINATION;
         destinationReached = true;
-        return true;
+        return;
     }
 
     // turn towards destination
@@ -90,31 +117,46 @@ bool ScoutState::navigateToDestination() {
     double deltaDegrees = deltaAngleDeg;
 
 
+    /* drive straight if turned to right angle in near future */
+    if (millis() < earliestNextRotationTime) {
+        setSpeeds(forwardSpeed, forwardSpeed);
+        navigationStep = NAV_DRIVING_STRAIGHT;
+        ScoutSerial::serialWrite("straight ahead!\n", 16);
+        return;
+    }
+
+    /* drive straight if angle still correct */
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
+        /* if turned in previous step make sure to turn for at least the defined ms now */
+        if (navigationStep == NAV_TURNING_LEFT || navigationStep == NAV_TURNING_RIGHT){
+            earliestNextRotationTime = millis() + DO_NOT_ROTATE_AGAIN_MS;
+        }
+        navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
         ScoutSerial::serialWrite("straight ahead!\n", 16);
-        return false;
+        return;
     }
+
 
     if (deltaAngle < 0) {
         // turn left
+        navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
         ScoutSerial::serialWrite("turning left!\n", 14);
     } else {
         // turn right
+        navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
         ScoutSerial::serialWrite("turning right!\n", 15);
     }
-    return false;
-}
 
+}
 
 void ScoutState::resetDifferentialDrive(float x, float y, float a) {
     currentX = x;
     currentY = y;
     currentAngle = a;
     lastDiffDriveCall = millis();
-    destinationReached = false;
 }
 
 void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {

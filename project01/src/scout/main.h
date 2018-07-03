@@ -33,7 +33,6 @@
 
 void initialize();
 int main();
-bool driveToDestination();
 void performRotation(int degrees);
 void debug_printPhotosensorReadings();
 void performStraightDrive(int cmLength);
