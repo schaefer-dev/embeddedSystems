@@ -11,7 +11,7 @@
 
 bool spiEnabled = true;
 int statusRF = 0;
-int home[2] = {160, 50};      // home
+int home[2] = {0, 0};      // home
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
@@ -121,6 +121,7 @@ int main() {
 
 #ifdef SCENARIO_HOMING
         homing();
+        delay(100);
 #endif
 
 #ifdef SCENARIO_RELAY
@@ -179,11 +180,8 @@ void homing() {
 
     if (!driveToDestination()){
         // already home -> dancing
-        /*
-        performRotation(90);
-        performRotation(-180);
-        performRotation(90);
-         */
+        //performRotation(90);
+        //performRotation(-90);
     }
     delay(1);
     scoutState->updateRoboterPositionAndAngles();
@@ -198,6 +196,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
 
 
+    /* if position update arrives, append home */
     if (coordinateQueue->isEmpty()){
         coordinateQueue->append(home[0], home[1]);
     }

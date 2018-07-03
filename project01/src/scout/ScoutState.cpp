@@ -9,7 +9,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 12.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 15.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
@@ -92,18 +92,18 @@ bool ScoutState::navigateToDestination() {
 
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         setSpeeds(forwardSpeed, forwardSpeed);
-        //Serial1.println("straight ahead!");
+        ScoutSerial::serialWrite("straight ahead!\n", 16);
         return false;
     }
 
     if (deltaAngle < 0) {
         // turn left
         setSpeeds(-turningSpeed, turningSpeed);
-        //Serial1.println("turning left!");
+        ScoutSerial::serialWrite("turning left!\n", 14);
     } else {
         // turn right
         setSpeeds(turningSpeed, -turningSpeed);
-        //Serial1.println("turning right!");
+        ScoutSerial::serialWrite("turning right!\n", 15);
     }
     return false;
 }
@@ -118,8 +118,10 @@ void ScoutState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
-    if (drivingDisabled)
+    if (drivingDisabled) {
+        OrangutanMotors::setSpeeds(0, 0);
         return;
+    }
     if (outOfBounds){
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;
