@@ -11,16 +11,16 @@
 
 bool spiEnabled = true;
 int statusRF = 0;
-int home[2] = {0, 0};      // home
-
-CoordinateQueue *coordinateQueue;
+int home[2] = {10, 10};
+//CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 
 
 void initialize(){
     /* initialization of Data structures */
     scoutState = new ScoutState();
-    coordinateQueue = new CoordinateQueue();
+
+    //coordinateQueue = new CoordinateQueue();
 
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
@@ -46,6 +46,10 @@ void initialize(){
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
+    scoutState->nextDestinationX = home[0];
+    scoutState->nextDestinationY = home[1];
+    scoutState->nextDestinationCounter += 1;
+    ScoutSerial::serialWriteInt(scoutState->nextDestinationX);
 #endif
 
     /* SETUP */
@@ -178,7 +182,7 @@ void checkForLines() {
 
 void homing() {
 
-    scoutState->navigate(coordinateQueue);
+    scoutState->navigate();
 
     delay(1);
     scoutState->updateRoboterPositionAndAngles();
@@ -192,10 +196,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
 
-    /* if position update arrives, append home */
-    if (coordinateQueue->isEmpty()){
-        coordinateQueue->append(home[0], home[1]);
-    }
+    scoutState->destinationReached = true;
 };
 
 

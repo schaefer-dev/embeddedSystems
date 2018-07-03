@@ -9,14 +9,12 @@
 
 #define OOB_PUNISH_TIME_MS 10000
 
-#define DO_NOT_ROTATE_AGAIN_MS 100
+#define DO_NOT_ROTATE_AGAIN_MS 500
 #define NAV_NONE 0
 #define NAV_AT_DESTINATION 1
 #define NAV_TURNING_LEFT 2
 #define NAV_TURNING_RIGHT 3
 #define NAV_DRIVING_STRAIGHT 4
-
-#define NO_DESTINATION (42.0f)
 
 class ScoutState
 {
@@ -29,6 +27,9 @@ public:
     float currentAngle;
     float destinationX;
     float destinationY;
+    float nextDestinationX;
+    float nextDestinationY;
+    unsigned short nextDestinationCounter;
     int leftSpeed;
     int rightSpeed;
     long lastDiffDriveCall;
@@ -58,7 +59,7 @@ public:
     void updateRoboterPositionAndAngles();
     void updatePhotoSensorReadings();
     void outOfBoundsMessage();
-    void navigate(CoordinateQueue *coordinateQueue);
+    void navigate();
 
 private:
     /* TODO */

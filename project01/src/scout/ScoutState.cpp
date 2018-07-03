@@ -17,8 +17,11 @@ ScoutState::ScoutState() {
     currentX = 0.0f;
     currentY = 0.0f;
     currentAngle = 0.0f;
-    destinationX = NO_DESTINATION;
-    destinationY = NO_DESTINATION;
+    destinationX = 0;
+    destinationY = 0;
+    nextDestinationCounter = 0;
+    nextDestinationX = 0;
+    nextDestinationY = 0;
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
@@ -49,7 +52,7 @@ float ScoutState::getAngle() {
 
 
 /* drives towards current destination */
-void ScoutState::navigate(CoordinateQueue *coordinateQueue){
+void ScoutState::navigate(){
 
     if (drivingDisabled) {
         setSpeeds(0,0);
@@ -59,24 +62,21 @@ void ScoutState::navigate(CoordinateQueue *coordinateQueue){
 
     /* read new destination if no destination currently */
     if (destinationReached == true){
-        /* take new destination from queue */
-        if (coordinateQueue->isEmpty()) {
+        if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
             ScoutSerial::serialWrite("no new destination in queue\n",28);
             return;
         }
 
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(currentX, currentY);
-
         ScoutSerial::serialWrite("set new destination from queue\n",31);
-        ScoutSerial::serialWrite("X: ",2);
-        ScoutSerial::serialWriteInt(node->x);
+        ScoutSerial::serialWrite("X: ",3);
+        ScoutSerial::serialWriteInt(nextDestinationX);
         ScoutSerial::serialWrite("Y: ",3);
-        ScoutSerial::serialWriteInt(node->y);
+        ScoutSerial::serialWriteInt(nextDestinationY);
         ScoutSerial::serialWrite("\n",1);
 
-        destinationX = node->x;
-        destinationY = node->y;
+        destinationX = nextDestinationX;
+        destinationY = nextDestinationY;
         destinationReached = false;
     }
 
@@ -88,9 +88,10 @@ void ScoutState::navigate(CoordinateQueue *coordinateQueue){
 #ifdef DEBUG
         serial_send_blocking("\nDestination Reached!\n", 22);
 #endif
-        destinationX = NO_DESTINATION;
-        destinationY = NO_DESTINATION;
+        destinationX = 0;
+        destinationY = 0;
         destinationReached = true;
+        drivingDisabled = true;
         return;
     }
 
