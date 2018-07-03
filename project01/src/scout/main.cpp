@@ -3,8 +3,7 @@
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
-#include <PololuQTRSensors.h>
-#include <Pololu3pi/Pololu3pi.h>
+#include <Pololu3pi.h>
 #include "../utils/Coordinates.h"
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
@@ -15,41 +14,7 @@ int home[2] = {10, 10};
 //CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 
-Pololu3pi robot;
-
-
 void initialize(){
-    /* initialization of Data structures */
-    scoutState = new ScoutState();
-
-    //coordinateQueue = new CoordinateQueue();
-
-    // initialize differential updateRoboterPositionAndAngles
-    scoutState->setSpeeds(0, 0);
-    scoutState->resetDifferentialDrive(0, 0, 0);
-
-
-    /* init line sensors */
-    // pi = Pololu3pi();
-    // Pololu3pi::init(2000);
-    // pololu_3pi_init(2000);
-
-    delay(100);
-
-    /*for (int i = 0; i < 80; i++) {
-        if(i < 20 || i >= 60)
-            OrangutanMotors::setSpeeds(40,-40);
-        else
-            OrangutanMotors::setSpeeds(-40,40);
-
-        // pi.calibrateLineSensors(IR_EMITTERS_ON);
-        calibrate_line_sensors(IR_EMITTERS_ON);
-
-        delay_ms(20);
-    }
-    OrangutanMotors::setSpeeds(0,0);*/
-
-
 #ifdef DEBUG
     // initialize serial connection
     ScoutSerial::initScoutSerial();
@@ -60,6 +25,33 @@ void initialize(){
     scoutState->nextDestinationCounter += 1;
     ScoutSerial::serialWriteInt(scoutState->nextDestinationX);
 #endif
+
+    pololu_3pi_init(50000);
+    delay(10);
+
+    for (int i = 0; i < 80; i++) {
+        if(i < 20 || i >= 60)
+            OrangutanMotors::setSpeeds(40,-40);
+        else
+            OrangutanMotors::setSpeeds(-40,40);
+
+        calibrate_line_sensors(IR_EMITTERS_ON);
+        //robot.calibrateLineSensors(IR_EMITTERS_ON);
+
+        delay_ms(20);
+    }
+    OrangutanMotors::setSpeeds(0,0);
+
+    /* initialization of Data structures */
+    scoutState = new ScoutState();
+
+    //coordinateQueue = new CoordinateQueue();
+
+    // initialize differential updateRoboterPositionAndAngles
+    scoutState->setSpeeds(0, 0);
+    scoutState->resetDifferentialDrive(0, 0, 0);
+
+
 
     /* SETUP */
 #ifdef SCOUT_MONITOR
@@ -88,9 +80,6 @@ void initialize(){
 }
 
 int main() {
-    Pololu3pi::init(2000);
-    //robot.init(2000);
-
     initialize();
 
     char serialMessage[50];
@@ -176,28 +165,28 @@ int main() {
 }
 
 void checkForLines() {
-    // unsigned int sensorReadings[5];
+    unsigned int sensorReadings[5] = {0,0,0,0,0};
     unsigned int sensorReadingsRaw[5] = {0,0,0,0,0};
 
-    // unsigned int position = pi.readLine(sensorReadings, IR_EMITTERS_ON);
-    // unsigned int position = read_line(sensorReadings, IR_EMITTERS_ON);
+    //unsigned int position = robot.readLine(sensorReadings, IR_EMITTERS_ON);
+    unsigned int position = read_line(sensorReadings, IR_EMITTERS_ON);
 
-    Pololu3pi::readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
+    //robot.readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
+    //read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
     delay(10);
-    // read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
 
-    /*ScoutSerial::serialWrite("\npos: ", 6);
+    ScoutSerial::serialWrite("\npos: ", 6);
     ScoutSerial::serialWriteInt(position);
 
     ScoutSerial::serialWrite("vals:\n", 6);
     for (unsigned int sensorReading : sensorReadings) {
         ScoutSerial::serialWriteInt(sensorReading);
-    }*/
+    }
 
-    ScoutSerial::serialWrite("raw:\n", 5);
+    /*ScoutSerial::serialWrite("raw:\n", 5);
     for (int i = 0; i < 5; ++i) {
         ScoutSerial::serialWriteInt(sensorReadingsRaw[i]);
-    }
+    }*/
     delay(1000);
 }
 

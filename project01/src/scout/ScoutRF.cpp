@@ -200,7 +200,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     /* length of message here */
     answerArray[0] = 32;
     ScoutSerial::receiveSerialBlocking(serialInputArray);
-    char payloadArray[32];
+    uint8_t payloadArray[32];
 
     for (int i = 0; i < 32; i++){
         payloadArray[i] = serialInputArray[i];
