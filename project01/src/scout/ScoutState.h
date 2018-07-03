@@ -24,6 +24,7 @@ public:
     bool destinationReached;
     bool outOfBounds;
     unsigned long outOfBoundsTime;
+    bool drivingDisabled;
 
     /* last photosensorReadings */
     int photoSensorLeft;

@@ -224,6 +224,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             break;
         case 0x60:
             /* POS update case */
+            scoutState->drivingDisabled = false;
 #ifdef ROBOT_SIMULATOR
             ScoutSerial::serialWrite("Position update received!\n",26);
 #endif

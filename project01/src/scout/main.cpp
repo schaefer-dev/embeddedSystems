@@ -177,15 +177,6 @@ void checkForLines() {
 
 void homing() {
 
-    //int currentPosition[2];
-
-    // read current destination from serial
-    //if (readNewDestinations(currentPosition)) {
-    // reset diff drive and append home to queue
-    //collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
-    //coordinateQueue->append(home[0], home[1]);
-    //}
-
     if (!driveToDestination()){
         // already home -> dancing
         /*
@@ -220,17 +211,6 @@ void checkForNewRFMessage(){
     if (messageReceived){
         ScoutRF::processReceivedMessage(scoutState);
     }
-}
-
-void driveToSerialInput() {
-    int destination[2];
-    readNewDestinations(destination);
-    coordinateQueue->append(destination[0], destination[1]);
-
-    if (driveToDestination()) {
-        performRotation(360);
-    }
-    scoutState->updateRoboterPositionAndAngles();
 }
 
 
@@ -384,29 +364,6 @@ bool driveToDestination() {
         scoutState->destinationReached = false;
     }
     return scoutState->navigateToDestination();
-}
-
-/**
- * Reads a new destination from the serial stream and adds it to the queue.
- * New destination must be given as to integers separated by some non-numeric character
- */
-bool readNewDestinations(int dest[]) {
-    // read new destination entry
-/* IMPORTANT:
- * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
-
-    int coordinates[2];
-
-    bool newCoordinates = ScoutSerial::readCoordinates(coordinates);
-
-    if (!newCoordinates) {
-        return false;
-    }
-
-    dest[0] = coordinates[0];
-    dest[1] = coordinates[1];
-
-    return true;
 }
 
 /**

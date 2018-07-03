@@ -30,6 +30,7 @@ ScoutState::ScoutState() {
     lastPhotoSensorUpdate = 0;
     outOfBounds = false;
     outOfBoundsTime = 0;
+    drivingDisabled = true;
 }
 
 /*
@@ -117,6 +118,8 @@ void ScoutState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (drivingDisabled)
+        return;
     if (outOfBounds){
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;
@@ -190,6 +193,6 @@ void ScoutState::updatePhotoSensorReadings() {
 void ScoutState::outOfBoundsMessage() {
     setSpeeds(0,0);
     outOfBounds = true;
-    ScoutSerial::serialWrite("OOB Punish start\n",16);
+    ScoutSerial::serialWrite("OOB Punish start\n",17);
     outOfBoundsTime = millis();
 }
