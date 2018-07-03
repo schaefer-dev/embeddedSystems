@@ -21,7 +21,7 @@ public:
     static void serialWrite(char *buffer, unsigned char size);
     static bool readCoordinates(int *);
 
-    static void serialWriteInt(int input);
+    static void serialWriteInt(unsigned int input);
     static void serialWrite8Bit(int input);
     static void serialWrite8BitBinary(int input);
     static void serialWrite8BitHex(int input);

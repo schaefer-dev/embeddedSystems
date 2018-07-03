@@ -37,7 +37,7 @@ void ScoutSerial::serialWrite(char *buffer, unsigned char size) {
     OrangutanSerial::sendBlocking(buffer, size);
 }
 
-void ScoutSerial::serialWriteInt(int input) {
+void ScoutSerial::serialWriteInt(unsigned int input) {
     char toBePrinted[6];
     toBePrinted[5] = '\n';
 

@@ -3,11 +3,11 @@
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
+#include <PololuQTRSensors.h>
+#include <Pololu3pi/Pololu3pi.h>
 #include "../utils/Coordinates.h"
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
-#include <Pololu3pi.h>
-
 
 bool spiEnabled = true;
 int statusRF = 0;
@@ -15,6 +15,8 @@ int home[2] = {160, 50};      // home
 
 CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
+
+Pololu3pi robot;
 
 
 void initialize(){
@@ -28,17 +30,24 @@ void initialize(){
 
 
     /* init line sensors */
-    pololu_3pi_init(2000);
+    // pi = Pololu3pi();
+    // Pololu3pi::init(2000);
+    // pololu_3pi_init(2000);
 
-    for (int i = 0; i < 80; i++) {
+    delay(100);
+
+    /*for (int i = 0; i < 80; i++) {
         if(i < 20 || i >= 60)
-            set_motors(40,-40);
+            OrangutanMotors::setSpeeds(40,-40);
         else
-            set_motors(-40,40);
+            OrangutanMotors::setSpeeds(-40,40);
+
+        // pi.calibrateLineSensors(IR_EMITTERS_ON);
         calibrate_line_sensors(IR_EMITTERS_ON);
+
         delay_ms(20);
     }
-    set_motors(0,0);
+    OrangutanMotors::setSpeeds(0,0);*/
 
 
 #ifdef DEBUG
@@ -75,6 +84,8 @@ void initialize(){
 }
 
 int main() {
+    Pololu3pi::init(2000);
+    //robot.init(2000);
 
     initialize();
 
@@ -160,19 +171,29 @@ int main() {
 }
 
 void checkForLines() {
+    // unsigned int sensorReadings[5];
+    unsigned int sensorReadingsRaw[5] = {0,0,0,0,0};
 
-    unsigned int sensorReadings[5];
+    // unsigned int position = pi.readLine(sensorReadings, IR_EMITTERS_ON);
+    // unsigned int position = read_line(sensorReadings, IR_EMITTERS_ON);
 
-    unsigned int position = read_line(sensorReadings, IR_EMITTERS_ON);
+    Pololu3pi::readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
+    delay(10);
+    // read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
 
+    /*ScoutSerial::serialWrite("\npos: ", 6);
     ScoutSerial::serialWriteInt(position);
 
-    for (int i = 0; i < 5; i++){
-        ScoutSerial::serialWriteInt(sensorReadings[i]);
+    ScoutSerial::serialWrite("vals:\n", 6);
+    for (unsigned int sensorReading : sensorReadings) {
+        ScoutSerial::serialWriteInt(sensorReading);
+    }*/
+
+    ScoutSerial::serialWrite("raw:\n", 5);
+    for (int i = 0; i < 5; ++i) {
+        ScoutSerial::serialWriteInt(sensorReadingsRaw[i]);
     }
-
     delay(1000);
-
 }
 
 void homing() {
