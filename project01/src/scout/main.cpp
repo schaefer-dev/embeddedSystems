@@ -11,9 +11,8 @@
 
 bool spiEnabled = true;
 int statusRF = 0;
-int home[2] = {160, 50};      // home
-
-CoordinateQueue *coordinateQueue;
+int home[2] = {10, 10};
+//CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 
 Pololu3pi robot;
@@ -22,7 +21,8 @@ Pololu3pi robot;
 void initialize(){
     /* initialization of Data structures */
     scoutState = new ScoutState();
-    coordinateQueue = new CoordinateQueue();
+
+    //coordinateQueue = new CoordinateQueue();
 
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
@@ -55,6 +55,10 @@ void initialize(){
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
+    scoutState->nextDestinationX = home[0];
+    scoutState->nextDestinationY = home[1];
+    scoutState->nextDestinationCounter += 1;
+    ScoutSerial::serialWriteInt(scoutState->nextDestinationX);
 #endif
 
     /* SETUP */
@@ -132,6 +136,7 @@ int main() {
 
 #ifdef SCENARIO_HOMING
         homing();
+        delay(50);
 #endif
 
 #ifdef SCENARIO_RELAY
@@ -198,23 +203,8 @@ void checkForLines() {
 
 void homing() {
 
-    //int currentPosition[2];
+    scoutState->navigate();
 
-    // read current destination from serial
-    //if (readNewDestinations(currentPosition)) {
-    // reset diff drive and append home to queue
-    //collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
-    //coordinateQueue->append(home[0], home[1]);
-    //}
-
-    if (!driveToDestination()){
-        // already home -> dancing
-        /*
-        performRotation(90);
-        performRotation(-180);
-        performRotation(90);
-         */
-    }
     delay(1);
     scoutState->updateRoboterPositionAndAngles();
 }
@@ -227,10 +217,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
 
-
-    if (coordinateQueue->isEmpty()){
-        coordinateQueue->append(home[0], home[1]);
-    }
+    scoutState->destinationReached = true;
 };
 
 
@@ -241,17 +228,6 @@ void checkForNewRFMessage(){
     if (messageReceived){
         ScoutRF::processReceivedMessage(scoutState);
     }
-}
-
-void driveToSerialInput() {
-    int destination[2];
-    readNewDestinations(destination);
-    coordinateQueue->append(destination[0], destination[1]);
-
-    if (driveToDestination()) {
-        performRotation(360);
-    }
-    scoutState->updateRoboterPositionAndAngles();
 }
 
 
@@ -386,49 +362,6 @@ void debug_printPhotosensorReadings(){
     ScoutSerial::serialWrite("\n", 1);
 }
 
-
-/**
- * When the current destination is reached, calls @readNewDestinations.
- * Drives to the current destination.
- * @return True iff the last destination is reached.
- */
-bool driveToDestination() {
-    if (scoutState->destinationReached) {
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(scoutState->currentX, scoutState->currentY);
-        if (node == nullptr) {
-            scoutState->setSpeeds(0, 0);
-            return false;
-        }
-
-        scoutState->destinationX = node->x;
-        scoutState->destinationY = node->y;
-        scoutState->destinationReached = false;
-    }
-    return scoutState->navigateToDestination();
-}
-
-/**
- * Reads a new destination from the serial stream and adds it to the queue.
- * New destination must be given as to integers separated by some non-numeric character
- */
-bool readNewDestinations(int dest[]) {
-    // read new destination entry
-/* IMPORTANT:
- * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
-
-    int coordinates[2];
-
-    bool newCoordinates = ScoutSerial::readCoordinates(coordinates);
-
-    if (!newCoordinates) {
-        return false;
-    }
-
-    dest[0] = coordinates[0];
-    dest[1] = coordinates[1];
-
-    return true;
-}
 
 /**
  * Perform rotation defined by degree

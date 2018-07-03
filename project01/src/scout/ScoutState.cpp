@@ -9,7 +9,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 12.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 15.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
@@ -17,8 +17,11 @@ ScoutState::ScoutState() {
     currentX = 0.0f;
     currentY = 0.0f;
     currentAngle = 0.0f;
-    destinationX = 0.0f;
-    destinationY = 0.0f;
+    destinationX = 0;
+    destinationY = 0;
+    nextDestinationCounter = 0;
+    nextDestinationX = 0;
+    nextDestinationY = 0;
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
@@ -30,6 +33,9 @@ ScoutState::ScoutState() {
     lastPhotoSensorUpdate = 0;
     outOfBounds = false;
     outOfBoundsTime = 0;
+    drivingDisabled = true;
+    earliestNextRotationTime = millis();
+    navigationStep = NAV_NONE;
 }
 
 /*
@@ -45,15 +51,35 @@ float ScoutState::getAngle() {
 }
 
 
-/* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
-bool ScoutState::navigateToDestination() {
-#ifdef DEBUG
-    //Serial1.print("POS: (");
-    //Serial1.print(currentX);
-    //Serial1.print(", ");
-    //Serial1.print(currentY);
-    //Serial1.print(")");
-#endif
+/* drives towards current destination */
+void ScoutState::navigate(){
+
+    if (drivingDisabled) {
+        setSpeeds(0,0);
+        ScoutSerial::serialWrite("driving disabled\n",17);
+        return;
+    }
+
+    /* read new destination if no destination currently */
+    if (destinationReached == true){
+        if (nextDestinationCounter == 0) {
+            setSpeeds(0,0);
+            ScoutSerial::serialWrite("no new destination in queue\n",28);
+            return;
+        }
+
+        ScoutSerial::serialWrite("set new destination from queue\n",31);
+        ScoutSerial::serialWrite("X: ",3);
+        ScoutSerial::serialWriteInt(nextDestinationX);
+        ScoutSerial::serialWrite("Y: ",3);
+        ScoutSerial::serialWriteInt(nextDestinationY);
+        ScoutSerial::serialWrite("\n",1);
+
+        destinationX = nextDestinationX;
+        destinationY = nextDestinationY;
+        destinationReached = false;
+    }
+
 
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
@@ -62,8 +88,11 @@ bool ScoutState::navigateToDestination() {
 #ifdef DEBUG
         serial_send_blocking("\nDestination Reached!\n", 22);
 #endif
+        destinationX = 0;
+        destinationY = 0;
         destinationReached = true;
-        return true;
+        drivingDisabled = true;
+        return;
     }
 
     // turn towards destination
@@ -89,34 +118,53 @@ bool ScoutState::navigateToDestination() {
     double deltaDegrees = deltaAngleDeg;
 
 
-    if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
+    /* drive straight if turned to right angle in near future */
+    if (millis() < earliestNextRotationTime) {
         setSpeeds(forwardSpeed, forwardSpeed);
-        //Serial1.println("straight ahead!");
-        return false;
+        navigationStep = NAV_DRIVING_STRAIGHT;
+        ScoutSerial::serialWrite("straight ahead!\n", 16);
+        return;
     }
+
+    /* drive straight if angle still correct */
+    if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
+        /* if turned in previous step make sure to turn for at least the defined ms now */
+        if (navigationStep == NAV_TURNING_LEFT || navigationStep == NAV_TURNING_RIGHT){
+            earliestNextRotationTime = millis() + DO_NOT_ROTATE_AGAIN_MS;
+        }
+        navigationStep = NAV_DRIVING_STRAIGHT;
+        setSpeeds(forwardSpeed, forwardSpeed);
+        ScoutSerial::serialWrite("straight ahead!\n", 16);
+        return;
+    }
+
 
     if (deltaAngle < 0) {
         // turn left
+        navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
-        //Serial1.println("turning left!");
+        ScoutSerial::serialWrite("turning left!\n", 14);
     } else {
         // turn right
+        navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
-        //Serial1.println("turning right!");
+        ScoutSerial::serialWrite("turning right!\n", 15);
     }
-    return false;
-}
 
+}
 
 void ScoutState::resetDifferentialDrive(float x, float y, float a) {
     currentX = x;
     currentY = y;
     currentAngle = a;
     lastDiffDriveCall = millis();
-    destinationReached = false;
 }
 
 void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (drivingDisabled) {
+        OrangutanMotors::setSpeeds(0, 0);
+        return;
+    }
     if (outOfBounds){
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;
@@ -190,6 +238,6 @@ void ScoutState::updatePhotoSensorReadings() {
 void ScoutState::outOfBoundsMessage() {
     setSpeeds(0,0);
     outOfBounds = true;
-    ScoutSerial::serialWrite("OOB Punish start\n",16);
+    ScoutSerial::serialWrite("OOB Punish start\n",17);
     outOfBoundsTime = millis();
 }

@@ -24,6 +24,7 @@ public:
     void append(int x, int y);
 
     struct CoordinateNode* pop(float, float);
+    void getHeadCoordinates(float, float, int*);
 
     bool isEmpty();
 

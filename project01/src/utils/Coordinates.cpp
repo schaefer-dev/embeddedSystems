@@ -1,5 +1,8 @@
 #include "Coordinates.h"
 #include "math.h"
+#include "../scout/ScoutSerial.h"
+#include <stdlib.h>
+
 //constructor
 CoordinateQueue::CoordinateQueue(){
     head = nullptr;
@@ -23,6 +26,10 @@ bool CoordinateQueue::isEmpty(){
 
 //append to queue
 void CoordinateQueue::append(int x, int y){
+    ScoutSerial::serialWrite("appending to queue\n", 19);
+    ScoutSerial::serialWriteInt(x);
+    ScoutSerial::serialWriteInt(y);
+    //CoordinateNode *coordinateNode = (CoordinateNode * )malloc(sizeof(CoordinateNode));
     auto *coordinateNode = new CoordinateNode();
     coordinateNode->x = x;
     coordinateNode->y = y;
@@ -43,10 +50,14 @@ void CoordinateQueue::append(int x, int y){
  * @param currentY
  * @return Pointer to the destination CoordinateNode
  */
-struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, float currentY){
+struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentXfloat, float currentYfloat){
+    ScoutSerial::serialWrite("popping from queue\n", 19);
     if (head == nullptr){
         return nullptr;
     }
+
+    int currentX = (int) currentXfloat;
+    int currentY = (int) currentYfloat;
 
     struct CoordinateNode *bestNodePrev = nullptr;
     struct CoordinateNode *bestNode = nullptr;
@@ -67,10 +78,31 @@ struct CoordinateQueue::CoordinateNode* CoordinateQueue::pop(float currentX, flo
     }
     if (bestNode != nullptr) {
         if (bestNodePrev == bestNode) {
+            /* if best element equals head */
             head = bestNode->next;
+            if (tail == bestNode)
+                tail = nullptr;
         } else {
             bestNodePrev->next = bestNode->next;
         }
     }
     return bestNode;
+}
+
+/**
+ * Returns the closest destination based on euclidean distance.
+ * If multiple destinations have the same distance, chooses by FIFO
+ * @param currentX
+ * @param currentY
+ * @return Pointer to the destination CoordinateNode
+ */
+void CoordinateQueue::getHeadCoordinates(float currentXfloat, float currentYfloat, int* returnArray){
+    ScoutSerial::serialWrite("popping from queue\n", 19);
+
+    if (head == nullptr)
+        return;
+
+    returnArray[0] = head->x;
+    returnArray[1] = head->y;
+
 }

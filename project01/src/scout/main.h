@@ -20,7 +20,7 @@
 
 /* Scenarios enabling disabling */
 // #define SCENARIO_RELAY
-// #define SCENARIO_HOMING
+#define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
 // #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
 #define LINE_SENSOR_READINGS
@@ -28,17 +28,14 @@
 
 #define SCOUT_MONITOR
 
-// #define ROBOT_SIMULATOR
+#define ROBOT_SIMULATOR
 
 
 void initialize();
 int main();
-bool driveToDestination();
-bool readNewDestinations(int[]);
 void performRotation(int degrees);
 void debug_printPhotosensorReadings();
 void performStraightDrive(int cmLength);
-void driveToSerialInput();
 void photophobicScout();
 void checkForNewRFMessage();
 void debug_sendPingToCollector();

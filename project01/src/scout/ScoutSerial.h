@@ -19,7 +19,6 @@ public:
     static void initScoutSerial();
     static void serialRead(char *buffer, unsigned char size);
     static void serialWrite(char *buffer, unsigned char size);
-    static bool readCoordinates(int *);
 
     static void serialWriteInt(unsigned int input);
     static void serialWrite8Bit(int input);

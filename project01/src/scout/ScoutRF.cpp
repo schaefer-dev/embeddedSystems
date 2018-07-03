@@ -19,9 +19,9 @@
  */
 
 
-char ScoutRF::refereeAdress[5];
-char ScoutRF::scoutAdress[5];
-char ScoutRF::collectorAdress[5];
+uint8_t ScoutRF::refereeAdress[5];
+uint8_t ScoutRF::scoutAdress[5];
+uint8_t ScoutRF::collectorAdress[5];
 
 void ScoutRF::initializeRFModule() {
 
@@ -124,7 +124,7 @@ void ScoutRF::debug_RFModule(){
 
     }
 
-    char adressArray[5];
+    uint8_t adressArray[5];
     readAdressRegister(0x0A, adressArray);
     ScoutSerial::serialWrite("ADDR Register: 0A (", 19);
     for (int i=0; i < 5; i++) {
@@ -169,7 +169,7 @@ int ScoutRF::queryRFModule(){
 void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 #ifndef ROBOT_SIMULATOR
     /* case for Message arrived */
-    char answerArray[1];
+    uint8_t answerArray[1];
     ScoutRF::getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
 
     /* if no next payload there */
@@ -178,7 +178,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     }
 
     /* read message from pipe */
-    char payloadArray[answerArray[0]];
+    uint8_t payloadArray[answerArray[0]];
     ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
     ScoutSerial::serialWrite("Message: ", 9);
@@ -224,6 +224,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             break;
         case 0x60:
             /* POS update case */
+            scoutState->drivingDisabled = false;
 #ifdef ROBOT_SIMULATOR
             ScoutSerial::serialWrite("Position update received!\n",26);
 #endif
@@ -262,7 +263,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
 
 
-void ScoutRF::sendMessageTo(char* receiverAdress, char* payloadArray, int payloadArrayLength){
+void ScoutRF::sendMessageTo(uint8_t* receiverAdress, uint8_t* payloadArray, int payloadArrayLength){
 #ifndef ROBOT_SIMULATOR
 
     /* Write Referee adress to TX Register */
@@ -376,7 +377,7 @@ void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
 
 
 #ifndef ROBOT_SIMULATOR
-void ScoutRF::getCommandAnswer(char *answerArray, int byteCount, int8_t command){
+void ScoutRF::getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t command){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -409,7 +410,7 @@ void ScoutRF::writeRegister(uint8_t reg, uint8_t setting){
 
 #ifndef ROBOT_SIMULATOR
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
-void ScoutRF::write5ByteAdress(int reg, char* bytes){
+void ScoutRF::write5ByteAdress(int reg, uint8_t* bytes){
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -444,7 +445,7 @@ int ScoutRF::readRegister(uint8_t reg){
 
 
 #ifndef ROBOT_SIMULATOR
-void ScoutRF::readAdressRegister(uint8_t reg, char* outputArray){
+void ScoutRF::readAdressRegister(uint8_t reg, uint8_t* outputArray){
     ScoutSPI::slaveSelect(SLAVE_RF);
 
     ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
