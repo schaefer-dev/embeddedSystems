@@ -1,7 +1,0 @@
-# CLion
-.idea
-cmake-build-debug
-cmake-build-release
-
-# CMake Configuration
-Config.cmake
