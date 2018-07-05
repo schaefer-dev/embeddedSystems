@@ -15,16 +15,15 @@ int home[2] = {10, 10};
 ScoutState *scoutState;
 
 void initialize(){
-#ifdef DEBUG
     // initialize serial connection
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
+
+    /* Home is always our next destination */
     scoutState->nextDestinationX = home[0];
     scoutState->nextDestinationY = home[1];
     scoutState->nextDestinationCounter += 1;
-    ScoutSerial::serialWriteInt(scoutState->nextDestinationX);
-#endif
 
     pololu_3pi_init(50000);
     delay(10);

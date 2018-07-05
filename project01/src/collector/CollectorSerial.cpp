@@ -11,7 +11,7 @@
 void CollectorSerial::initCollectorSerial() {
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
-    Serial1.setTimeout(5000);
+    Serial1.setTimeout(TIMEOUT_BLOCKING_READING);
 }
 
 

@@ -98,7 +98,7 @@ void CollectorRF::debug_RFModule(){
         Serial1.print(i);
         Serial1.print(" = (");
         Serial1.print(output);
-        Serial1.print(")");  
+        Serial1.print(")");
 
         delay(20);
 
@@ -317,6 +317,8 @@ void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray,
     for (int i = 0; i < 32; i++){
         outputArray[i] = payloadArray[i];
     }
+    if (payloadArrayLength < 32)
+        outputArray[payloadArrayLength] = '\0';
 
     CollectorSerial::serialWrite(outputArray, payloadArrayLength);
     CollectorSerial::serialWrite("\n", 1);
@@ -397,7 +399,7 @@ void CollectorRF::writeRegister(uint8_t reg, uint8_t setting){
 
 #ifndef ROBOT_SIMULATOR
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
-void CollectorRF::write5ByteAdress(int reg, int* bytes){
+void CollectorRF::write5ByteAdress(int reg, uint8_t* bytes){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
 
@@ -431,7 +433,7 @@ int CollectorRF::readRegister(uint8_t reg){
 #endif
 
 #ifndef ROBOT_SIMULATOR
-void CollectorRF::readAdressRegister(uint8_t reg, int* outputArray){
+void CollectorRF::readAdressRegister(uint8_t reg, uint8_t* outputArray){
     CollectorSPI::slaveSelect(SLAVE_RF);
 
     CollectorSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register

@@ -24,20 +24,16 @@
 
 #define LINE_SENSOR_READINGS
 
-#define ROBOT_SIMULATOR
+// #define ROBOT_SIMULATOR
 
-//#define COLLECTOR_MONITOR
+// #define COLLECTOR_MONITOR
 
 void setup();
 void loop();
-bool driveToDestination();
-bool readNewDestinations(int[]);
 void performRotation(int degrees);
 void performStraightDrive(int cmLength);
 void huntObject();
 void generateBrightnessLevels();
-void setTimer(int);
-void driveToSerialInput();
 void homing();
 void checkForNewRFMessage();
 

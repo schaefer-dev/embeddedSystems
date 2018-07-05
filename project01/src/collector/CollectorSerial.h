@@ -6,6 +6,8 @@
 #define EMBEDDEDSYSTEMS18_COLLECTORSERIAL_H
 
 
+#define TIMEOUT_BLOCKING_READING 10000
+
 class CollectorSerial {
 
 public:

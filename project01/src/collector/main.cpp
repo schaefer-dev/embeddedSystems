@@ -36,6 +36,11 @@ void setup() {
     // initialize serial connection
     CollectorSerial::initCollectorSerial();
 
+    /* Home is always our next destination */
+    collectorState->nextDestinationX = home[0];
+    collectorState->nextDestinationY = home[1];
+    collectorState->nextDestinationCounter += 1;
+
 
 #ifdef COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
@@ -174,73 +179,6 @@ void huntObject() {
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
         return;
     }
-}
-
-
-/**
- * Reads a new destination from the serial stream and adds it to the queue.
- * New destination must be given as to integers separated by some non-numeric character
- */
-bool readNewDestinations(int dest[]) {
-#ifdef DEBUG
-/* IMPORTANT:
- * Reading serial is what blows memory up, around 30% - should be disabled once we get close to 100% */
-    if (Serial1.available() > 6) {
-        int xDestination = 0;
-        int yDestination = 0;
-
-        bool leftFull = false;
-
-        int stringIndex = 0;
-        char inStringLeft[4];
-        char inStringRight[4];
-
-        for (int i = 0; i < 4; i++) {
-            inStringLeft[i] = '\0';
-            inStringRight[i] = '\0';
-        }
-
-        int commandIndex = 0;
-        char command[10];
-        while (Serial1.available() > 0) {
-            int inChar = Serial1.read();
-            command[commandIndex] = (char) inChar;
-            commandIndex += 1;
-            if (!isDigit(inChar) && !leftFull) {
-                leftFull = true;
-                stringIndex = 0;
-                continue;
-            } else {
-                // convert the incoming byte to a char and add it to the string:
-                if (!leftFull)
-                    inStringLeft[stringIndex] = (char) inChar;
-                else
-                    inStringRight[stringIndex] = (char) inChar;
-                stringIndex += 1;
-            }
-        }
-
-
-        if (command[0] == 'E' && command[1] == 'N' && command[2] == 'D') {
-            terminate = true;
-        }
-
-        xDestination = atoi(inStringLeft);
-        yDestination = atoi(inStringRight);
-        Serial1.print("NEW DESTINATION IN QUEUE: (");
-        Serial1.print(xDestination);
-        Serial1.print(", ");
-        Serial1.print(yDestination);
-        Serial1.println(")");
-        Serial1.flush();
-
-        dest[0] = xDestination;
-        dest[1] = yDestination;
-        //coordinateQueue->append(xDestination, yDestination);
-        return true;
-    }
-    return false;
-#endif
 }
 
 
