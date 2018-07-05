@@ -80,6 +80,7 @@ void setup() {
     Serial1.println("--- SPI MASTER INITIALIZED ---");
     CollectorRF::initializeRFModule();
     Serial1.println("--- RF MODULE INITIALIZED ---");
+    Serial1.flush();
     delay(100);
 
 }
