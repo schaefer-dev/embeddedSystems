@@ -210,7 +210,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             /* POS update case */
             collectorState->drivingDisabled = false;
 #ifdef ROBOT_SIMULATOR
-            CollectorSerial::serialWrite("Position update received!\n",26);
+            Serial1.println("Position update received!");
 #endif
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
@@ -218,7 +218,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             break;
         case 0x61:
 #ifdef ROBOT_SIMULATOR
-            CollectorSerial::serialWrite("OOB Message received!\n",22);
+            Serial1.println("OOB Message received!");
 #endif
             /* Out of Bounds Message */
             collectorState->outOfBoundsMessage();
@@ -304,15 +304,15 @@ void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray,
 #endif
 
 #ifdef ROBOT_SIMULATOR
-    CollectorSerial::serialWrite("Sending Message to ", 19);
+    Serial1.print("Sending Message to ");
     if (receiverAdress == refereeAdress)
-        CollectorSerial::serialWrite("referee ", 8);
+        Serial1.print("referee ");
     if (receiverAdress == collectorAdress)
-        CollectorSerial::serialWrite("collector ", 10);
+        Serial1.print("collector ");
     if (receiverAdress == scoutAdress)
-        CollectorSerial::serialWrite("scout ", 10);
+        Serial1.print("scout ");
 
-    CollectorSerial::serialWrite("with content: ", 14);
+    Serial1.print("with content: ");
     char outputArray[32];
     for (int i = 0; i < 32; i++){
         outputArray[i] = payloadArray[i];
@@ -320,8 +320,7 @@ void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray,
     if (payloadArrayLength < 32)
         outputArray[payloadArrayLength] = '\0';
 
-    CollectorSerial::serialWrite(outputArray, payloadArrayLength);
-    CollectorSerial::serialWrite("\n", 1);
+    Serial1.println(outputArray);
 #endif
 
 

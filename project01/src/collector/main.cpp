@@ -18,7 +18,6 @@
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
-boolean terminate = false;
 int home[2] = {10, 20};      // home
 int statusRF = 0;
 
@@ -37,7 +36,10 @@ void setup() {
     collectorState->lastDiffDriveCall = millis();
 
     // initialize serial connection
-    CollectorSerial::initCollectorSerial();
+    Serial1.begin(9600);
+    Serial1.println("--- Start Serial Monitor ---");
+    /* TODO timeout fills over 30% of Program memory, remove it! */
+    Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
 
     /* Home is always our next destination */
     collectorState->nextDestinationX = home[0];
@@ -67,9 +69,9 @@ void setup() {
 
     CollectorSPI::SPIMasterInit();
     delay(50);
-    CollectorSerial::serialWrite("--- SPI MASTER INITIALIZED ---\n", 0);
+    Serial1.println("--- SPI MASTER INITIALIZED ---");
     CollectorRF::initializeRFModule();
-    CollectorSerial::serialWrite("--- RF MODULE INITIALIZED ---\n", 0);
+    Serial1.println("--- RF MODULE INITIALIZED ---");
     delay(100);
 
 }
@@ -137,7 +139,7 @@ void homing() {
 }
 
 
-
+#ifdef HUNT_OBJECT
 void huntObject() {
     proximitySensors->read();
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
@@ -183,6 +185,7 @@ void huntObject() {
         return;
     }
 }
+#endif
 
 
 /**
