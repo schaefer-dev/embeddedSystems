@@ -140,6 +140,7 @@ int CollectorRF::queryRFModule(){
 #ifdef ROBOT_SIMULATOR
     if (CollectorSerial::simulatorMessageIncoming()) {
         Serial1.println("Message arrived");
+        Serial1.flush();
         return (1 << 6);
     } else {
         return 0;
@@ -219,6 +220,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
         case 0x61:
 #ifdef ROBOT_SIMULATOR
             Serial1.println("OOB Message received!");
+            Serial1.flush();
 #endif
             /* Out of Bounds Message */
             collectorState->outOfBoundsMessage();
@@ -304,6 +306,22 @@ void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray,
 #endif
 
 #ifdef ROBOT_SIMULATOR
+    char outputArray[32];
+    for (int i = 0; i < 32; i++){
+        outputArray[i] = payloadArray[i];
+    }
+    if (payloadArrayLength < 32) {
+        for (int i = payloadArrayLength; i < 31; i++){
+            outputArray[i] = '_';
+        }
+        outputArray[31] = '\0';
+    }
+
+    Serial1.print(outputArray);
+
+    Serial1.print("\n");
+
+
     Serial1.print("Sending Message to ");
     if (receiverAdress == refereeAdress)
         Serial1.print("referee ");
@@ -313,14 +331,9 @@ void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray,
         Serial1.print("scout ");
 
     Serial1.print("with content: ");
-    char outputArray[32];
-    for (int i = 0; i < 32; i++){
-        outputArray[i] = payloadArray[i];
-    }
-    if (payloadArrayLength < 32)
-        outputArray[payloadArrayLength] = '\0';
-
     Serial1.println(outputArray);
+    Serial1.flush();
+
 #endif
 
 

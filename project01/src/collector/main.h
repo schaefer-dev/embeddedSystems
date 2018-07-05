@@ -11,7 +11,9 @@
 
 #define ARENA_SIZE_X 140
 #define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
-#define SERIAL_TIMEOUT_BLOCKING_READING 5000
+
+// TODO change this value
+#define SERIAL_TIMEOUT_BLOCKING_READING 30000
 
 
 
@@ -26,6 +28,7 @@
 
 #define LINE_SENSOR_READINGS
 #define ROBOT_SIMULATOR
+
 // #define COLLECTOR_MONITOR
 
 void setup();

@@ -53,7 +53,7 @@ void CollectorState::navigate(){
     if (drivingDisabled) {
         setSpeeds(0,0);
 #ifdef DEBUG
-        Serial1.println("driving disabled");
+        //Serial1.println("driving disabled");
 #endif
         return;
     }
@@ -63,7 +63,7 @@ void CollectorState::navigate(){
         if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
 #ifdef DEBUG
-            Serial1.println("no new destination in queue");
+            //Serial1.println("no new destination in queue");
 #endif
             return;
         }
@@ -179,6 +179,7 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;
             Serial1.println("OOB Punish over");
+            Serial1.flush();
         } else {
             Zumo32U4Motors::setSpeeds(0, 0);
             return;
@@ -228,5 +229,6 @@ void CollectorState::outOfBoundsMessage() {
     setSpeeds(0,0);
     outOfBounds = true;
     Serial1.println("OOB Punish start");
+    Serial1.flush();
     outOfBoundsTime = millis();
 }

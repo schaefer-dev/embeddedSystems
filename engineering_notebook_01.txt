@@ -606,3 +606,8 @@ No success in intergrating our implementation.
 	
 
 
+
+
+
+
+TODO: take care of negative coordinates being sent via position update/out of bounds message

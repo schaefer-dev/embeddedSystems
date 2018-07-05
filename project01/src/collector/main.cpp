@@ -20,6 +20,8 @@ Zumo32U4ProximitySensors *proximitySensors;
 
 int home[2] = {10, 20};      // home
 int statusRF = 0;
+char testInput[53];
+bool terminate;
 
 void setup() {
     proximitySensors = new Zumo32U4ProximitySensors();
@@ -45,6 +47,12 @@ void setup() {
     collectorState->nextDestinationX = home[0];
     collectorState->nextDestinationY = home[1];
     collectorState->nextDestinationCounter += 1;
+
+    for (int i = 0; i < 53; i++){
+        testInput[i] = '.';
+    }
+    testInput[51] = '\0';
+    terminate = false;
 
 
 #ifdef COLLECTOR_MONITOR
@@ -78,8 +86,20 @@ void setup() {
 
 void loop() {
 
+    /*if (terminate){
+        Serial1.println(testInput);
+        delay(2000);
+        return;
+    }
+
+    Serial1.readBytes(testInput, 51);
+    terminate = true;
+     */
+
+
+
 #ifdef SCENARIO_HOMING
-        homing();
+    homing();
 #endif
 
     checkForNewRFMessage();
@@ -115,6 +135,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
     Serial1.print(" Y: ");
     Serial1.println(currentY);
 #endif
+    Serial1.flush();
 
     collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
 
