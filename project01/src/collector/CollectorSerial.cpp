@@ -2,29 +2,10 @@
 // Created by Daniel Schäfer on 05.07.18.
 //
 
+
 #include "CollectorSerial.h"
 #include <Arduino.h>
 #include "main.h"
-
-
-
-void CollectorSerial::initCollectorSerial() {
-    Serial1.begin(9600);
-    Serial1.println("--- Start Serial Monitor ---");
-    Serial1.setTimeout(5000);
-}
-
-
-void CollectorSerial::serialRead(char *buffer, unsigned char size) {
-
-    Serial1.readBytes(buffer, size);
-}
-
-void CollectorSerial::serialWrite(char *buffer, unsigned char size) {
-
-    Serial1.print(buffer);
-}
-
 
 
 #ifdef ROBOT_SIMULATOR
@@ -38,11 +19,11 @@ bool CollectorSerial::simulatorMessageIncoming(){
     char buffer[2];
     Serial1.readBytes(buffer,1);
     if ('z' == (char)buffer[0]) {
-        initCollectorSerial();
+        Serial1.begin(9600);
         return true;
     }
 
-    initCollectorSerial();
+    Serial1.begin(9600);
     return false;
 }
 #endif

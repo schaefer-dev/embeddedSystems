@@ -180,6 +180,7 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
             outOfBounds = false;
             Serial1.println("OOB Punish over");
         } else {
+            Zumo32U4Motors::setSpeeds(0, 0);
             return;
         }
     }
