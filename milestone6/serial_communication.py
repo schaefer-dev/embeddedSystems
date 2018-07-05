@@ -9,22 +9,38 @@ pongReceived = False
 moving = True
 missedPings = 0
 
+messageTemplate = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
+x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+
+def sendMessagePrexif():
+    prefix = 'z'
+    ser.write(prefix)
+    time.sleep(2)
+    
 def sendPing():
     print ("Sending ping")
-    ping = b'\x50\x00\x01'
+    sendMessagePrexif()
+    ping = messageTemplate.copy()
+    ping[0] = b'\x50'
+    ping[1] = b'\x00'
+    ping[2] = b'\x01'
     ser.write(ping)
     pongReceived = False;
     time.sleep(2 + randint(0, 2))
 
 def sendPosUpdate():
     print ("Sending update")
-    update = b'\x60\x00\x00\x00\x00\x00\x00'
+    sendMessagePrexif()
+    update = messageTemplate.copy()
+    update[0] = b'/x60'
     ser.write(update)
     time.sleep(2 + randint(0, 2))
 
 def sendOutOfBounds():
     print ("Sending out of bounds")
-    update = b'\x61\x00\x00\x00\x00\x00\x00'
+    sendMessagePrexif()
+    update = messageTemplate.copy()
+    update[0] = b'/x61'
     ser.write(update)
     time.sleep(2 + randint(0, 2))
 
@@ -41,7 +57,6 @@ def receiveMovement(payload):
         moving = False
     else:
         moving = True
-
 
 def readSerial():
     try:
@@ -96,6 +111,7 @@ def outOfBoundsRun():
     
     
 print('Referee started')
+
 print('Ping Run')
 print('Success' if pingRun() else 'Fail')
 
