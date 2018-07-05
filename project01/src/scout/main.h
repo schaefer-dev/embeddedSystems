@@ -41,6 +41,7 @@ void checkForNewRFMessage();
 void debug_sendPingToCollector();
 void homing();
 void checkForLines();
+bool detectLine();
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 

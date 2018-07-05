@@ -25,8 +25,7 @@ void initialize(){
     scoutState->nextDestinationY = home[1];
     scoutState->nextDestinationCounter += 1;
 
-    pololu_3pi_init(50000);
-    delay(10);
+    pololu_3pi_init_disable_emitter_pin(5000);     // recommended value between 2000 and 7500 depending on lighting condition
 
     for (int i = 0; i < 80; i++) {
         if(i < 20 || i >= 60)
@@ -34,7 +33,7 @@ void initialize(){
         else
             OrangutanMotors::setSpeeds(-40,40);
 
-        calibrate_line_sensors(IR_EMITTERS_ON);
+        calibrate_line_sensors(IR_EMITTERS_OFF);
         //robot.calibrateLineSensors(IR_EMITTERS_ON);
 
         delay_ms(20);
@@ -164,15 +163,48 @@ int main() {
 }
 
 void checkForLines() {
+    int serialMessageLength = 0;
+    char serialMessage[2];
+
+    serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
+    if (serialMessageLength < 1) {
+        return;
+
+    }
+
+    ScoutSerial::serialWrite(serialMessage, serialMessageLength);
+    ScoutSerial::serialWrite("\n", 1);
+
+    int number = serialMessage[0] - 48;
+    if (serialMessageLength > 1) {
+        number *= 10;
+        number += serialMessage[1] - 48;
+    }
+
+    ScoutSerial::serialWrite("drive lines: ", 13);
+    ScoutSerial::serialWriteInt(number);
+
+    while(number > 0) {
+        if (detectLine()) {
+            ScoutSerial::serialWrite("Found a line\n", 13);
+            --number;
+            while (detectLine()) {
+                // wait until line is lost to count the next one
+            }
+            ScoutSerial::serialWrite("Line lost\n", 10);
+        }
+    }
+}
+
+bool detectLine() {
     unsigned int sensorReadings[5] = {0,0,0,0,0};
     unsigned int sensorReadingsRaw[5] = {0,0,0,0,0};
 
     //unsigned int position = robot.readLine(sensorReadings, IR_EMITTERS_ON);
-    unsigned int position = read_line(sensorReadings, IR_EMITTERS_ON);
+    unsigned int position = read_line(sensorReadings, IR_EMITTERS_OFF);
 
     //robot.readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
     //read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
-    delay(10);
 
     ScoutSerial::serialWrite("\npos: ", 6);
     ScoutSerial::serialWriteInt(position);
@@ -186,7 +218,8 @@ void checkForLines() {
     for (int i = 0; i < 5; ++i) {
         ScoutSerial::serialWriteInt(sensorReadingsRaw[i]);
     }*/
-    delay(1000);
+    delay(10);
+    return false;
 }
 
 void homing() {
