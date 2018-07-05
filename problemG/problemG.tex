@@ -1,0 +1,144 @@
+% exercise sheet with header on every page for math or close subjects
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{latexsym}
+\usepackage{multicol}
+\usepackage{fancyhdr}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{enumerate}
+\usepackage{listings}
+\usepackage{graphicx}
+
+% Shortcuts for bb, frak and cal letters
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\V}{\mathbb{V}}
+\renewcommand{\P}{\mathbb{P}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Pfrak}{\mathfrak{P}}
+\newcommand{\Pfrac}{\mathfrak{P}}
+\newcommand{\Bfrac}{\mathfrak{P}}
+\newcommand{\Bfrak}{\mathfrak{B}}
+\newcommand{\Fcal}{\mathcal{F}}
+\newcommand{\Ycal}{\mathcal{Y}}
+\newcommand{\Bcal}{\mathcal{B}}
+\newcommand{\Acal}{\mathcal{A}}
+
+% formating
+\topmargin -3.5cm
+\textheight 22cm
+\textwidth 16.0 cm
+\oddsidemargin -0.1cm
+
+% Fancy Header on every Page
+\pagestyle{fancy}
+\lhead{\textbf{Embedded Systems Problem Set B}}
+\rhead{Rafael Dewes (2548365) \\ Kevin M\"uller (2550062) \\ Daniel Schäfer (2549458) }
+\renewcommand{\headrulewidth}{1.2pt}
+\setlength{\headheight}{110pt}
+
+\begin{document}
+\pagenumbering{gobble}
+\lstset{language=C++}
+
+
+\section*{Problem B1}
+% TODO
+\begin{enumerate}[a)]
+	\item According to sampling theory (Nyquist criterion) the sampling rate needs to be at least twice as big as the highest frequency of the component sine waves.
+	$$ f_s > 2 * f_N$$
+	To compute the necessary sampling rate, the Nyquist frequency $f_N$ has to be computed as follows
+	$$ S(t) = \underbrace{sin(2\pi t + \frac{1}{4})}_{f = 1Hz} + \underbrace{sin(4\pi t + \frac{1}{4})}_{f = 2Hz}$$
+	The highest frequency of the component sine waves is $2$, which means that $f_N = 2$.
+
+	$\Rightarrow$ The signal has to be sampled at least 4 times per second to enable a reconstruction.
+
+	\item Shannon-Whittaker interpolation:
+	As calculated above we have a frequency of 4, giving us f = 4.
+	We can then define our sinc function in the following way
+	\[
+    		sinc(i)=
+		\begin{cases}
+    			 \frac{sin(4{\pi}i)}{4{\pi}i},& \text{if } i\neq 0\\
+    			1,              & \text{otherwise}
+		\end{cases}
+	\]
+    Given a reconstruction intervall of [0,2] and a sampling frequency of $f=\frac{1}{4}$ we know that we have 8 samples for this intervall. This gives us the Shannon-Whittaker interpolation function as:
+
+	$$z(t) = \sum_{s=1}^{8} y(t_s) * sinc(t-t_s)$$
+	$$=  y(t_1) * sinc(t-t_1) + y(t_2) * sinc(t-t_2) + ...$$
+	$$=  y(0) * sinc(t-0) + y(0.25) * sinc(t-0.25) + ...$$
+
+The resulting function {z(t)} gives us a reconstruction of the original signal based on the sampled values plotted as a step function.\\
+
+
+\begin{centering}
+\includegraphics[scale = 0.3]{figures/sinc4}\\
+\end{centering}
+
+From the plot we can see that the original and the reconstructed signals match at the points in time where the original signal was sampled. However, since the sampling frequency was rather low (exactly twice the maximum frequency), the reconstruction is far from accurate. For example at time points t=0.3 or t=1.1 we can see large differences. The original signal has a period of 1. Given the interval of 2, we have two full  periods sampled. Our sampled signal is also periodic which means it will repeat itself outside of the intervall. The reconstructed intervall will therefore also be periodic after t=2.
+
+Using a matlab script we noticed, that especially a frequency of $\frac{1}{5}$ worked very well, as seen in the plot below.\\
+
+\begin{centering}
+\includegraphics[scale = 0.3]{figures/sinc5}\\
+\end{centering}
+
+
+%	$$\sum_{s=0}^{8} y(t_s) * \frac{sin({4\pi}(t-t_s))}{{4\pi}(t-t_s)}$$
+%	$$\sum_{s=0}^{2} y(t_s) * \frac{sin(\frac{4\pi}(t-t_s))}{\frac{\pi}{0.25}(t-t_s)}$$
+
+
+	\item Simulation using simulink resulted in the following plot of the noisy signal ($e=0.5$)\\
+        \begin{centering}
+        \includegraphics[scale = 0.14]{figures/noise_sim}\\
+        \end{centering}
+
+        using the following model:\\
+        \begin{centering}
+        \includegraphics[scale = 0.3]{figures/simulink_1bc}\\
+        \end{centering}
+
+	\item Sampling using the same matlab script that we already used for task 1B b) results in the following plots for the f and e values mentioned in the legend.\\
+        \begin{centering}
+        \includegraphics[scale = 0.3]{figures/e01-f14}\\
+        \includegraphics[scale = 0.3]{figures/e01-f15}\\
+        \includegraphics[scale = 0.3]{figures/e05-f14}\\
+        \includegraphics[scale = 0.3]{figures/e05-f15}\\
+        \includegraphics[scale = 0.3]{figures/e20-f14}\\
+        \includegraphics[scale = 0.3]{figures/e20-f15}\\
+        \end{centering}
+
+        It is very obvious that the reconstructions gets significantly harder/worse with an higher value of $e$. Additionally there is a very large increase in accuracy when going from sampling frequency $\frac{1}{4}$ to $\frac{1}{5}$.
+
+        % TODO write more?
+
+\end{enumerate}
+
+\section*{Problem B4}
+\begin{enumerate}[a)]
+	\item The integral part of a PID (or PI) controller accumulates the error so far, meaning that the almost constant error introduced by the bias will accumulate. Eventually, by adjusting the integral gain as a response to the accumulation of errors, the error will go to zero. The derivative part of a PID (or PD) controller changes the signal gain based on the error rate of change. Since we have a constant bias, the rate of change will essentially be zero. Therefore a PD controller will have no advantage over simple P controller (only proportional gain), while a PI controller will get rid of the bias and get the error down to zero.\\
+Our model for this exercise corresponds to the one shown in b) except for the addition of noise.\\
+	\item We have two different PID controllers. The first on gets the desired angle as reference signal and the current angle $\Theta$ and outputs a signal that is used to ajust both the left and right wheel velocities. As a result, from the initial state with $\Theta = 0$, the wheels are turned until the reference value of 70 degrees is reached after around 2 seconds. These are our values for the controller: 
+\begin{itemize}
+\item P: Causes the error to get smaller proportionally. For the angle, we don't need this because we would rather turn at a constant speed than turn fast in the beginning and then get slower. However, we have to keep it high enough so we don't overshoot to much. So we set this to 200
+\item I: Causes the error to get smaller based on the error accumulated so far. We want to have this in order to get rid of the constant error introduced by the bias. However, it should not be too big to prevent overshooting too much. So we set it to 100.
+\item D: Causes the error to get smaller based on the rate of change. This has to account for the noise that changes a lot so it should not be too small but we noticed that it doesn't seem to have a big effect on the response curve. 50 seems to be a good value.
+\end{itemize}
+The second PID controller gets the desired speed as reference signal and the current speed and outputs again a value that is used to adjust both wheel velocities to reach the desired state. In particular, when the car is too slow, the output of the PID controller will cause the car to slow down and vice versa. As a result, from the initial state with velocity zero, while at the same time turning to the desired reference angle, the car gradually accelerates to the desired speed of 100 and reaches it after 3 seconds. These are our values for the controller:\begin{itemize}
+\item P: Since we want to drive as fast as possible most of the time, there is no need for a big proportional gain, so we set this to 1.
+\item I: The integral part is very important to get rid of the steady state error of the wheel velocities so this get's a higher value of 300.
+\item D: Again, the derivative part is used as a countermeasure to the quickly changing error due to the noise which is why we also set this to 100.
+\end{itemize}
+We discovered these values by the above considerations but also by trying out some values until the desired response was reached. For each controller, we kept the filter coefficient (N) down at 1 so it does not have an effect. This is because it was not mentioned in the lecture and it not part of a basic PID controller. One thing to note is that we adjusted the controllers and the effect they have on the signal in the way that the car still behaves in a reasonable and realistic manner, meaning that the wheel velocities stay within a reasonable range, causing the car to gradually reach the desired state as it would be in an experiment with the real robot.\\
+This is our simulink model:\\
+\includegraphics[scale = 0.5]{figures/diff_drive}\\
+This is the output of the exercise scope where violet is the angle $\Theta$ and green is the velocity. Blue and yellow are the separate wheel velocities:\\
+\includegraphics[scale = 0.5]{figures/pid_graph}\\
+\end{enumerate}
+
+\end{document}
