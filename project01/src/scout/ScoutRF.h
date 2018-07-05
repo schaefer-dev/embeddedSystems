@@ -43,7 +43,6 @@ public:
 
     static void getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t command);
     static void sendCommandWithPayload(uint8_t *commandArray, int byteCount);
-
     static void write5ByteAdress(int reg, uint8_t* bytes);
 
     static void readAdressRegister(uint8_t reg, uint8_t* outputArray);

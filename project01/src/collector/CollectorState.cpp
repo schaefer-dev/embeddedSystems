@@ -18,10 +18,19 @@ CollectorState::CollectorState() {
     currentAngle = 0.0f;
     destinationX = 0.0f;
     destinationY = 0.0f;
+    nextDestinationCounter = 0;
+    nextDestinationX = 0;
+    nextDestinationY = 0;
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
     destinationReached = true;
+
+    outOfBounds = false;
+    outOfBoundsTime = 0;
+    drivingDisabled = true;
+    earliestNextRotationTime = millis();
+    navigationStep = NAV_NONE;
 }
 
 /*
@@ -37,15 +46,41 @@ float CollectorState::getAngle() {
 }
 
 
-/* sets motor values to updateRoboterPositionAndAngles/turn towards the specified destination */
-bool CollectorState::navigateToDestination() {
+
+/* drives towards current destination */
+void CollectorState::navigate(){
+
+    if (drivingDisabled) {
+        setSpeeds(0,0);
 #ifdef DEBUG
-    Serial1.print("POS: (");
-    Serial1.print(currentX);
-    Serial1.print(", ");
-    Serial1.print(currentY);
-    Serial1.print(")");
+        Serial1.println("driving disabled");
 #endif
+        return;
+    }
+
+    /* read new destination if no destination currently */
+    if (destinationReached == true){
+        if (nextDestinationCounter == 0) {
+            setSpeeds(0,0);
+#ifdef DEBUG
+            Serial1.println("no new destination in queue");
+#endif
+            return;
+        }
+
+#ifdef DEBUG
+        Serial1.println("set new destination from queue");
+        Serial1.print("X: ");
+        Serial1.print(nextDestinationX);
+        Serial1.print("Y: ");
+        Serial1.println(nextDestinationY);
+#endif
+
+        destinationX = nextDestinationX;
+        destinationY = nextDestinationY;
+        destinationReached = false;
+    }
+
 
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold
@@ -54,13 +89,11 @@ bool CollectorState::navigateToDestination() {
 #ifdef DEBUG
         Serial1.println("\nDestination Reached!");
 #endif
+        destinationX = 0;
+        destinationY = 0;
         destinationReached = true;
-        Serial1.print("Destination ");
-        Serial1.print(destinationX);
-        Serial1.print(", ");
-        Serial1.print(destinationY);
-        Serial1.println(" reached!");
-        return true;
+        drivingDisabled = true;
+        return;
     }
 
     // turn towards destination
@@ -85,40 +118,48 @@ bool CollectorState::navigateToDestination() {
     while (deltaAngleDeg < 0) deltaAngleDeg += 360;
     double deltaDegrees = deltaAngleDeg;
 
-#ifdef DEBUG
-    Serial1.print("\t IST: ");
-    Serial1.print(currentAnglePrint);
-    Serial1.print(" (");
-    Serial1.print(((180 / M_PI) * currentAnglePrint));
-    Serial1.print(")");
-    Serial1.print("\t SOLL: ");
-    Serial1.print(angle);
-    Serial1.print(" (");
-    Serial1.print(((180 / M_PI) * anglePrint));
-    Serial1.print(")");
-    Serial1.print("\t DELTA : ");
-    Serial1.print(deltaAngle);
-    Serial1.print(" (");
-    Serial1.print(((180 / M_PI) * deltaAngle));
-    Serial1.println(")");
-#endif
 
-    if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
+    /* drive straight if turned to right angle in near future */
+    if (millis() < earliestNextRotationTime) {
         setSpeeds(forwardSpeed, forwardSpeed);
-        //Serial1.println("straight ahead!");
-        return false;
+        navigationStep = NAV_DRIVING_STRAIGHT;
+#ifdef DEBUG
+        Serial1.println("straight ahead!");
+#endif
+        return;
     }
+
+    /* drive straight if angle still correct */
+    if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
+        /* if turned in previous step make sure to turn for at least the defined ms now */
+        if (navigationStep == NAV_TURNING_LEFT || navigationStep == NAV_TURNING_RIGHT){
+            earliestNextRotationTime = millis() + DO_NOT_ROTATE_AGAIN_MS;
+        }
+        navigationStep = NAV_DRIVING_STRAIGHT;
+        setSpeeds(forwardSpeed, forwardSpeed);
+#ifdef DEBUG
+        Serial1.println("straight ahead!");
+#endif
+        return;
+    }
+
 
     if (deltaAngle < 0) {
         // turn left
+        navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
-        //Serial1.println("turning left!");
+#ifdef DEBUG
+        Serial1.println("turning left!");
+#endif
     } else {
         // turn right
+        navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
-        //Serial1.println("turning right!");
+#ifdef DEBUG
+        Serial1.println("turning right!");
+#endif
     }
-    return false;
+
 }
 
 
@@ -127,10 +168,13 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
     currentY = y;
     currentAngle = a;
     lastDiffDriveCall = millis();
-    destinationReached = false;
 }
 
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (drivingDisabled) {
+        Zumo32U4Motors::setSpeeds(0, 0);
+        return;
+    }
     if (outOfBounds){
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;

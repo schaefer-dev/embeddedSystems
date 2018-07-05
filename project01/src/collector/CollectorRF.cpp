@@ -7,11 +7,12 @@
 #include <Arduino.h>
 #include "main.h"
 #include "CollectorMonitor.h"
+#include "CollectorSerial.h"
 
 
-int CollectorRF::refereeAdress[5];
-int CollectorRF::scoutAdress[5];
-int CollectorRF::collectorAdress[5];
+uint8_t CollectorRF::refereeAdress[5];
+uint8_t CollectorRF::scoutAdress[5];
+uint8_t CollectorRF::collectorAdress[5];
 
 
 void CollectorRF::initializeRFModule() {
@@ -25,7 +26,7 @@ void CollectorRF::initializeRFModule() {
      * short delay
      * */
 
-
+#ifndef ROBOT_SIMULATOR
     /* create arrays to store the adress values of referee,
      * collector and scout (already inverted) */
     refereeAdress[4] = 0xe1;
@@ -83,8 +84,11 @@ void CollectorRF::initializeRFModule() {
     PORTC |= (1 << PIN_RF_ENABLE_C);
     delayMicroseconds(30);
 
+#endif
+
 }
 
+#ifndef ROBOT_SIMULATOR
 void CollectorRF::debug_RFModule(){
     int output = 0;
     for (int i = 0; i < 30; i++){
@@ -94,13 +98,13 @@ void CollectorRF::debug_RFModule(){
         Serial1.print(i);
         Serial1.print(" = (");
         Serial1.print(output);
-        Serial1.print(")");
+        Serial1.print(")");  
 
         delay(20);
 
     }
 
-    int adressArray[5];
+    uint8_t adressArray[5];
     readAdressRegister(0x000A, adressArray);
     Serial1.print("ADDR Register: 0A (");
     for (int i=0; i < 5; i++) {
@@ -116,9 +120,11 @@ void CollectorRF::debug_RFModule(){
     Serial1.println(")");
 
 }
+#endif
 
 
 int CollectorRF::queryRFModule(){
+#ifndef ROBOT_SIMULATOR
     CollectorSPI::slaveSelect(SLAVE_RF);
     unsigned int payload = 255;
     unsigned int statusRF = CollectorSPI::readWriteSPI(payload);
@@ -129,14 +135,25 @@ int CollectorRF::queryRFModule(){
     //Serial1.println(")");
 
     return statusRF;
+#endif
+
+#ifdef ROBOT_SIMULATOR
+    if (CollectorSerial::simulatorMessageIncoming()) {
+        Serial1.println("Message arrived");
+        return (1 << 6);
+    } else {
+        return 0;
+    }
+#endif
 }
 
 
 
 
-void CollectorRF::processReceivedMessage() {
+void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
+#ifndef ROBOT_SIMULATOR
     /* case for Message arrived */
-    int answerArray[1];
+    uint8_t answerArray[1];
     getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
 
     /* if no next payload there */
@@ -145,7 +162,7 @@ void CollectorRF::processReceivedMessage() {
     }
 
     /* read message from pipe */
-    int payloadArray[answerArray[0]];
+    uint8_t payloadArray[answerArray[0]];
     getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
     Serial1.print("Message: ");
@@ -157,6 +174,23 @@ void CollectorRF::processReceivedMessage() {
 
     /* clear status register */
     writeRegister(RF_REGISTER_STATUS, 64);
+
+#endif
+
+#ifdef ROBOT_SIMULATOR
+    int answerArray[1];
+    char serialInputArray[32];
+
+    /* length of message here */
+    answerArray[0] = 32;
+    CollectorSerial::receiveSerialBlocking(serialInputArray);
+    uint8_t payloadArray[32];
+
+    for (int i = 0; i < 32; i++){
+        payloadArray[i] = serialInputArray[i];
+    }
+
+#endif
 
     switch(payloadArray[0]){
         case 0x50: {
@@ -174,6 +208,20 @@ void CollectorRF::processReceivedMessage() {
             break;
         case 0x60:
             /* POS update case */
+            collectorState->drivingDisabled = false;
+#ifdef ROBOT_SIMULATOR
+            CollectorSerial::serialWrite("Position update received!\n",26);
+#endif
+            receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
+                             payloadArray[3] * 256 + payloadArray[4],
+                             payloadArray[5] * 256 + payloadArray[6]);
+            break;
+        case 0x61:
+#ifdef ROBOT_SIMULATOR
+            CollectorSerial::serialWrite("OOB Message received!\n",22);
+#endif
+            /* Out of Bounds Message */
+            collectorState->outOfBoundsMessage();
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
@@ -195,7 +243,8 @@ void CollectorRF::processReceivedMessage() {
     }
 }
 
-void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payloadArrayLength){
+void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray, int payloadArrayLength){
+#ifndef ROBOT_SIMULATOR
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
@@ -245,6 +294,7 @@ void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payl
             break;
         }
     }
+#endif
 
 #ifdef COLLECTOR_MONITOR
     if (payloadArray[0] == 0x51) {
@@ -253,6 +303,27 @@ void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payl
     }
 #endif
 
+#ifdef ROBOT_SIMULATOR
+    CollectorSerial::serialWrite("Sending Message to ", 19);
+    if (receiverAdress == refereeAdress)
+        CollectorSerial::serialWrite("referee ", 8);
+    if (receiverAdress == collectorAdress)
+        CollectorSerial::serialWrite("collector ", 10);
+    if (receiverAdress == scoutAdress)
+        CollectorSerial::serialWrite("scout ", 10);
+
+    CollectorSerial::serialWrite("with content: ", 14);
+    char outputArray[32];
+    for (int i = 0; i < 32; i++){
+        outputArray[i] = payloadArray[i];
+    }
+
+    CollectorSerial::serialWrite(outputArray, payloadArrayLength);
+    CollectorSerial::serialWrite("\n", 1);
+#endif
+
+
+#ifndef ROBOT_SIMULATOR
     /* clear received status */
     writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );
 
@@ -261,9 +332,11 @@ void CollectorRF::sendMessageTo(int* receiverAdress, int* payloadArray, int payl
 
     /* switch back to RX mode */
     writeRegister(RF_REGISTER_CONFIG, 15);
+#endif
 }
 
 
+#ifndef ROBOT_SIMULATOR
 void CollectorRF::flushRXTX() {
 
     /* flush TX and RX */
@@ -271,10 +344,11 @@ void CollectorRF::flushRXTX() {
     sendCommandWithPayload(payload, 1);
     payload[0] = RF_COMMAND_FLUSH_TX;
     sendCommandWithPayload(payload, 1);
-
 }
+#endif
 
 
+#ifndef ROBOT_SIMULATOR
 void CollectorRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
@@ -287,10 +361,11 @@ void CollectorRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
     CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
+#endif
 
 
-
-void CollectorRF::getCommandAnswer(int *answerArray, int byteCount, int8_t command){
+#ifndef ROBOT_SIMULATOR
+void CollectorRF::getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t command){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
 
@@ -303,7 +378,9 @@ void CollectorRF::getCommandAnswer(int *answerArray, int byteCount, int8_t comma
     CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
+#endif
 
+#ifndef ROBOT_SIMULATOR
 void CollectorRF::writeRegister(uint8_t reg, uint8_t setting){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
@@ -315,8 +392,10 @@ void CollectorRF::writeRegister(uint8_t reg, uint8_t setting){
     CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
+#endif
 
 
+#ifndef ROBOT_SIMULATOR
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
 void CollectorRF::write5ByteAdress(int reg, int* bytes){
 
@@ -332,8 +411,10 @@ void CollectorRF::write5ByteAdress(int reg, int* bytes){
     CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
+#endif
 
 
+#ifndef ROBOT_SIMULATOR
 int CollectorRF::readRegister(uint8_t reg){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
@@ -347,7 +428,9 @@ int CollectorRF::readRegister(uint8_t reg){
 
     return output;
 }
+#endif
 
+#ifndef ROBOT_SIMULATOR
 void CollectorRF::readAdressRegister(uint8_t reg, int* outputArray){
     CollectorSPI::slaveSelect(SLAVE_RF);
 
@@ -361,3 +444,4 @@ void CollectorRF::readAdressRegister(uint8_t reg, int* outputArray){
     CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
+#endif

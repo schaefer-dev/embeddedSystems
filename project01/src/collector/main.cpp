@@ -10,13 +10,13 @@
 #include "../scout/main.h"
 #include "CollectorMonitor.h"
 #include "CollectorRF.h"
+#include "CollectorSerial.h"
 
-CoordinateQueue *coordinateQueue;
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
 boolean terminate = false;
-int home[2] = {50, 50};      // home
+int home[2] = {10, 20};      // home
 int statusRF = 0;
 
 void setup() {
@@ -26,7 +26,6 @@ void setup() {
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
-    coordinateQueue = new CoordinateQueue();
     statusRF = 0;
 
     // initialize differential updateRoboterPositionAndAngles
@@ -35,8 +34,8 @@ void setup() {
     collectorState->lastDiffDriveCall = millis();
 
     // initialize serial connection
-    Serial1.begin(9600);
-    Serial1.println("--- Start Serial Monitor ---");
+    CollectorSerial::initCollectorSerial();
+
 
 #ifdef COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
@@ -60,12 +59,11 @@ void setup() {
 
     CollectorSPI::SPIMasterInit();
     delay(50);
-    Serial1.println("--- SPI MASTER INITIALIZED ---");
+    CollectorSerial::serialWrite("--- SPI MASTER INITIALIZED ---\n", 0);
     CollectorRF::initializeRFModule();
-    Serial1.println("--- RF MODULE INITIALIZED ---");
+    CollectorSerial::serialWrite("--- RF MODULE INITIALIZED ---\n", 0);
     delay(100);
 
-    delay(5000);
 }
 
 void loop() {
@@ -110,10 +108,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 
     collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
 
-
-    if (coordinateQueue->isEmpty()){
-        coordinateQueue->append(home[0], home[1]);
-    }
+    collectorState->destinationReached = true;
 };
 
 void checkForNewRFMessage(){
@@ -121,46 +116,19 @@ void checkForNewRFMessage(){
     char messageReceived = statusRF & (1 << 6);
 
     if (messageReceived){
-        CollectorRF::processReceivedMessage();
+        CollectorRF::processReceivedMessage(collectorState);
     }
 }
 
 void homing() {
 
-    //int currentPosition[2];
+    collectorState->navigate();
 
-    // read current destination from serial
-    //if (readNewDestinations(currentPosition)) {
-        // reset diff drive and append home to queue
-        //collectorState->resetDifferentialDrive(currentPosition[0], currentPosition[1], 0);
-        //coordinateQueue->append(home[0], home[1]);
-    //}
-
-    if (!driveToDestination()){
-        // already home -> dancing
-        /* TODO not tested */
-        performRotation(90);
-        performRotation(-180);
-        performRotation(90);
-    }
     delay(1);
     collectorState->updateRoboterPositionAndAngles();
 }
 
-void driveToSerialInput() {
-    int destination[2];
-    readNewDestinations(destination);
-    coordinateQueue->append(destination[0], destination[1]);
 
-    if (terminate) {
-        performRotation(360);
-    } else {
-        if (driveToDestination()) {
-            performRotation(360);
-        }
-        collectorState->updateRoboterPositionAndAngles();
-    }
-}
 
 void huntObject() {
     proximitySensors->read();
@@ -208,26 +176,6 @@ void huntObject() {
     }
 }
 
-/**
- * When the current destination is reached, calls @readNewDestinations.
- * Drives to the current destination.
- * @return True iff the last destination is reached.
- */
-bool driveToDestination() {
-    if (collectorState->destinationReached) {
-        struct CoordinateQueue::CoordinateNode *node = coordinateQueue->pop(collectorState->currentX,
-                                                                            collectorState->currentY);
-        if (node == nullptr) {
-            collectorState->setSpeeds(0, 0);
-            return false;
-        }
-
-        collectorState->destinationX = node->x;
-        collectorState->destinationY = node->y;
-        collectorState->destinationReached = false;
-    }
-    return collectorState->navigateToDestination();
-}
 
 /**
  * Reads a new destination from the serial stream and adds it to the queue.

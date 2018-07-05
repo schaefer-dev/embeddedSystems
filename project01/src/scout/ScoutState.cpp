@@ -56,7 +56,9 @@ void ScoutState::navigate(){
 
     if (drivingDisabled) {
         setSpeeds(0,0);
+#ifdef DEBUG
         ScoutSerial::serialWrite("driving disabled\n",17);
+#endif
         return;
     }
 
@@ -64,16 +66,20 @@ void ScoutState::navigate(){
     if (destinationReached == true){
         if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
+#ifdef DEBUG
             ScoutSerial::serialWrite("no new destination in queue\n",28);
+#endif
             return;
         }
 
+#ifdef DEBUG
         ScoutSerial::serialWrite("set new destination from queue\n",31);
         ScoutSerial::serialWrite("X: ",3);
         ScoutSerial::serialWriteInt(nextDestinationX);
         ScoutSerial::serialWrite("Y: ",3);
         ScoutSerial::serialWriteInt(nextDestinationY);
         ScoutSerial::serialWrite("\n",1);
+#endif
 
         destinationX = nextDestinationX;
         destinationY = nextDestinationY;
@@ -86,7 +92,7 @@ void ScoutState::navigate(){
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
 #ifdef DEBUG
-        serial_send_blocking("\nDestination Reached!\n", 22);
+        ScoutSerial::serialWrite("\nDestination Reached!\n", 22);
 #endif
         destinationX = 0;
         destinationY = 0;
@@ -122,7 +128,9 @@ void ScoutState::navigate(){
     if (millis() < earliestNextRotationTime) {
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
+#ifdef DEBUG
         ScoutSerial::serialWrite("straight ahead!\n", 16);
+#endif
         return;
     }
 
@@ -134,7 +142,9 @@ void ScoutState::navigate(){
         }
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
+#ifdef DEBUG
         ScoutSerial::serialWrite("straight ahead!\n", 16);
+#endif
         return;
     }
 
@@ -143,12 +153,16 @@ void ScoutState::navigate(){
         // turn left
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
+#ifdef DEBUG
         ScoutSerial::serialWrite("turning left!\n", 14);
+#endif
     } else {
         // turn right
         navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
+#ifdef DEBUG
         ScoutSerial::serialWrite("turning right!\n", 15);
+#endif
     }
 
 }
