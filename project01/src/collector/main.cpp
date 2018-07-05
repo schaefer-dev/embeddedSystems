@@ -41,8 +41,8 @@ void setup() {
     collectorState->lastDiffDriveCall = millis();
 
     // initialize line sensors
-    uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3, SENSOR_DOWN5 };
-    lineSensors = Zumo32U4LineSensors(pins, 3);
+    uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3}; // sensor 2 & 4 collision with proximity; 5 - timer4
+    lineSensors = Zumo32U4LineSensors(pins, 2);
     for (int i = 0; i < 80; i++) {
         if(i < 20 || i >= 60)
             collectorState->setSpeeds(40,-40);
