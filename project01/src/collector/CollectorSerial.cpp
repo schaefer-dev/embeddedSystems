@@ -1,7 +1,3 @@
-//
-// Created by Daniel Schäfer on 05.07.18.
-//
-
 
 #include "CollectorSerial.h"
 #include <Arduino.h>

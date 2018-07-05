@@ -11,6 +11,8 @@
 #include "CollectorMonitor.h"
 #include "CollectorRF.h"
 #include "CollectorSerial.h"
+#include "Zumo32U4LineSensors.h"
+#include "QTRSensors.h"
 
 
 #include "Zumo32U4Motors.h"
@@ -22,6 +24,7 @@ int home[2] = {10, 20};      // home
 int statusRF = 0;
 char testInput[53];
 bool terminate;
+Zumo32U4LineSensors lineSensors;
 
 void setup() {
     proximitySensors = new Zumo32U4ProximitySensors();
@@ -36,6 +39,21 @@ void setup() {
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
+
+    // initialize line sensors
+    uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3, SENSOR_DOWN5 };
+    lineSensors = Zumo32U4LineSensors(pins, 3);
+    for (int i = 0; i < 80; i++) {
+        if(i < 20 || i >= 60)
+            collectorState->setSpeeds(40,-40);
+        else
+            collectorState->setSpeeds(-40,40);
+
+        lineSensors.calibrate(QTR_EMITTERS_ON_AND_OFF);
+
+        delay(20);
+    }
+    collectorState->setSpeeds(0,0);
 
     // initialize serial connection
     Serial1.begin(9600);
@@ -292,4 +310,61 @@ void generateBrightnessLevels() {
         defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1 / 4.0f);
     }
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
+}
+
+
+void checkForLines() {
+    int serialMessageLength = 0;
+    char serialMessage[2];
+
+    serialMessageLength = CollectorSerial::readMessageFromSerial(serialMessage);
+    if (serialMessageLength < 1) {
+        return;
+
+    }
+
+    Serial1.write(serialMessage);
+    Serial1.write("\n");
+
+    int number = serialMessage[0] - 48;
+    if (serialMessageLength > 1) {
+        number *= 10;
+        number += serialMessage[1] - 48;
+    }
+
+    Serial1.write("drive lines: ");
+    Serial1.write(number);
+
+    while(number > 0) {
+        if (detectLine()) {
+            Serial1.write("Found a line\n");
+            --number;
+            while (detectLine()) {
+                // wait until line is lost to count the next one
+            }
+            Serial1.write("Line lost\n");
+        }
+    }
+}
+
+bool detectLine() {
+    unsigned int sensorReadings[3] = {0,0,0};
+    bool lineDetected = false;
+
+    unsigned int position = lineSensors.readLine(sensorReadings, QTR_EMITTERS_ON_AND_OFF);
+
+    Serial1.write("\npos: ");
+    Serial1.write(position);
+
+    Serial1.write("vals:\n");
+    for (unsigned int sensorReading : sensorReadings) {
+        Serial1.write(sensorReading);
+        if (sensorReading > 500){
+            lineDetected = true;
+        }
+    }
+
+
+    delay(10);
+    return lineDetected;
 }
