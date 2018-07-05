@@ -23,7 +23,7 @@
 
 
 #define LINE_SENSOR_READINGS
-#define ROBOT_SIMULATOR
+// #define ROBOT_SIMULATOR
 
 // #define COLLECTOR_MONITOR
 
@@ -35,6 +35,10 @@ void huntObject();
 void generateBrightnessLevels();
 void homing();
 void checkForNewRFMessage();
+bool detectLine();
+void checkForLines();
+void generateBrightnessLevels();
+
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 

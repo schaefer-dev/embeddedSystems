@@ -57,7 +57,7 @@ void ScoutState::navigate(){
     if (drivingDisabled) {
         setSpeeds(0,0);
 #ifdef DEBUG
-        ScoutSerial::serialWrite("driving disabled\n",17);
+        //ScoutSerial::serialWrite("driving disabled\n",17);
 #endif
         return;
     }
@@ -67,7 +67,7 @@ void ScoutState::navigate(){
         if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
 #ifdef DEBUG
-            ScoutSerial::serialWrite("no new destination in queue\n",28);
+            //ScoutSerial::serialWrite("no new destination in queue\n",28);
 #endif
             return;
         }
@@ -129,7 +129,7 @@ void ScoutState::navigate(){
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
 #ifdef DEBUG
-        ScoutSerial::serialWrite("straight ahead!\n", 16);
+        //ScoutSerial::serialWrite("straight ahead!\n", 16);
 #endif
         return;
     }
@@ -143,7 +143,7 @@ void ScoutState::navigate(){
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
 #ifdef DEBUG
-        ScoutSerial::serialWrite("straight ahead!\n", 16);
+        //ScoutSerial::serialWrite("straight ahead!\n", 16);
 #endif
         return;
     }
@@ -154,14 +154,14 @@ void ScoutState::navigate(){
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
 #ifdef DEBUG
-        ScoutSerial::serialWrite("turning left!\n", 14);
+        //ScoutSerial::serialWrite("turning left!\n", 14);
 #endif
     } else {
         // turn right
         navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
 #ifdef DEBUG
-        ScoutSerial::serialWrite("turning right!\n", 15);
+       //ScoutSerial::serialWrite("turning right!\n", 15);
 #endif
     }
 

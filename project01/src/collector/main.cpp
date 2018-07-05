@@ -115,6 +115,10 @@ void loop() {
     terminate = true;
      */
 
+#ifdef LINE_SENSOR_READINGS
+    detectLine();
+#endif
+
 
 
 #ifdef SCENARIO_HOMING
