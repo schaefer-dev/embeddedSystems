@@ -184,6 +184,7 @@ void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
             outOfBounds = false;
             ScoutSerial::serialWrite("OOB Punish over\n",16);
         } else {
+            OrangutanMotors::setSpeeds(0, 0);
             return;
         }
     }

@@ -12,6 +12,9 @@
 #include "CollectorRF.h"
 #include "CollectorSerial.h"
 
+
+#include "Zumo32U4Motors.h"
+
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
