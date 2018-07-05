@@ -2,78 +2,105 @@ import serial
 import time
 from random import randint
 
-ser = serial.Serial('COM3', 9600, timeout=0)
-timeSystemStart = int(round(time.time() * 1000))
+ser = serial.Serial('/dev/cu.wchusbserial1420', 9600, timeout=0)
+ser.timeout = 0.2
 
 pongReceived = False
-moving = True
+oobDetected = True
 missedPings = 0
 
-messageTemplate = b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\
-x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+messageTemplate = b'\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30'
 
 def sendMessagePrexif():
-    prefix = 'z'
-    ser.write(prefix)
-    time.sleep(2)
-    
+    global ser
+
+    prefix = "z"
+    ser.write(bytes(prefix, 'utf-8'))
+    time.sleep(0.3)
+    ser.reset_input_buffer()
+
 def sendPing():
+    global pongReceived
+    global ser
+
     print ("Sending ping")
     sendMessagePrexif()
-    ping = messageTemplate.copy()
-    ping[0] = b'\x50'
-    ping[1] = b'\x00'
-    ping[2] = b'\x01'
+    ping = bytearray(len(messageTemplate))
+    ping[0] = 80 #\x50
+    ping[1] = 80  #\x00
+    ping[2] = 85  #\x01
+    for i in range(3, 50):
+        ping[i] = 46;
     ser.write(ping)
     pongReceived = False;
-    time.sleep(2 + randint(0, 2))
 
 def sendPosUpdate():
+    global ser
+
     print ("Sending update")
     sendMessagePrexif()
-    update = messageTemplate.copy()
-    update[0] = b'/x60'
+    update = bytearray(len(messageTemplate))
+    update[0] = '/x60'
+    for i in range(1, 50):
+        update[i] = 46;
     ser.write(update)
-    time.sleep(2 + randint(0, 2))
+
 
 def sendOutOfBounds():
+    global ser
+
     print ("Sending out of bounds")
     sendMessagePrexif()
-    update = messageTemplate.copy()
-    update[0] = b'/x61'
+    update = bytearray(len(messageTemplate))
+    update[0] = 0x61 #/x61
+    for i in range(1, 50):
+        update[i] = 46;
     ser.write(update)
-    time.sleep(2 + randint(0, 2))
 
 def receivePong(payload):
-    pongReceived = True;
-    if (payload[1] == 0x00 and payload[2] == 0x02):
-        print ("Received a pong")
-    else:    
-        print ("Received a pong with wrong nonce")
+    global pongReceived
+    global ser
 
-def receiveMovement(payload):
-    print ("Received movement")
-    if(payload[1] == 0x00 and payload[2] == 0x00):
-        moving = False
+    if (payload[1] == 80 and payload[2] == 86):
+        print ("Received a pong")
+        pongReceived = True;
     else:
-        moving = True
+        print ("Received a pong with wrong nonce " + str(payload[1]) + str(payload[2]))
+
+def checkOOBDetection(payload):
+    global oobDetected
+    global ser
+
+    if(payload[0] == 79 and payload[1] == 79 and payload[2] == 66):
+        oobDetected = True
+    else:
+        oobDetected = False
 
 def readSerial():
+    global ser
+
     try:
-        message = ser.readline()
+        message = ser.read(15)
+        if (len(message) == 0):
+            print("No Message received!")
+            return
         if (message[0] == 0x51):
             receivePong(message)
-        elif (message[0] == 0x80):
-            receiveMovement(message)
+        elif (message[0] == 0x4f):
+            checkOOBDetection(message)
         else:
             messageDec = message.decode("utf-8")
-            print ("He said: " + messageDec[0:len(messageDec)-1])
-        
+            # messageDec.strip()
+            print ("He said: " + messageDec[0:15])
+
     except ser.SerialTimeoutException:
         print('Data could not be read')
-        
+
 def pingRun():
-    return True
+    global missedPings
+    global pongReceived
+    global ser
+
     sendPing()
     readSerial()
     if (not pongReceived):
@@ -92,44 +119,45 @@ def pingRun():
     if (missedPings >= 3):
         print('Missed 3 pings, robot disqualified!')
         return False
-    return True 
+    return True
 
 def outOfBoundsRun():
-    return True
+    global ser
+    global oobDetected
+
     sendOutOfBounds()
     readSerial()
-    if (moving):
+    if (not oobDetected):
         print('Did not stop after oob, robot disqualified!')
         return False
-    for i in range (0, 30):    
-        time.sleep(1)
-        readSerial()
-        if (moving):
-            print('Did not stop after oob, robot disqualified!')
-            return False
-    return True    
-    
-    
+    return True
+
 print('Referee started')
+
+print('Out of Bounds Run')
+print('Success' if outOfBoundsRun() else 'Fail')
 
 print('Ping Run')
 print('Success' if pingRun() else 'Fail')
 
 print('Out of Bounds Run')
 print('Success' if outOfBoundsRun() else 'Fail')
-    
+
+print('Out of Bounds Run')
+print('Success' if outOfBoundsRun() else 'Fail')
 
 
-    
-
-    
 
 
-    
-    
 
 
-        
+
+
+
+
+
+
+
 
 
 
