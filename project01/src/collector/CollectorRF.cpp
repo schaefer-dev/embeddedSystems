@@ -223,6 +223,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             Serial1.flush();
 #endif
             /* Out of Bounds Message */
+            collectorState->drivingDisabled = false;
             collectorState->outOfBoundsMessage();
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],

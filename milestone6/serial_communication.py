@@ -9,6 +9,7 @@ ser.timeout = 0.1
 pongReceived = False
 oobDetected = True
 missedPings = 0
+lastNonce = 0
 
 messageTemplate = b'\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30'
 
@@ -21,15 +22,22 @@ def sendMessagePrexif():
     ser.reset_input_buffer()
 
 def sendPing():
+    global lastNonce
     global pongReceived
     global ser
 
     print ("Sending ping")
+
+    nonceMSB = random.randint(0, 127)
+    nonceLSB = random.randint(0, 127)
+
+    lastNonce = (nonceMSB, nonceLSB)
+
     sendMessagePrexif()
     ping = bytearray(len(messageTemplate))
     ping[0] = 80 #\x50
-    ping[1] = 80  #\x00
-    ping[2] = 85  #\x01
+    ping[1] = nonceMSB
+    ping[2] = nonceLSB
     for i in range(3, 50):
         ping[i] = 46;
     ser.write(ping)
@@ -41,7 +49,7 @@ def sendPosUpdate():
     print ("Sending update")
     sendMessagePrexif()
     update = bytearray(len(messageTemplate))
-    update[0] = '/x60'
+    update[0] = 0x60
     for i in range(1, 50):
         update[i] = 46;
     ser.write(update)
@@ -53,7 +61,7 @@ def sendOutOfBounds():
     print ("Sending out of bounds")
     sendMessagePrexif()
     update = bytearray(len(messageTemplate))
-    update[0] = 0x61 #/x61
+    update[0] = 0x61
     for i in range(1, 50):
         update[i] = 46;
     ser.write(update)
@@ -61,12 +69,22 @@ def sendOutOfBounds():
 def receivePong(payload):
     global pongReceived
     global ser
+    global lastNonce
+    
+    nonceMSB = payload[1]
+    nonceLSB = payload[2]
 
-    if (payload[1] == 80 and payload[2] == 86):
+    if (nonceLSB == 0):
+        nonceLSB = 127
+        nonceMSB = nonceMSB-1
+    else:
+        nonceLSB -= 1
+    
+    if (nonceMSB == lastNonce[0] and nonceLSB == lastNonce[1]):
         print ("Received a pong")
         pongReceived = True;
     else:
-        print ("Received a pong with wrong nonce " + str(payload[1]) + str(payload[2]))
+        print ("Received a pong with wrong nonce " + str(nonceMSB) + str(nonceLSB))
 
 def checkOOBDetection(payload):
     global oobDetected
@@ -91,7 +109,6 @@ def readSerial():
             checkOOBDetection(message)
         else:
             messageDec = message.decode("utf-8")
-            # messageDec.strip()
             print ("He said: " + messageDec[0:15])
 
     except ser.SerialTimeoutException:
@@ -101,25 +118,23 @@ def pingRun():
     global missedPings
     global pongReceived
     global ser
+    global lastNonce
 
-    sendPing()
-    readSerial()
-    if (not pongReceived):
-        print('Ping missed')
-        missedPings += 1
-    sendPing()
-    readSerial()
-    if (not pongReceived):
-        print('Ping missed')
-        missedPings += 1
-    sendPing()
-    readSerial()
-    if (not pongReceived):
-        print('Ping missed')
-        missedPings += 1
-    if (missedPings >= 3):
-        print('Missed 3 pings, robot disqualified!')
-        return False
+    cycle = 0;
+    while cycle < 30:
+        time.sleep(random.randint(1,2))
+        cycle += 1        
+        sendPing()
+        readSerial()
+        if (not pongReceived):
+            print('Ping missed')
+            missedPings += 1
+        else:
+            missedPings = 0
+            
+        if (missedPings >= 3):
+            print('Missed 3 pings, robot disqualified!')
+            return False
     return True
 
 def outOfBoundsRun():
@@ -141,11 +156,8 @@ print('Success' if outOfBoundsRun() else 'Fail')
 print('Ping Run')
 print('Success' if pingRun() else 'Fail')
 
-print('Out of Bounds Run')
-print('Success' if outOfBoundsRun() else 'Fail')
+print('\nAll tests run, check hardware monitor for additional checks')
 
-print('Out of Bounds Run')
-print('Success' if outOfBoundsRun() else 'Fail')
 
 
 

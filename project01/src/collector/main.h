@@ -12,13 +12,9 @@
 #define ARENA_SIZE_X 140
 #define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
 
-// TODO change this value
-#define SERIAL_TIMEOUT_BLOCKING_READING 30000
-
-
+#define SERIAL_TIMEOUT_BLOCKING_READING 20000
 
 #define DEBUG
-
 
 /* Scenario enabling disabling */
 // #define SCENARIO_RELAY
@@ -27,7 +23,7 @@
 
 
 #define LINE_SENSOR_READINGS
-#define ROBOT_SIMULATOR
+// #define ROBOT_SIMULATOR
 
 // #define COLLECTOR_MONITOR
 
