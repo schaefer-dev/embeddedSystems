@@ -3,7 +3,8 @@ import time
 from random import randint
 
 ser = serial.Serial('/dev/cu.wchusbserial1420', 9600, timeout=0)
-ser.timeout = 0.2
+# serial port slower than RF, this might need changes to work 100%
+ser.timeout = 0.1
 
 pongReceived = False
 oobDetected = True
