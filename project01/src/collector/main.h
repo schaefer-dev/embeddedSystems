@@ -23,7 +23,7 @@
 
 
 #define LINE_SENSOR_READINGS
-// #define ROBOT_SIMULATOR
+#define ROBOT_SIMULATOR
 
 // #define COLLECTOR_MONITOR
 

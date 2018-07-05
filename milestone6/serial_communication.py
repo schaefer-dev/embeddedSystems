@@ -1,6 +1,7 @@
 import serial
 import time
-from random import randint
+import random
+# from random import randint
 
 ser = serial.Serial('/dev/cu.wchusbserial1420', 9600, timeout=0)
 # serial port slower than RF, this might need changes to work 100%
@@ -70,7 +71,7 @@ def receivePong(payload):
     global pongReceived
     global ser
     global lastNonce
-    
+
     nonceMSB = payload[1]
     nonceLSB = payload[2]
 
@@ -79,7 +80,7 @@ def receivePong(payload):
         nonceMSB = nonceMSB-1
     else:
         nonceLSB -= 1
-    
+
     if (nonceMSB == lastNonce[0] and nonceLSB == lastNonce[1]):
         print ("Received a pong")
         pongReceived = True;
@@ -123,7 +124,7 @@ def pingRun():
     cycle = 0;
     while cycle < 30:
         time.sleep(random.randint(1,2))
-        cycle += 1        
+        cycle += 1
         sendPing()
         readSerial()
         if (not pongReceived):
@@ -131,7 +132,7 @@ def pingRun():
             missedPings += 1
         else:
             missedPings = 0
-            
+
         if (missedPings >= 3):
             print('Missed 3 pings, robot disqualified!')
             return False
