@@ -28,7 +28,7 @@
 
 #define SCOUT_MONITOR
 
-#define ROBOT_SIMULATOR
+// #define ROBOT_SIMULATOR
 
 
 void initialize();

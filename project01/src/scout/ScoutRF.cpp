@@ -228,6 +228,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 #ifdef ROBOT_SIMULATOR
             ScoutSerial::serialWrite("Position update received!\n",26);
 #endif
+            ScoutSerial::serialWrite("Position update received!\n",26);
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
@@ -236,6 +237,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 #ifdef ROBOT_SIMULATOR
             ScoutSerial::serialWrite("OOB Message received!\n",22);
 #endif
+            ScoutSerial::serialWrite("OOB POS update received!\n",26);
             /* Out of Bounds Message */
             scoutState->outOfBoundsMessage();
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],

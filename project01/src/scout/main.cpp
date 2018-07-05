@@ -20,11 +20,6 @@ void initialize(){
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 
-    /* Home is always our next destination */
-    scoutState->nextDestinationX = home[0];
-    scoutState->nextDestinationY = home[1];
-    scoutState->nextDestinationCounter += 1;
-
     pololu_3pi_init_disable_emitter_pin(5000);     // recommended value between 2000 and 7500 depending on lighting condition
 
     for (int i = 0; i < 80; i++) {
@@ -42,6 +37,11 @@ void initialize(){
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
+
+    /* Home is always our next destination */
+    scoutState->nextDestinationX = home[0];
+    scoutState->nextDestinationY = home[1];
+    scoutState->nextDestinationCounter += 1;
 
     //coordinateQueue = new CoordinateQueue();
 
