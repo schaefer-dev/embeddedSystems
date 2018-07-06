@@ -162,7 +162,7 @@ int main() {
 bool readNewLines() {
     if (driveLines == 0) {
         int serialMessageLength = 0;
-        char serialMessage[2];
+        char serialMessage[50];
 
         serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
         if (serialMessageLength < 1) {

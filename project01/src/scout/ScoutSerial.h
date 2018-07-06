@@ -30,6 +30,8 @@ public:
     static bool simulatorMessageIncoming();
     static void receiveSerialBlocking(char *returnArray);
 
+    static char readSingleCharFromSerial();
+
 
     static char receiveBuffer[SERIAL_BUFFER_SIZE];
     static unsigned char receiveIndex;

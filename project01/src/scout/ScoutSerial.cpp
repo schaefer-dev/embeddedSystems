@@ -130,6 +130,19 @@ void ScoutSerial::receiveSerialBlocking(char *returnArray){
 #endif
 
 
+char ScoutSerial::readSingleCharFromSerial(){
+    int newReceiveIndex = OrangutanSerial::getReceivedBytes();
+    if (receiveIndex == newReceiveIndex)
+        return 0;
+
+    char result = (char)receiveBuffer[receiveIndex];
+    receiveIndex += 1;
+
+    initScoutSerial();
+
+    return result;
+}
+
 
 
 /* returns number of bytes read and fills into returnArray, writes at most 50 bytes */
