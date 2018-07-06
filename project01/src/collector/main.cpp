@@ -59,15 +59,17 @@ void setup() {
 #ifdef COLLECTOR_LINE_SENSOR_READINGS
     // initialize line sensors
     collectorState->drivingDisabled = false;
-    uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3}; // sensor 2 & 4 collision with proximity; 5 - timer4
-    lineSensors = Zumo32U4LineSensors(pins, 2);
+    //uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3}; // sensor 2 & 4 collision with proximity; 5 - timer4
+    //lineSensors = Zumo32U4LineSensors(pins, 2);
+    lineSensors.initThreeSensors();
+    delay(10);
     for (int i = 0; i < 80; i++) {
         if(i < 20 || i >= 60)
-            collectorState->setSpeeds(40,-40);
+            collectorState->setSpeeds(40,40);
         else
-            collectorState->setSpeeds(-40,40);
+            collectorState->setSpeeds(-40,-40);
 
-        lineSensors.calibrate(QTR_EMITTERS_ON_AND_OFF);
+        lineSensors.calibrate();
 
         delay(20);
     }
@@ -384,7 +386,6 @@ bool detectLine() {
     lineSensors.readCalibrated(sensorReadings);
 
     delay(10);
-
 
     Serial1.print("\nvals:\n");
     for (unsigned int sensorReading : sensorReadings) {
