@@ -12,10 +12,16 @@
 #include "CollectorRF.h"
 #include "CollectorSerial.h"
 #include "Zumo32U4LineSensors.h"
-#include "QTRSensors.h"
 
 
 #include "Zumo32U4Motors.h"
+
+const char messageInitSerial[]      = "-------------- Serial Initialized ---------------------\n";
+const char messageInitSPI[]         = "------------- SPI Master Initialized ------------------\n";
+const char messageInitProximity[]   = "-------------- Proximity Initialized ------------------\n";
+const char messageInitLineSensors[] = "------------ Line Sensors Initialized -----------------\n";
+const char messageInitRF[]          = "------------- RF Module  Initialized ------------------\n";
+
 
 CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
@@ -28,6 +34,10 @@ Zumo32U4LineSensors lineSensors;
 
 void setup() {
 
+    // initialize serial connection
+    Serial1.begin(9600);
+    Serial1.print(messageInitSerial);
+
     /* initialization of Data structures */
     collectorState = new CollectorState();
     statusRF = 0;
@@ -38,14 +48,15 @@ void setup() {
     collectorState->lastDiffDriveCall = millis();
 
 
-#ifdef PROXIMITY_ENABLED
+#ifdef COLLECTOR_PROXIMITY_ENABLED
     proximitySensors = new Zumo32U4ProximitySensors();
     generateBrightnessLevels();
     proximitySensors->initThreeSensors();
+    Serial1.print(messageInitProximity);
 #endif
 
 
-#ifdef LINE_SENSOR_READINGS
+#ifdef COLLECTOR_LINE_SENSOR_READINGS
     // initialize line sensors
     uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3}; // sensor 2 & 4 collision with proximity; 5 - timer4
     lineSensors = Zumo32U4LineSensors(pins, 2);
@@ -60,31 +71,11 @@ void setup() {
         delay(20);
     }
     collectorState->setSpeeds(0,0);
+    Serial1.print(messageInitLineSensors);
 #endif
 
-    // initialize serial connection
 
-    Serial1.begin(9600);
-    Serial1.println("--- Start Serial Monitor ---");
-    /* TODO timeout fills over 30% of Program memory, remove it! */
-    //Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
-
-
-#ifdef DEBUG
-    Serial1.begin(9600);
-    Serial1.println("--- Start Serial Monitor ---");
-    /* TODO timeout fills over 30% of Program memory, remove it! */
-    Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
-#endif
-
-#ifdef ROBOT_SIMULATOR
-    Serial1.begin(9600);
-    Serial1.println("--- Start Serial Monitor ---");
-    /* TODO timeout fills over 30% of Program memory, remove it! */
-    //Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
-#endif
-
-#ifdef SCENARIO_HOMING
+#ifdef COLLECTOR_SCENARIO_HOMING
     /* Home is always our next destination */
     collectorState->nextDestinationX = home[0];
     collectorState->nextDestinationY = home[1];
@@ -98,7 +89,7 @@ void setup() {
     terminate = false;
 
 
-#ifdef COLLECTOR_MONITOR
+#ifdef COLLECTOR_COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
     /* TEST LOGGING SERIES */
     CollectorMonitor::logPingCollector();
@@ -120,14 +111,11 @@ void setup() {
 
     CollectorSPI::SPIMasterInit();
     delay(10);
-#ifdef DEBUG
-    Serial1.println("--- SPI MASTER INITIALIZED ---");
-#endif
+    Serial1.print(messageInitSPI);
+
     CollectorRF::initializeRFModule();
-#ifdef DEBUG
-    Serial1.println("--- RF MODULE INITIALIZED ---");
-    Serial1.flush();
-#endif
+    Serial1.print(messageInitRF);
+
     delay(10);
 
 }
@@ -147,17 +135,17 @@ void loop() {
     terminate = true;
      */
 
-#ifdef LINE_SENSOR_READINGS
+#ifdef COLLECTOR_LINE_SENSOR_READINGS
     detectLine();
 #endif
 
 
-#ifdef SCENARIO_HOMING
+#ifdef COLLECTOR_SCENARIO_HOMING
     homing();
 #endif
 
 
-#ifdef SCENARIO_DEBUG_RF_REGISTER_CHECK
+#ifdef COLLECTOR_SCENARIO_DEBUG_RF_REGISTER_CHECK
     delay(150);
 #ifdef DEBUG
     Serial1.println("REGISTER CHECk START:");
@@ -180,7 +168,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
     int currentX = ARENA_SIZE_X - x / 10.0f;
     int currentY = y / 10.0f;
 
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
     Serial1.print("Received POS update, Angle: ");
     Serial1.print(currentAngle);
     Serial1.print(" X: ");
@@ -213,7 +201,7 @@ void homing() {
 }
 
 
-#ifdef HUNT_OBJECT
+#ifdef COLLECTOR_HUNT_OBJECT
 void huntObject() {
     proximitySensors->read();
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
@@ -223,7 +211,7 @@ void huntObject() {
 
     float averageFrontSensorValue = (frontLeftSensorValue + frontRightSensorValue) / 2.0f;
 
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
     Serial1.print(leftSensorValue);
     Serial1.print(", ");
     Serial1.print(frontLeftSensorValue);
@@ -294,7 +282,7 @@ void performRotation(int degrees) {
                 collectorState->currentAngle < startAngle - 2 * M_PI * factor) {
             loopCondition = false;
 
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
             //serial_send("One rotation performed!\n", 24);
 #endif
             collectorState->setSpeeds(0, 0);
@@ -319,13 +307,13 @@ void performStraightDrive(int cmLength) {
         /* rotation completed condition */
         if (collectorState->currentX > targetX) {
             loopCondition = false;
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
             Serial1.println("Driving performed!");
 #endif
             collectorState->setSpeeds(0, 0);
 
         } else {
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
             Serial1.println(collectorState->currentX);
 #endif
         }
@@ -358,7 +346,7 @@ void checkForLines() {
 
     }
 
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
     Serial1.write(serialMessage);
     Serial1.write("\n");
 #endif
@@ -369,7 +357,7 @@ void checkForLines() {
         number += serialMessage[1] - 48;
     }
 
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
     Serial1.write("drive lines: ");
     Serial1.write(number);
 
@@ -395,11 +383,10 @@ bool detectLine() {
 
     delay(10);
 
-#ifdef DEBUG
-    Serial1.write("\npos: ");
-    Serial1.write(position);
+    Serial1.print("\npos: ");
+    Serial1.print(position);
 
-    Serial1.write("vals:\n");
+    Serial1.print("vals:\n");
     for (unsigned int sensorReading : sensorReadings) {
         Serial1.write(sensorReading);
         if (sensorReading > 500){
@@ -407,8 +394,6 @@ bool detectLine() {
 
         }
     }
-#endif
-
 
     delay(10);
     return lineDetected;

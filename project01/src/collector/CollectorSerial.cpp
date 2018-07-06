@@ -4,7 +4,7 @@
 #include "main.h"
 
 
-#ifdef ROBOT_SIMULATOR
+#ifdef COLLECTOR_ROBOT_SIMULATOR
 /* checks if the synchronizing prefix 0x7A (z) has been send over serial, if yes return true */
 bool CollectorSerial::simulatorMessageIncoming(){
     delay(5);
@@ -26,7 +26,7 @@ bool CollectorSerial::simulatorMessageIncoming(){
 
 
 
-#ifdef ROBOT_SIMULATOR
+#ifdef COLLECTOR_ROBOT_SIMULATOR
 /* reads exactly 32 bytes blocking into array */
 // TODO pass terminator at 50th character
 void CollectorSerial::receiveSerialBlocking(char *returnArray){
@@ -41,7 +41,7 @@ void CollectorSerial::receiveSerialBlocking(char *returnArray){
 /* returns number of bytes read and fills into returnArray, writes at most 50 bytes */
 unsigned int CollectorSerial::readMessageFromSerial(char *returnArray){
     delay(5);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
     Serial1.readBytes(returnArray, 50);
 #endif
 }

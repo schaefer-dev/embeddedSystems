@@ -52,7 +52,7 @@ void CollectorState::navigate(){
 
     if (drivingDisabled) {
         setSpeeds(0,0);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         //Serial1.println("driving disabled");
 #endif
         return;
@@ -62,13 +62,13 @@ void CollectorState::navigate(){
     if (destinationReached == true){
         if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
             //Serial1.println("no new destination in queue");
 #endif
             return;
         }
 
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         Serial1.println("set new destination from queue");
         Serial1.print("X: ");
         Serial1.print(nextDestinationX);
@@ -86,7 +86,7 @@ void CollectorState::navigate(){
     if (abs(currentX - destinationX) < destination_reached_threshhold
         && abs(currentY - destinationY) < destination_reached_threshhold) {
         setSpeeds(0, 0);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         Serial1.println("\nDestination Reached!");
 #endif
         destinationX = 0;
@@ -123,7 +123,7 @@ void CollectorState::navigate(){
     if (millis() < earliestNextRotationTime) {
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         //Serial1.println("straight ahead!");
 #endif
         return;
@@ -137,7 +137,7 @@ void CollectorState::navigate(){
         }
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         //Serial1.println("straight ahead!");
 #endif
         return;
@@ -148,14 +148,14 @@ void CollectorState::navigate(){
         // turn left
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         //Serial1.println("turning left!");
 #endif
     } else {
         // turn right
         navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
         //Serial1.println("turning right!");
 #endif
     }
@@ -178,7 +178,7 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (outOfBounds){
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
             Serial1.println("OOB Punish over");
             Serial1.flush();
 #endif
@@ -190,10 +190,10 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
-#ifndef ROBOT_SIMULATOR
+#ifndef COLLECTOR_ROBOT_SIMULATOR
     Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
 #endif
-#ifdef ROBOT_SIMULATOR
+#ifdef COLLECTOR_ROBOT_SIMULATOR
     Serial1.print("Speed left: ");
     Serial1.print(newLeftSpeed);
     Serial1.print(" right: ");
@@ -230,7 +230,7 @@ void CollectorState::updateRoboterPositionAndAngles() {
 void CollectorState::outOfBoundsMessage() {
     setSpeeds(0,0);
     outOfBounds = true;
-#ifdef DEBUG
+#ifdef COLLECTOR_DEBUG
     Serial1.println("OOB Punish start");
     Serial1.flush();
 #endif

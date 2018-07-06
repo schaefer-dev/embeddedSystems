@@ -14,14 +14,14 @@
 // #define DEBUG
 
 /* Scenario enabling disabling */
-// #define SCENARIO_RELAY
-#define SCENARIO_HOMING
-//#define SCENARIO_DEBUG_RF_REGISTER_CHECK
-//#define PROXIMITY_ENABLED
+// #define COLLECTOR_SCENARIO_RELAY
+// #define COLLECTOR_SCENARIO_HOMING
+// #define COLLECTOR_SCENARIO_DEBUG_RF_REGISTER_CHECK
+// #define COLLECTOR_PROXIMITY_ENABLED
 
-// #define LINE_SENSOR_READINGS
-#define ROBOT_SIMULATOR
+#define COLLECTOR_LINE_SENSOR_READINGS
 
+// #define COLLECTOR_ROBOT_SIMULATOR
 // #define COLLECTOR_MONITOR
 
 void setup();
@@ -38,5 +38,7 @@ void generateBrightnessLevels();
 
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
+
+
 
 #endif //EMBEDDEDSYSTEMS18_MAIN_H
