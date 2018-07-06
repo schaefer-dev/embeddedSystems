@@ -9,7 +9,7 @@
 
 #define OOB_PUNISH_TIME_MS 10000
 
-#define DO_NOT_ROTATE_AGAIN_MS 500
+#define DO_NOT_ROTATE_AGAIN_MS 200
 #define NAV_NONE 0
 #define NAV_AT_DESTINATION 1
 #define NAV_TURNING_LEFT 2
@@ -47,11 +47,11 @@ public:
     int photoSensorBack;
     long lastPhotoSensorUpdate;
 
-    const int forwardSpeed = 160;
-    const int turningSpeed = 100;
+    const int forwardSpeed = 80;
+    const int turningSpeed = 50;
 
-    const float rotationImprecision = 0.86f;     // simple approximation for friction when turning
-    const float straightImprecision = 0.8f;     // simple approximation for friction when driving straight
+    const float rotationImprecision = 2.1f;     // simple approximation for friction when turning
+    const float straightImprecision = 2.3f;     // simple approximation for friction when driving straight
 
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);

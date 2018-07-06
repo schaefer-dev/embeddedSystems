@@ -8,7 +8,7 @@
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
 
-bool spiEnabled = false;
+bool spiEnabled = true;
 int statusRF = 0;
 int home[2] = {10, 10};
 int driveLines = 0;
@@ -120,7 +120,6 @@ int main() {
 
 #ifdef SCENARIO_HOMING
         homing();
-        delay(50);
 #endif
 
 #ifdef SCENARIO_RELAY
@@ -146,7 +145,7 @@ int main() {
             }
         }
 #endif
-        // checkForNewRFMessage();
+        checkForNewRFMessage();
 
 #ifdef SCENARIO_PHOTOPHOBIC
         /* photophobic mode */
@@ -161,19 +160,20 @@ int main() {
 
 bool readNewLines() {
     if (driveLines == 0) {
-        int serialMessageLength = 0;
+        int serialMessageLength = 1;
         char serialMessage[50];
+        char message = 0;
+        message = ScoutSerial::readSingleCharFromSerial();
 
-        serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
-        if (serialMessageLength < 1) {
+        //serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
+        if (message == (char)0) {
             return false;
-
         }
 
-        ScoutSerial::serialWrite(serialMessage, serialMessageLength);
-        ScoutSerial::serialWrite("\n", 1);
+        //ScoutSerial::serialWrite(message, serialMessageLength);
+        //ScoutSerial::serialWrite("\n", 1);
 
-        int number = serialMessage[0] - 48;
+        int number = message - 48;
         if (serialMessageLength > 1) {
             number *= 10;
             number += serialMessage[1] - 48;
