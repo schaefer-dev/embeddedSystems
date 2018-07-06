@@ -63,10 +63,26 @@ void setup() {
 #endif
 
     // initialize serial connection
+
+    Serial1.begin(9600);
+    Serial1.println("--- Start Serial Monitor ---");
+    /* TODO timeout fills over 30% of Program memory, remove it! */
+    //Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
+
+
+#ifdef DEBUG
     Serial1.begin(9600);
     Serial1.println("--- Start Serial Monitor ---");
     /* TODO timeout fills over 30% of Program memory, remove it! */
     Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
+#endif
+
+#ifdef ROBOT_SIMULATOR
+    Serial1.begin(9600);
+    Serial1.println("--- Start Serial Monitor ---");
+    /* TODO timeout fills over 30% of Program memory, remove it! */
+    //Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
+#endif
 
 #ifdef SCENARIO_HOMING
     /* Home is always our next destination */
@@ -104,10 +120,14 @@ void setup() {
 
     CollectorSPI::SPIMasterInit();
     delay(10);
+#ifdef DEBUG
     Serial1.println("--- SPI MASTER INITIALIZED ---");
+#endif
     CollectorRF::initializeRFModule();
+#ifdef DEBUG
     Serial1.println("--- RF MODULE INITIALIZED ---");
     Serial1.flush();
+#endif
     delay(10);
 
 }
@@ -139,11 +159,12 @@ void loop() {
 
 #ifdef SCENARIO_DEBUG_RF_REGISTER_CHECK
     delay(150);
-
+#ifdef DEBUG
     Serial1.println("REGISTER CHECk START:");
     CollectorSPI::debug_RFModule();
     Serial1.println("REGISTER CHECk END:");
     delay(1000);
+#endif
 #endif
 }
 
@@ -166,8 +187,8 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
     Serial1.print(currentX);
     Serial1.print(" Y: ");
     Serial1.println(currentY);
-#endif
     Serial1.flush();
+#endif
 
     collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
 
@@ -337,8 +358,10 @@ void checkForLines() {
 
     }
 
+#ifdef DEBUG
     Serial1.write(serialMessage);
     Serial1.write("\n");
+#endif
 
     int number = serialMessage[0] - 48;
     if (serialMessageLength > 1) {
@@ -346,6 +369,7 @@ void checkForLines() {
         number += serialMessage[1] - 48;
     }
 
+#ifdef DEBUG
     Serial1.write("drive lines: ");
     Serial1.write(number);
 
@@ -360,6 +384,7 @@ void checkForLines() {
             Serial1.write("Line lost\n");
         }
     }
+#endif
 }
 
 bool detectLine() {
@@ -370,6 +395,7 @@ bool detectLine() {
 
     delay(10);
 
+#ifdef DEBUG
     Serial1.write("\npos: ");
     Serial1.write(position);
 
@@ -378,8 +404,10 @@ bool detectLine() {
         Serial1.write(sensorReading);
         if (sensorReading > 500){
             lineDetected = true;
+
         }
     }
+#endif
 
 
     delay(10);

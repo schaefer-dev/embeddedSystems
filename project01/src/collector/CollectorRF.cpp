@@ -89,6 +89,7 @@ void CollectorRF::initializeRFModule() {
 }
 
 #ifndef ROBOT_SIMULATOR
+#ifdef DEBUG
 void CollectorRF::debug_RFModule(){
     int output = 0;
     for (int i = 0; i < 30; i++){
@@ -120,6 +121,7 @@ void CollectorRF::debug_RFModule(){
     Serial1.println(")");
 
 }
+#endif
 #endif
 
 
@@ -165,6 +167,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
     /* read message from pipe */
     uint8_t payloadArray[answerArray[0]];
     getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
+
 
     Serial1.print("Message: ");
 
@@ -233,7 +236,9 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             /* MESSAGE case */
             break;
         case 0x80:
+#ifdef DEBUG
             Serial1.println("Message from scout arrived, echo performing ...");
+#endif
             /* case for RELAY, scount sends and collector echos sends message back to scout */
             payloadArray[0] = 0x81;
             // Give scout time to switch back into Listening Mode
@@ -242,7 +247,11 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             break;
 
         default:
+            {
+#ifdef DEBUG
             Serial1.println("Illegal Message Identifer");
+#endif
+            }
     }
 }
 

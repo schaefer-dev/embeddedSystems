@@ -178,8 +178,10 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (outOfBounds){
         if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
             outOfBounds = false;
+#ifdef DEBUG
             Serial1.println("OOB Punish over");
             Serial1.flush();
+#endif
         } else {
             Zumo32U4Motors::setSpeeds(0, 0);
             return;
@@ -228,7 +230,9 @@ void CollectorState::updateRoboterPositionAndAngles() {
 void CollectorState::outOfBoundsMessage() {
     setSpeeds(0,0);
     outOfBounds = true;
+#ifdef DEBUG
     Serial1.println("OOB Punish start");
     Serial1.flush();
+#endif
     outOfBoundsTime = millis();
 }

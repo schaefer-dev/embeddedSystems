@@ -41,5 +41,7 @@ void CollectorSerial::receiveSerialBlocking(char *returnArray){
 /* returns number of bytes read and fills into returnArray, writes at most 50 bytes */
 unsigned int CollectorSerial::readMessageFromSerial(char *returnArray){
     delay(5);
+#ifdef DEBUG
     Serial1.readBytes(returnArray, 50);
+#endif
 }
