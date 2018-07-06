@@ -21,6 +21,7 @@ void initialize() {
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 
+#ifdef LINE_SENSOR_READINGS
     pololu_3pi_init(5000);     // recommended value between 2000 and 7500 depending on lighting condition
     delay(10);
 
@@ -31,37 +32,35 @@ void initialize() {
         delay_ms(500);
     }
     OrangutanMotors::setSpeeds(0, 0);
+#endif
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
+    scoutState->resetDifferentialDrive(0, 0, 0);
+    scoutState->lastDiffDriveCall = millis();
 
+#ifdef SCENARIO_HOMING
     /* Home is always our next destination */
     scoutState->nextDestinationX = home[0];
     scoutState->nextDestinationY = home[1];
     scoutState->nextDestinationCounter += 1;
-
-    //coordinateQueue = new CoordinateQueue();
+#endif
 
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
-    scoutState->resetDifferentialDrive(0, 0, 0);
 
 
-
-    /* SETUP */
 #ifdef SCOUT_MONITOR
     ScoutMonitor::verifyState();
 #endif
 
-    scoutState->lastDiffDriveCall = millis();
-
-    delay(200);
+    delay(10);
 
     if (spiEnabled) {
         ScoutSPI::SPIMasterInit();
-        delay(50);
+        delay(10);
         ScoutRF::initializeRFModule();
-        delay(100);
+        delay(10);
 
         /* RF DEBUGGING
         ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
@@ -76,13 +75,18 @@ void initialize() {
 int main() {
     initialize();
 
+#ifdef DEBUG_SERIAL_PORT_ECHO
     char serialMessage[50];
     for (int i = 0; i < 50; i++) {
         serialMessage[i] = 32;
     }
     int serialMessageLength = 0;
+#endif
 
     while (1) {
+
+        /* ALWAYS check for new RF Message */
+        checkForNewRFMessage();
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
@@ -97,8 +101,8 @@ int main() {
         delay(2000);
 #endif
 
-#ifdef DEBUG_SERIAL_PORT_ECHO
 
+#ifdef DEBUG_SERIAL_PORT_ECHO
         serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
         if (serialMessageLength > 0) {
             ScoutSerial::serialWrite(serialMessage, serialMessageLength);
@@ -109,7 +113,6 @@ int main() {
             serialMessage[i] = 32;
         }
         delay(100);
-
 #endif
 
 
@@ -118,9 +121,11 @@ int main() {
         checkForLines();
 #endif
 
+
 #ifdef SCENARIO_HOMING
         homing();
 #endif
+
 
 #ifdef SCENARIO_RELAY
         delay(100);
@@ -145,7 +150,7 @@ int main() {
             }
         }
 #endif
-        checkForNewRFMessage();
+
 
 #ifdef SCENARIO_PHOTOPHOBIC
         /* photophobic mode */
