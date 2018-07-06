@@ -65,9 +65,9 @@ void setup() {
     delay(10);
     for (int i = 0; i < 80; i++) {
         if(i < 20 || i >= 60)
-            collectorState->setSpeeds(40,40);
+            collectorState->setSpeeds(80,80);
         else
-            collectorState->setSpeeds(-40,-40);
+            collectorState->setSpeeds(-80,-80);
 
         lineSensors.calibrate();
 
@@ -380,12 +380,12 @@ void checkForLines() {
 }
 
 bool detectLine() {
-    unsigned int sensorReadings[3] = {0,0,0};
+    uint16_t sensorReadings[3] = {0,0,0};
     bool lineDetected = false;
 
     lineSensors.readCalibrated(sensorReadings);
 
-    delay(10);
+    delay(50);
 
     Serial1.print("\nvals:\n");
     for (unsigned int sensorReading : sensorReadings) {
