@@ -27,11 +27,6 @@ bool terminate;
 Zumo32U4LineSensors lineSensors;
 
 void setup() {
-#ifdef PROXIMITY_ENABLED
-    proximitySensors = new Zumo32U4ProximitySensors();
-    generateBrightnessLevels();
-    proximitySensors->initThreeSensors();
-#endif
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
@@ -41,6 +36,13 @@ void setup() {
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
+
+
+#ifdef PROXIMITY_ENABLED
+    proximitySensors = new Zumo32U4ProximitySensors();
+    generateBrightnessLevels();
+    proximitySensors->initThreeSensors();
+#endif
 
 
 #ifdef LINE_SENSOR_READINGS
@@ -112,6 +114,9 @@ void setup() {
 
 void loop() {
 
+    /* ALWAYS check for new RF Message */
+    checkForNewRFMessage();
+
     /*if (terminate){
         Serial1.println(testInput);
         delay(2000);
@@ -127,12 +132,9 @@ void loop() {
 #endif
 
 
-
 #ifdef SCENARIO_HOMING
     homing();
 #endif
-
-    checkForNewRFMessage();
 
 
 #ifdef SCENARIO_DEBUG_RF_REGISTER_CHECK
