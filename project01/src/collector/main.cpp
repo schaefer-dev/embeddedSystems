@@ -12,9 +12,11 @@
 #include "CollectorRF.h"
 #include "CollectorSerial.h"
 #include "Zumo32U4LineSensors.h"
+#include "CollectorLineSensors.h"
 
 
 #include "Zumo32U4Motors.h"
+#include "CollectorLineSensors.h"
 
 const char messageInitSerial[]      = "-------------- Serial Initialized ---------------------\n";
 const char messageInitSPI[]         = "------------- SPI Master Initialized ------------------\n";
@@ -30,7 +32,6 @@ int home[2] = {10, 20};      // home
 int statusRF = 0;
 char testInput[53];
 bool terminate;
-Zumo32U4LineSensors lineSensors;
 
 void setup() {
 
@@ -41,6 +42,8 @@ void setup() {
     /* initialization of Data structures */
     collectorState = new CollectorState();
     statusRF = 0;
+
+    CollectorLineSensors::init(collectorState);
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -61,18 +64,7 @@ void setup() {
     collectorState->drivingDisabled = false;
     //uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3}; // sensor 2 & 4 collision with proximity; 5 - timer4
     //lineSensors = Zumo32U4LineSensors(pins, 2);
-    lineSensors.initThreeSensors();
     delay(10);
-    for (int i = 0; i < 80; i++) {
-        if(i < 20 || i >= 60)
-            collectorState->setSpeeds(40,40);
-        else
-            collectorState->setSpeeds(-40,-40);
-
-        lineSensors.calibrate();
-
-        delay(20);
-    }
     collectorState->setSpeeds(0,0);
     collectorState->drivingDisabled = true;
     Serial1.print(messageInitLineSensors);
@@ -140,7 +132,7 @@ void loop() {
      */
 
 #ifdef COLLECTOR_LINE_SENSOR_READINGS
-    detectLine();
+    CollectorLineSensors::detectLine();
 #endif
 
 
@@ -377,26 +369,4 @@ void checkForLines() {
         }
     }
 #endif
-}
-
-bool detectLine() {
-    unsigned int sensorReadings[3] = {0,0,0};
-    bool lineDetected = false;
-
-    lineSensors.readCalibrated(sensorReadings);
-
-    delay(10);
-
-    Serial1.print("\nvals:\n");
-    for (unsigned int sensorReading : sensorReadings) {
-        Serial1.print(sensorReading);
-        Serial1.print("\n");
-        if (sensorReading > 500){
-            lineDetected = true;
-
-        }
-    }
-
-    delay(500);
-    return lineDetected;
 }

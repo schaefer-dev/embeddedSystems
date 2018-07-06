@@ -6,25 +6,13 @@
 #include "CollectorState.h"
 
 
-Zumo32U4LineSensors lineSensors;
+Zumo32U4LineSensors CollectorLineSensors::lineSensors;
 
-public:
-CollectorLineSensors::CollectorLineSensors(CollectorState* collectorState){
+void CollectorLineSensors::init(CollectorState* collectorState){
     collectorState->drivingDisabled = false;
-    uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3, SENSOR_DOWN5}; // sensor 2 & 4 collision with proximity
-    lineSensors = Zumo32U4LineSensors(pins, 3);
-    for (int i = 0; i < 80; i++) {
-        if(i < 20 || i >= 60)
-            collectorState->setSpeeds(40,-40);
-        else
-            collectorState->setSpeeds(-40,40);
+    lineSensors.initThreeSensors();
 
-        lineSensors.calibrate(QTR_EMITTERS_ON_AND_OFF);
-
-        delay(20);
-    }
-    collectorState->setSpeeds(0,0);
-    collectorState->drivingDisabled = true;
+    calibrate(collectorState);
 #ifdef COLLECTOR_DEBUG
     Serial1.print(messageInitLineSensors);
 #endif
@@ -35,16 +23,16 @@ CollectorLineSensors::CollectorLineSensors() {
     lineSensors = Zumo32U4LineSensors(pins, 3);
 }
 
-static void calibrate(CollectorState* collectorState){
+void CollectorLineSensors::calibrate(CollectorState* collectorState){
     collectorState->drivingDisabled = false;
 
     for (int i = 0; i < 80; i++) {
-        if(i < 20 || i >= 60)
-            collectorState->setSpeeds(40,-40);
+        if(i < 40)
+            collectorState->setSpeeds(80,80);
         else
-            collectorState->setSpeeds(-40,40);
+            collectorState->setSpeeds(-80,-80);
 
-        lineSensors.calibrate(QTR_EMITTERS_ON_AND_OFF);
+        lineSensors.calibrate();
 
         delay(20);
     }
@@ -55,14 +43,13 @@ static void calibrate(CollectorState* collectorState){
 #endif
 }
 
-static bool detectLine() {
-    unsigned int sensorReadings[3] = {0,0,0};
+bool CollectorLineSensors::detectLine() {
+    uint16_t sensorReadings[3] = {0,0,0};
     bool lineDetected = false;
 
     lineSensors.readCalibrated(sensorReadings);
 
     delay(10);
-
 
     Serial1.print("\nvals:\n");
     for (unsigned int sensorReading : sensorReadings) {
@@ -79,7 +66,7 @@ static bool detectLine() {
 }
 
 
-static void checkForLines() {
+void CollectorLineSensors::checkForLines() {
     int serialMessageLength = 0;
     char serialMessage[2];
 
