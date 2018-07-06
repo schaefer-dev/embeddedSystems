@@ -3,6 +3,11 @@ cmake_minimum_required(VERSION 3.3)
 # include configuration
 include(Config.cmake)
 
+# Optimize compilaton for size
+# SET(SIZE "-fdata-sections -ffunction-sections -Wl, --gc-sections")
+SET(SIZE "-fdata-sections -ffunction-sections")
+add_definitions(${SIZE})
+
 set(CMAKE_TOOLCHAIN_FILE libs/Toolchain.cmake)
 
 
