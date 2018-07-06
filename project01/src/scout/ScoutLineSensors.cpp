@@ -17,9 +17,9 @@ void ScoutLineSensors::calibrate(ScoutState* state){
     state->drivingDisabled = false;
     for (int i = 0; i < 80; i++) {
         if (i < 40) {
-            OrangutanMotors::setSpeeds(40, 40);
+            OrangutanMotors::setSpeeds(20, 20);
         } else {
-            OrangutanMotors::setSpeeds(-40, -40);
+            OrangutanMotors::setSpeeds(-20, -20);
         }
         calibrate_line_sensors(IR_EMITTERS_OFF);
         delay(20);
@@ -64,7 +64,7 @@ void ScoutLineSensors::checkForLines(ScoutState* state) {
 #endif
     state->drivingDisabled = false;
     while (number > 0) {
-        state->setSpeeds(80, 80);
+        state->setSpeeds(30, 30);
         if (detectLine()) {
             ScoutSerial::serialWrite("Found line", 10);
             --number;
