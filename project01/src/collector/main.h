@@ -11,7 +11,7 @@
 
 #define SERIAL_TIMEOUT_BLOCKING_READING 20000
 
-// #define DEBUG
+// #define COLLECTOR_DEBUG
 
 /* Scenario enabling disabling */
 // #define COLLECTOR_SCENARIO_RELAY
