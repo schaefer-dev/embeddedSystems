@@ -345,6 +345,7 @@ void checkForLines() {
             Serial1.write("Found a line\n");
             --number;
             while (detectLine()) {
+                delay(500);
                 // wait until line is lost to count the next one
             }
             Serial1.write("Line lost\n");

@@ -20,13 +20,13 @@
 
 /* Scenarios enabling disabling */
 // #define SCENARIO_RELAY
-#define SCENARIO_HOMING
+// #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
 // #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
-// #define LINE_SENSOR_READINGS
+#define LINE_SENSOR_READINGS
 // #define DEBUG_SERIAL_PORT_ECHO
 
-#define SCOUT_MONITOR
+// #define SCOUT_MONITOR
 
 // #define ROBOT_SIMULATOR
 

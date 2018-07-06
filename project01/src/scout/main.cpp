@@ -3,7 +3,7 @@
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
-#include <Pololu3pi.h>
+#include <Pololu3pi/Pololu3pi.h>
 #include "../utils/Coordinates.h"
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
@@ -20,7 +20,7 @@ void initialize(){
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 
-    pololu_3pi_init_disable_emitter_pin(5000);     // recommended value between 2000 and 7500 depending on lighting condition
+    pololu_3pi_init(2000);     // recommended value between 2000 and 7500 depending on lighting condition
 
     for (int i = 0; i < 80; i++) {
         if(i < 20 || i >= 60)
@@ -189,6 +189,7 @@ void checkForLines() {
             ScoutSerial::serialWrite("Found a line\n", 13);
             --number;
             while (detectLine()) {
+
                 // wait until line is lost to count the next one
             }
             ScoutSerial::serialWrite("Line lost\n", 10);
@@ -203,8 +204,8 @@ bool detectLine() {
     //unsigned int position = robot.readLine(sensorReadings, IR_EMITTERS_ON);
     unsigned int position = read_line(sensorReadings, IR_EMITTERS_OFF);
 
-    //robot.readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
-    //read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
+    // robot.readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
+    read_line_sensors(sensorReadingsRaw, IR_EMITTERS_OFF);
 
     ScoutSerial::serialWrite("\npos: ", 6);
     ScoutSerial::serialWriteInt(position);
@@ -214,11 +215,11 @@ bool detectLine() {
         ScoutSerial::serialWriteInt(sensorReading);
     }
 
-    /*ScoutSerial::serialWrite("raw:\n", 5);
+    ScoutSerial::serialWrite("raw:\n", 5);
     for (int i = 0; i < 5; ++i) {
         ScoutSerial::serialWriteInt(sensorReadingsRaw[i]);
-    }*/
-    delay(10);
+    }
+    delay(500);
     return false;
 }
 
