@@ -27,9 +27,11 @@ bool terminate;
 Zumo32U4LineSensors lineSensors;
 
 void setup() {
+#ifdef PROXIMITY_ENABLED
     proximitySensors = new Zumo32U4ProximitySensors();
     generateBrightnessLevels();
     proximitySensors->initThreeSensors();
+#endif
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
@@ -40,6 +42,8 @@ void setup() {
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
 
+
+#ifdef LINE_SENSOR_READINGS
     // initialize line sensors
     uint8_t pins[] = { SENSOR_DOWN1, SENSOR_DOWN3}; // sensor 2 & 4 collision with proximity; 5 - timer4
     lineSensors = Zumo32U4LineSensors(pins, 2);
@@ -54,6 +58,7 @@ void setup() {
         delay(20);
     }
     collectorState->setSpeeds(0,0);
+#endif
 
     // initialize serial connection
     Serial1.begin(9600);
@@ -61,10 +66,12 @@ void setup() {
     /* TODO timeout fills over 30% of Program memory, remove it! */
     Serial1.setTimeout(SERIAL_TIMEOUT_BLOCKING_READING);
 
+#ifdef SCENARIO_HOMING
     /* Home is always our next destination */
     collectorState->nextDestinationX = home[0];
     collectorState->nextDestinationY = home[1];
     collectorState->nextDestinationCounter += 1;
+#endif
 
     for (int i = 0; i < 53; i++){
         testInput[i] = '.';
@@ -94,12 +101,12 @@ void setup() {
 #endif
 
     CollectorSPI::SPIMasterInit();
-    delay(50);
+    delay(10);
     Serial1.println("--- SPI MASTER INITIALIZED ---");
     CollectorRF::initializeRFModule();
     Serial1.println("--- RF MODULE INITIALIZED ---");
     Serial1.flush();
-    delay(100);
+    delay(10);
 
 }
 
