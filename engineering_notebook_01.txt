@@ -609,5 +609,10 @@ No success in intergrating our implementation.
 
 
 
-
 TODO: take care of negative coordinates being sent via position update/out of bounds message
+TODO: Python script should verify that we receive OOB fast enough
+TODO: Drive over X lines with scout
+TODO: Drive over X lines with collector
+TODO: Messreihe Line sensors Collector
+TODO: Messreihe Line sensors Scout
+
