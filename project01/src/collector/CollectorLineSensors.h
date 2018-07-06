@@ -13,10 +13,12 @@ public:
     static void init(CollectorState* collectorState);
     static void calibrate(CollectorState* collectorState);
     static bool detectLine();
-    static void checkForLines();
-    static Zumo32U4LineSensors lineSensors;
+    static void driveOverLines(CollectorState* collectorState);
 
 private:
+    static Zumo32U4LineSensors lineSensors;
+    static bool onLine;
+
     CollectorLineSensors();
 };
 
