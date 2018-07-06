@@ -42,6 +42,7 @@ void debug_sendPingToCollector();
 void homing();
 void checkForLines();
 bool detectLine();
+bool readNewLines();
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 

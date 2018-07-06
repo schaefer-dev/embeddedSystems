@@ -3,37 +3,34 @@
 #include <OrangutanSerial.h>
 #include "main.h"
 #include <math.h>
-#include <Pololu3pi/Pololu3pi.h>
+#include <Pololu3pi.h>
 #include "../utils/Coordinates.h"
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
 
-bool spiEnabled = true;
+bool spiEnabled = false;
 int statusRF = 0;
 int home[2] = {10, 10};
+int driveLines = 0;
 //CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 
-void initialize(){
+void initialize() {
     // initialize serial connection
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 
-    pololu_3pi_init(2000);     // recommended value between 2000 and 7500 depending on lighting condition
+    pololu_3pi_init(5000);     // recommended value between 2000 and 7500 depending on lighting condition
+    delay(10);
 
-    for (int i = 0; i < 80; i++) {
-        if(i < 20 || i >= 60)
-            OrangutanMotors::setSpeeds(40,-40);
-        else
-            OrangutanMotors::setSpeeds(-40,40);
-
+    for (int i = 0; i < 10; i++) {
         calibrate_line_sensors(IR_EMITTERS_OFF);
         //robot.calibrateLineSensors(IR_EMITTERS_ON);
 
-        delay_ms(20);
+        delay_ms(500);
     }
-    OrangutanMotors::setSpeeds(0,0);
+    OrangutanMotors::setSpeeds(0, 0);
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
@@ -73,15 +70,14 @@ void initialize(){
         */
     }
 
-    ScoutSerial::serialWrite("\nInitialization complete\n",25);
-
+    ScoutSerial::serialWrite("\nInitialization complete\n", 25);
 }
 
 int main() {
     initialize();
 
     char serialMessage[50];
-    for (int i = 0; i < 50; i++){
+    for (int i = 0; i < 50; i++) {
         serialMessage[i] = 32;
     }
     int serialMessageLength = 0;
@@ -118,6 +114,7 @@ int main() {
 
 
 #ifdef LINE_SENSOR_READINGS
+        readNewLines();
         checkForLines();
 #endif
 
@@ -149,7 +146,7 @@ int main() {
             }
         }
 #endif
-        checkForNewRFMessage();
+        // checkForNewRFMessage();
 
 #ifdef SCENARIO_PHOTOPHOBIC
         /* photophobic mode */
@@ -162,50 +159,58 @@ int main() {
 
 }
 
-void checkForLines() {
-    int serialMessageLength = 0;
-    char serialMessage[2];
+bool readNewLines() {
+    if (driveLines == 0) {
+        int serialMessageLength = 0;
+        char serialMessage[2];
 
-    serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
-    if (serialMessageLength < 1) {
-        return;
+        serialMessageLength = ScoutSerial::readMessageFromSerial(serialMessage);
+        if (serialMessageLength < 1) {
+            return false;
 
-    }
-
-    ScoutSerial::serialWrite(serialMessage, serialMessageLength);
-    ScoutSerial::serialWrite("\n", 1);
-
-    int number = serialMessage[0] - 48;
-    if (serialMessageLength > 1) {
-        number *= 10;
-        number += serialMessage[1] - 48;
-    }
-
-    ScoutSerial::serialWrite("drive lines: ", 13);
-    ScoutSerial::serialWriteInt(number);
-
-    while(number > 0) {
-        if (detectLine()) {
-            ScoutSerial::serialWrite("Found a line\n", 13);
-            --number;
-            while (detectLine()) {
-
-                // wait until line is lost to count the next one
-            }
-            ScoutSerial::serialWrite("Line lost\n", 10);
         }
+
+        ScoutSerial::serialWrite(serialMessage, serialMessageLength);
+        ScoutSerial::serialWrite("\n", 1);
+
+        int number = serialMessage[0] - 48;
+        if (serialMessageLength > 1) {
+            number *= 10;
+            number += serialMessage[1] - 48;
+        }
+
+        ScoutSerial::serialWrite("drive lines: ", 13);
+        ScoutSerial::serialWriteInt(number);
+        driveLines = number;
+        return true;
+    }
+    return false;
+}
+
+void checkForLines() {
+    detectLine();
+    return;
+    if (detectLine()) {
+        ScoutSerial::serialWrite("Found a line\n", 13);
+        --driveLines;
+        while (detectLine()) {
+
+            // wait until line is lost to count the next one
+        }
+        ScoutSerial::serialWrite("Line lost\n", 10);
     }
 }
 
 bool detectLine() {
-    unsigned int sensorReadings[5] = {0,0,0,0,0};
-    unsigned int sensorReadingsRaw[5] = {0,0,0,0,0};
+    unsigned int sensorReadings[5] = {0, 0, 0, 0, 0};
+    unsigned int sensorReadingsRaw[5] = {0, 0, 0, 0, 0};
 
     //unsigned int position = robot.readLine(sensorReadings, IR_EMITTERS_ON);
     unsigned int position = read_line(sensorReadings, IR_EMITTERS_OFF);
+    delay(10);
 
     // robot.readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
-    read_line_sensors(sensorReadingsRaw, IR_EMITTERS_OFF);
+    //read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
 
     ScoutSerial::serialWrite("\npos: ", 6);
     ScoutSerial::serialWriteInt(position);
@@ -215,11 +220,11 @@ bool detectLine() {
         ScoutSerial::serialWriteInt(sensorReading);
     }
 
-    ScoutSerial::serialWrite("raw:\n", 5);
+    /*ScoutSerial::serialWrite("raw:\n", 5);
     for (int i = 0; i < 5; ++i) {
         ScoutSerial::serialWriteInt(sensorReadingsRaw[i]);
-    }
-    delay(500);
+    }*/
+    delay(1000);
     return false;
 }
 
@@ -231,8 +236,8 @@ void homing() {
     scoutState->updateRoboterPositionAndAngles();
 }
 
-void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
-    float currentAngle = (float)angle / 10000.0f;
+void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y) {
+    float currentAngle = (float) angle / 10000.0f;
     currentAngle += 0.5f * M_PI;
     int currentX = ARENA_SIZE_X - x / 10.0f;
     int currentY = y / 10.0f;
@@ -243,11 +248,11 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 };
 
 
-void checkForNewRFMessage(){
+void checkForNewRFMessage() {
     statusRF = ScoutRF::queryRFModule();
     char messageReceived = statusRF & (1 << 6);
 
-    if (messageReceived){
+    if (messageReceived) {
         ScoutRF::processReceivedMessage(scoutState);
     }
 }
@@ -262,9 +267,9 @@ void photophobicScout() {
     if (scoutState->photoSensorLeft < photophobicDanceThreshold &&
         scoutState->photoSensorBack < photophobicDanceThreshold &&
         scoutState->photoSensorRight < photophobicDanceThreshold &&
-        scoutState->photoSensorFront < photophobicDanceThreshold){
+        scoutState->photoSensorFront < photophobicDanceThreshold) {
         /* start dancing */
-        while (true){
+        while (true) {
             performRotation(180);
             performRotation(-180);
         }
@@ -285,13 +290,13 @@ void photophobicScout() {
         /* stand still */
         ScoutSerial::serialWrite("Stant still\n", 12);
 
-        scoutState->setSpeeds(0,0);
+        scoutState->setSpeeds(0, 0);
     } else {
-        if (scoutState->photoSensorRight < scoutState->photoSensorLeft){
+        if (scoutState->photoSensorRight < scoutState->photoSensorLeft) {
             /* Left is not an option */
-            if (scoutState->photoSensorRight < scoutState->photoSensorFront){
+            if (scoutState->photoSensorRight < scoutState->photoSensorFront) {
                 /* Front is not an option */
-                if (scoutState->photoSensorRight < scoutState->photoSensorBack){
+                if (scoutState->photoSensorRight < scoutState->photoSensorBack) {
                     /* Right sensor is the lowest */
                     ScoutSerial::serialWrite("Right sensor lowest\n", 20);
                     performRotation(PHOTOPHOBIC_ROTATION);
@@ -303,7 +308,7 @@ void photophobicScout() {
                 }
             } else {
                 /* Right is not an option */
-                if (scoutState->photoSensorFront < scoutState->photoSensorBack){
+                if (scoutState->photoSensorFront < scoutState->photoSensorBack) {
                     /* Front is the lowest */
                     ScoutSerial::serialWrite("Front sensor lowest\n", 20);
                     scoutState->setSpeeds(scoutState->forwardSpeed, scoutState->forwardSpeed);
@@ -318,9 +323,9 @@ void photophobicScout() {
             }
         } else {
             /* Right is not an option */
-            if (scoutState->photoSensorLeft < scoutState->photoSensorFront){
+            if (scoutState->photoSensorLeft < scoutState->photoSensorFront) {
                 /* Front is not an option */
-                if (scoutState->photoSensorLeft < scoutState->photoSensorBack){
+                if (scoutState->photoSensorLeft < scoutState->photoSensorBack) {
                     /* left sensor is the lowest */
                     ScoutSerial::serialWrite("Left sensor lowest\n", 20);
                     performRotation(-PHOTOPHOBIC_ROTATION);
@@ -332,7 +337,7 @@ void photophobicScout() {
                 }
             } else {
                 /* left is not an option */
-                if (scoutState->photoSensorFront < scoutState->photoSensorBack){
+                if (scoutState->photoSensorFront < scoutState->photoSensorBack) {
                     /* Front is the lowest */
                     ScoutSerial::serialWrite("Front sensor lowest\n", 20);
                     scoutState->setSpeeds(scoutState->forwardSpeed, scoutState->forwardSpeed);
@@ -351,7 +356,7 @@ void photophobicScout() {
 
 
 /* write Readings of all Photosensors to DEV port serial */
-void debug_printPhotosensorReadings(){
+void debug_printPhotosensorReadings() {
     int adcout11, adcout0, adcout1, adcout2, adcout3;
 
     adcout11 = ScoutSPI::readADC(0);
@@ -391,7 +396,7 @@ void debug_printPhotosensorReadings(){
 void performRotation(int degrees) {
     float startAngle = scoutState->currentAngle;
     float factor = 0.0f;
-    if (degrees < 0){
+    if (degrees < 0) {
         factor = ((float) (-1 * degrees)) / 360.0f;
     } else {
         factor = ((float) degrees) / 360.0f;
@@ -455,7 +460,7 @@ void performStraightDrive(int cmLength) {
     }
 }
 
-void debug_sendPingToCollector(){
+void debug_sendPingToCollector() {
 
 }
 

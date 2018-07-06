@@ -359,6 +359,8 @@ bool detectLine() {
 
     unsigned int position = lineSensors.readLine(sensorReadings, QTR_EMITTERS_ON_AND_OFF);
 
+    delay(10);
+
     Serial1.write("\npos: ");
     Serial1.write(position);
 
