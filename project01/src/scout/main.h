@@ -11,7 +11,7 @@
 #include "ScoutSerial.h"
 
 /* debug define to enable serial output/inputs to save program memory */
-//#define DEBUG
+#define DEBUG
 #define ARENA_SIZE_X 140
 
 #define photophobicWaitThreshold 50
@@ -20,10 +20,10 @@
 
 /* Scenarios enabling disabling */
 // #define SCENARIO_RELAY
-#define SCENARIO_HOMING
+// #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
 // #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
-// #define LINE_SENSOR_READINGS
+#define LINE_SENSOR_READINGS
 // #define DEBUG_SERIAL_PORT_ECHO
 
 // #define SCOUT_MONITOR
@@ -40,9 +40,6 @@ void photophobicScout();
 void checkForNewRFMessage();
 void debug_sendPingToCollector();
 void homing();
-void checkForLines();
-bool detectLine();
-bool readNewLines();
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 

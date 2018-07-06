@@ -2,32 +2,33 @@
 #include "Pololu3pi.h"
 #include "ScoutSerial.h"
 #include "ScoutState.h"
+#include "main.h"
 
 int driveLines = 0;
 
+bool ScoutLineSensors::onLine;
 
-ScoutLineSensors::ScoutLineSensors() {
-    ;
-}
-
-
-void init(){
+void ScoutLineSensors::init(){
     pololu_3pi_init(5000);     // recommended value between 2000 and 7500 depending on lighting condition
     delay(10);
-
 }
 
-void calibrate(){
-    for (int i = 0; i < 10; i++) {
+void ScoutLineSensors::calibrate(ScoutState* state){
+    state->drivingDisabled = false;
+    for (int i = 0; i < 80; i++) {
+        if (i < 40) {
+            OrangutanMotors::setSpeeds(40, 40);
+        } else {
+            OrangutanMotors::setSpeeds(-40, -40);
+        }
         calibrate_line_sensors(IR_EMITTERS_OFF);
-        //robot.calibrateLineSensors(IR_EMITTERS_ON);
-
-        delay_ms(500);
+        delay(20);
     }
     OrangutanMotors::setSpeeds(0, 0);
+    state->drivingDisabled = true;
 }
 
-bool readNewLines() {
+bool ScoutLineSensors::readNewLines() {
     if (driveLines == 0) {
         int serialMessageLength = 1;
         char serialMessage[50];
@@ -56,43 +57,44 @@ bool readNewLines() {
     return false;
 }
 
-void checkForLines() {
-    ScoutLineSensors::detectLine();
-    return;
-    if (ScoutLineSensors::detectLine()) {
-        ScoutSerial::serialWrite("Found a line\n", 13);
-        --driveLines;
-        while (ScoutLineSensors::detectLine()) {
+void ScoutLineSensors::checkForLines(ScoutState* state) {
+    int number = 6;
 
-            // wait until line is lost to count the next one
+#ifdef DEBUG
+#endif
+    state->drivingDisabled = false;
+    while (number > 0) {
+        state->setSpeeds(80, 80);
+        if (detectLine()) {
+            ScoutSerial::serialWrite("Found line", 10);
+            --number;
         }
-        ScoutSerial::serialWrite("Line lost\n", 10);
     }
+    state->setSpeeds(0, 0);
+    state->drivingDisabled = true;
 }
 
-bool detectLine() {
+bool ScoutLineSensors::detectLine() {
+    bool lineDetected = false;
     unsigned int sensorReadings[5] = {0, 0, 0, 0, 0};
-    unsigned int sensorReadingsRaw[5] = {0, 0, 0, 0, 0};
 
-    //unsigned int position = robot.readLine(sensorReadings, IR_EMITTERS_ON);
-    unsigned int position = read_line(sensorReadings, IR_EMITTERS_OFF);
+    read_line(sensorReadings, IR_EMITTERS_OFF);
     delay(10);
 
-    // robot.readLineSensors(sensorReadingsRaw, IR_EMITTERS_OFF);
-    //read_line_sensors(sensorReadingsRaw, IR_EMITTERS_ON);
-
-    ScoutSerial::serialWrite("\npos: ", 6);
-    ScoutSerial::serialWriteInt(position);
-
+#ifdef DEBUG
     ScoutSerial::serialWrite("vals:\n", 6);
     for (unsigned int sensorReading : sensorReadings) {
         ScoutSerial::serialWriteInt(sensorReading);
     }
+#endif
 
-    /*ScoutSerial::serialWrite("raw:\n", 5);
-    for (int i = 0; i < 5; ++i) {
-        ScoutSerial::serialWriteInt(sensorReadingsRaw[i]);
-    }*/
-    delay(1000);
-    return false;
+    if (sensorReadings[2] > 600) {
+        if (!onLine) {
+            lineDetected = true;
+        }
+        onLine = true;
+    } else {
+        onLine = false;
+    }
+    return lineDetected;
 }
