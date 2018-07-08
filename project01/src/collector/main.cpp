@@ -13,8 +13,6 @@
 #include "CollectorSerial.h"
 #include "Zumo32U4LineSensors.h"
 #include "CollectorLineSensors.h"
-
-
 #include "Zumo32U4Motors.h"
 #include "CollectorLineSensors.h"
 
@@ -329,44 +327,4 @@ void generateBrightnessLevels() {
         defaultBrightnessLevels[i] = static_cast<uint16_t>(magic * magic * 1 / 4.0f);
     }
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
-}
-
-
-void checkForLines() {
-    int serialMessageLength = 0;
-    char serialMessage[2];
-
-    serialMessageLength = CollectorSerial::readMessageFromSerial(serialMessage);
-    if (serialMessageLength < 1) {
-        return;
-
-    }
-
-#ifdef COLLECTOR_DEBUG
-    Serial1.write(serialMessage);
-    Serial1.write("\n");
-#endif
-
-    int number = serialMessage[0] - 48;
-    if (serialMessageLength > 1) {
-        number *= 10;
-        number += serialMessage[1] - 48;
-    }
-
-#ifdef COLLECTOR_DEBUG
-    Serial1.write("drive lines: ");
-    Serial1.write(number);
-
-    while(number > 0) {
-        if (detectLine()) {
-            Serial1.write("Found a line\n");
-            --number;
-            while (detectLine()) {
-                delay(500);
-                // wait until line is lost to count the next one
-            }
-            Serial1.write("Line lost\n");
-        }
-    }
-#endif
 }

@@ -1,10 +1,6 @@
 #ifndef EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
 #define EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
 
-
-#include "main.h"
-
-#ifdef COLLECTOR_MONITOR
 #include "Arduino.h"
 
 class CollectorMonitor {
@@ -33,5 +29,4 @@ public:
     static void getStatus(char*);
 };
 
-#endif
 #endif //EMBEDDEDSYSTEMS18_COLLECTORMONITOR_H
