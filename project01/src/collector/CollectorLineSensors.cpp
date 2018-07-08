@@ -8,6 +8,7 @@
 
 Zumo32U4LineSensors CollectorLineSensors::lineSensors;
 bool CollectorLineSensors::onLine;
+const uint8_t CollectorLineSensors::threshold;
 
 void CollectorLineSensors::init(CollectorState *collectorState) {
     collectorState->drivingDisabled = false;
@@ -19,22 +20,18 @@ void CollectorLineSensors::init(CollectorState *collectorState) {
 #endif
 }
 
-CollectorLineSensors::CollectorLineSensors() {
-    uint8_t pins[] = {SENSOR_DOWN1, SENSOR_DOWN3, SENSOR_DOWN5}; // sensor 2 & 4 collision with proximity
-    lineSensors = Zumo32U4LineSensors(pins, 3);
-}
-
 void CollectorLineSensors::calibrate(CollectorState *collectorState) {
+    int calibrationSpeed = collectorState->forwardSpeed / 4;
     collectorState->drivingDisabled = false;
 
     for (int i = 0; i < 80; i++) {
-        if (i < 40)
-            collectorState->setSpeeds(80, 80);
-        else
-            collectorState->setSpeeds(-80, -80);
-
+        if (i < 40) {
+            collectorState->setSpeeds(calibrationSpeed, calibrationSpeed);
+        }
+        else {
+            collectorState->setSpeeds(-calibrationSpeed, -calibrationSpeed);
+        }
         lineSensors.calibrate();
-
         delay(20);
     }
     collectorState->setSpeeds(0, 0);
@@ -58,7 +55,7 @@ bool CollectorLineSensors::detectLine() {
         //Serial1.print("\n");
     }
 
-    if (sensorReadings[1] > 600) {
+    if (sensorReadings[1] > threshold) {
         if (!onLine) {
             lineDetected = true;
         }
@@ -70,7 +67,7 @@ bool CollectorLineSensors::detectLine() {
 }
 
 
-void CollectorLineSensors::driveOverLines(CollectorState *state) {
+void CollectorLineSensors::driveOverLines(CollectorState *collectorState) {
     /*int serialMessageLength = 0;
     char serialMessage[2];
 
@@ -97,14 +94,14 @@ void CollectorLineSensors::driveOverLines(CollectorState *state) {
     Serial1.write("drive lines: ");
     Serial1.write(number);
 #endif
-    state->drivingDisabled = false;
+    collectorState->drivingDisabled = false;
     while (number > 0) {
-        state->setSpeeds(80, 80);
+        collectorState->setSpeeds(collectorState->forwardSpeed/2, collectorState->forwardSpeed/2);
         if (detectLine()) {
             Serial1.write("Found a line\n");
             --number;
         }
     }
-    state->setSpeeds(0, 0);
-    state->drivingDisabled = true;
+    collectorState->setSpeeds(0, 0);
+    collectorState->drivingDisabled = true;
 }

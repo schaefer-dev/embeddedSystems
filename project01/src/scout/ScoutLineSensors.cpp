@@ -7,6 +7,7 @@
 int driveLines = 0;
 
 bool ScoutLineSensors::onLine;
+const uint8_t ScoutLineSensors::threshold;
 
 void ScoutLineSensors::init(){
     pololu_3pi_init(5000);     // recommended value between 2000 and 7500 depending on lighting condition
@@ -14,12 +15,14 @@ void ScoutLineSensors::init(){
 }
 
 void ScoutLineSensors::calibrate(ScoutState* state){
+    int calibrationSpeed = state->forwardSpeed / 4;
     state->drivingDisabled = false;
+
     for (int i = 0; i < 80; i++) {
         if (i < 40) {
-            OrangutanMotors::setSpeeds(20, 20);
+            OrangutanMotors::setSpeeds(calibrationSpeed, calibrationSpeed);
         } else {
-            OrangutanMotors::setSpeeds(-20, -20);
+            OrangutanMotors::setSpeeds(-calibrationSpeed, -calibrationSpeed);
         }
         calibrate_line_sensors(IR_EMITTERS_OFF);
         delay(20);
@@ -64,7 +67,7 @@ void ScoutLineSensors::checkForLines(ScoutState* state) {
 #endif
     state->drivingDisabled = false;
     while (number > 0) {
-        state->setSpeeds(30, 30);
+        state->setSpeeds(state->forwardSpeed/2, state->forwardSpeed/2);
         if (detectLine()) {
             ScoutSerial::serialWrite("Found line", 10);
             --number;
@@ -88,7 +91,7 @@ bool ScoutLineSensors::detectLine() {
     }
 #endif
 
-    if (sensorReadings[2] > 600) {
+    if (sensorReadings[2] > threshold) {
         if (!onLine) {
             lineDetected = true;
         }

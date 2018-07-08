@@ -5,6 +5,7 @@
 #ifndef EMBEDDEDSYSTEMS18_SCOUTLINESENSORS_H
 #define EMBEDDEDSYSTEMS18_SCOUTLINESENSORS_H
 
+#include <stdint-gcc.h>
 #include "ScoutState.h"
 
 class ScoutLineSensors
@@ -20,6 +21,7 @@ public:
 private:
     ScoutLineSensors();
     static bool onLine;
+    static const uint8_t threshold = 400;
 
 };
 
