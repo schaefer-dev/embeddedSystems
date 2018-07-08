@@ -62,35 +62,35 @@ Dark & 0000 & 0000 & 0000 & 0000 \\
 \end{tabular}
 
 \subsection*{Velocity vs. Line Count}
-The following table contains our results from testing the accuracy of the motor velocity against the lines our line sensors counted.
+The following table contains our results from testing the accuracy of the line sensors for different velocities.
 
 
-\begin{tabular}{ | c || r | r | r | r | }
+\begin{tabular}{ | c || r | r | r | }
 \hline
-Real distance & Velocity & Line Count & $\delta$Velocity & $\delta$Lines \\
- ( x, y) & & & & \\ \hline
-10, 0 & 9.8,0 & 1,0 & 0.2 & 0 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
+Velocity & Lines Crossed & Lines Counted & $\Delta$ Lines \\
+ & & &  \\ \hline
+10 & 9 & 1 & +2  \\ \hline
+15 & 14 & 1 & -7  \\ \hline
+20 & 14 & 1 & +7  \\ \hline
+30  & 14 & 1 & +7  \\ \hline
+40 & 14 & 1 & +7  \\ \hline
+50 & 14 & 1 & +7  \\ \hline
 \end{tabular}
 
 \subsection*{Velocity vs. Referee Updates}
-Accuracy of the position updates sent by the referee versus the interpolation of our position with motor velocity.
+Accuracy of the position updates sent by the referee for different velocities.
 
 
-\begin{tabular}{ | c || r | r | r | r | }
+\begin{tabular}{ | c || r | r | r | }
 \hline
-Real distance & Velocity & Pos Update & $\delta$Velocity & $\delta$Pos Update \\
- ( x, y) & & & & \\ \hline
-10, 0 & 9.8,0 & 10,0 & 0.2 & 0 \\ \hline
-15, 0 & 14.3,0 & 10,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 10,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 15,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 15,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 15,0 & 0.7 & 5 \\ \hline
+Estimated Position & Velocity & Pos Update &  $\Delta$Pos Update \\
+ ( x, y) & & &  \\ \hline
+10, 0 & 9.8,0 & 10,0 & 0.2  \\ \hline
+15, 0 & 14.3,0 & 10,0 & 0.7 \\ \hline
+15, 0 & 14.3,0 & 10,0 & 0.7 \\ \hline
+15, 0 & 14.3,0 & 15,0 & 0.7 \\ \hline
+15, 0 & 14.3,0 & 15,0 & 0.7 \\ \hline
+15, 0 & 14.3,0 & 15,0 & 0.7 \\ \hline
 \end{tabular}
 
 \section*{Testing Against a Model}
