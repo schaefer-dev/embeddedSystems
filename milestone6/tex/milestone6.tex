@@ -96,9 +96,24 @@ Real distance & Velocity & Pos Update & $\delta$Velocity & $\delta$Pos Update \\
 \section*{Testing Against a Model}
 
 \subsection*{Timed Automaton}
-\includegraphics[width = 0.9\textwidth]{images/timed_automaton_ref.pdf}
+\begin{center}
+
+
+\includegraphics[width = 0.75\textwidth]{images/ref_ta.pdf}
+
+Timed automaton representing the referee.
+
+\end{center}
 
 \subsection*{Testing Runs}
+We have one run to test the robot's reaction to ping:
+\[ \tau \rightarrow (sendPing \rightarrow \tau \rightarrow receivePong)^{*}  \] 
 
+\flushleft
+The second run secures that the robot reacts correctly to an Out-of-bounds message:
+\[ \tau \rightarrow sendPosUpdate\rightarrow sendOOB \rightarrow (detectStandstill | \tau )^{*} \rightarrow penaltyOver \rightarrow \dots \]
+
+\subsection*{Implementation and Changes}
+To model the nondeterminism we introduced a random variable into the simulation. Pings are sent at irregular intervals, and wait times after every transition are randomized.
 \end{document}
 
