@@ -34,7 +34,7 @@ char testInput[53];
 bool terminate;
 
 void setup() {
-
+    delay(1000);
     // initialize serial connection
     Serial1.begin(9600);
     Serial1.print(messageInitSerial);
@@ -114,6 +114,10 @@ void setup() {
 
     delay(10);
 
+#ifdef COLLECTOR_LINE_SENSOR_READINGS
+    CollectorLineSensors::driveOverLines(collectorState);
+#endif
+
 }
 
 void loop() {
@@ -130,10 +134,6 @@ void loop() {
     Serial1.readBytes(testInput, 51);
     terminate = true;
      */
-
-#ifdef COLLECTOR_LINE_SENSOR_READINGS
-    CollectorLineSensors::detectLine();
-#endif
 
 
 #ifdef COLLECTOR_SCENARIO_HOMING

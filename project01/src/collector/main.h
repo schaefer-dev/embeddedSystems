@@ -32,8 +32,6 @@ void huntObject();
 void generateBrightnessLevels();
 void homing();
 void checkForNewRFMessage();
-bool detectLine();
-void checkForLines();
 void generateBrightnessLevels();
 
 
