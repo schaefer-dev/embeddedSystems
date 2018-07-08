@@ -65,4 +65,36 @@ void ScoutMonitor::verifyState() {
     }
 }
 
+void ScoutMonitor::getStatus(char *status) {
+    if (scoutReactToPingState == 4) {
+        status[0] = 'b';
+        status[1] = 'b';
+        status[2] = ' ';
+    } else {
+        status[0] = 'p';
+        status[1] = 'g';
+        status[2] = ' ';
+    }
+    if (scoutHarvestingState == 1) {
+        status[3] = 'g';
+        status[4] = 'g';
+        status[5] = ' ';
+    } else {
+        status[3] = 'p';
+        status[4] = 'b';
+        status[5] = ' ';
+    }
+    unsigned long now = millis();
+    if (now - lastBufferEmpty > 500 || scoutEmptyBufferState == 1) {
+        scoutEmptyBufferState = 1;
+        status[6] = 'b';
+        status[7] = 'b';
+        status[8] = ' ';
+    } else {
+        status[6] = 'p';
+        status[7] = 'g';
+        status[8] = ' ';
+    }
+}
+
 #endif

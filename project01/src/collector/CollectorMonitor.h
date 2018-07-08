@@ -5,6 +5,7 @@
 #include "main.h"
 
 #ifdef COLLECTOR_MONITOR
+#include "Arduino.h"
 
 class CollectorMonitor {
 private:
@@ -28,6 +29,8 @@ public:
     static void emptyBuffer();
 
     static void verifyState();
+
+    static void getStatus(char*);
 };
 
 #endif

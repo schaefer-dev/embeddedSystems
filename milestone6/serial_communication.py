@@ -4,14 +4,14 @@ import random
 
 # gobal variables
 pongReceived = False
-oobDetected = True
+oobDetected = False
 missedPings = 0
 lastNonce = 0
 oobMessageSentTime = 0
 messageTemplate = b'\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30'
 
 # initialize serial
-portWin = 'COM3'
+portWin = 'COM4'
 portMac = '/dev/cu.wchusbserial1420'
 ser = serial.Serial(portWin, 9600, timeout=0.1)
 ser.timeout = 0.1
@@ -24,11 +24,23 @@ def sendMessagePrexif():
     time.sleep(0.3)                     # wait for the robot to notice and stop sending stuff
     ser.reset_input_buffer()            # clear the input buffer so read only gets the responds next
 
+def sendRequestStatus():
+    global ser
+    # build the position update message
+    request = bytearray(len(messageTemplate))
+    request[0] = 0x66
+    for i in range(1, 50):
+        request[i] = 46;
+
+    #send it over serial
+    sendMessagePrexif()
+    ser.write(request)    
+
 def sendPing():
     global lastNonce
     global pongReceived
     global ser
-    print ("Sending ping")
+    print ("Sending ping and wait " + str(ser.timeout) + "s")
 
     # generate a random nonce
     nonceMSB = random.randint(0, 127)
@@ -51,7 +63,7 @@ def sendPing():
 
 def sendPosUpdate():
     global ser
-    print ("Sending update")
+    print ("Sending position update")
     
     # build the position update message
     update = bytearray(len(messageTemplate))
@@ -66,7 +78,7 @@ def sendPosUpdate():
 
 def sendOutOfBounds():
     global ser
-    print ("Sending out of bounds")
+    print ("Sending out of bounds and wait "  + str(ser.timeout) + "s")
 
     # build the position update message
     update = bytearray(len(messageTemplate))
@@ -108,24 +120,30 @@ def checkOOBDetection(payload):
     # calculate time it took for the robot to respond to the OOB message
     delay = int(round(time.time() * 1000)) - oobMessageSentTime
     if(payload[0] == 79 and payload[1] == 79 and payload[2] == 66):
-        print ("OOB confimation received after " + delay + "ms")
-        if (delay > 100):   # only accept if response came in less than 100ms
+        print ("OOB confimation received after " + str(delay) + "ms")
+        if (delay < 100):   # only accept if response came in less than 100ms
             oobDetected = True
             return
     oobDetected = False
 
-def readSerial():
+def checkStatus(payload):
+    messageDec = payload.decode("utf-8")
+    print ("Status: " + messageDec[1:9])
+
+def readSerial(payloadLength = 15):
     global ser
             
     try:
-        message = ser.read(15)
+        message = ser.read(payloadLength)
         if (len(message) == 0):
-            print("No Message received!")
+            print("No reply after " + str(ser.timeout) + "s")
             return
         if (message[0] == 0x51):
             receivePong(message)
         elif (message[0] == 0x4f):
             checkOOBDetection(message)
+        elif (message[0] == 0x67):
+            checkStatus(message)
         else:
             messageDec = message.decode("utf-8")
             print ("He said: " + messageDec[0:15])
@@ -142,7 +160,7 @@ def pingRun():
     global lastNonce
 
     cycle = 0;
-    while cycle < 10:
+    while cycle < 6:
         cycle += 1
         
         time.sleep(random.randint(5,30) / 10.0)     # wait some time before sending the next ping
@@ -167,7 +185,10 @@ def outOfBoundsRun():
     global oobDetected
     global oobMessageSentTime
 
-    ser.timeout = 0.1                                       # timeout can be 0.1, anything longer will be too late anyway
+    sendPosUpdate()
+    time.sleep(0.1)     # give him some time to process the update
+    
+    ser.timeout = 0.2                                       # timeout can be 0.1, anything longer will be too late anyway
     sendOutOfBounds()
     oobMessageSentTime = int(round(time.time() * 1000))     # track time when OOB message was sent
     readSerial()
@@ -177,16 +198,31 @@ def outOfBoundsRun():
         return False
     return True
 
+def checkMonitor():
+    time.sleep(0.5)
+    print('\nHardware Monitor:')
+    ser.timeout = 0.5
+    sendRequestStatus()
+    readSerial()
+    print()
+
+
 def main():
     print('Referee started')
 
-    print('Out of Bounds Run')
-    print('Success' if outOfBoundsRun() else 'Fail')
+    checkMonitor()
 
-    print('Ping Run')
-    print('Success' if pingRun() else 'Fail')
+    print('OUT OF BOUNDS RUN')
+    print('SUCCESS' if outOfBoundsRun() else 'FAIL')
 
-    print('\nAll tests run, check hardware monitor for additional checks')
+    checkMonitor()
+
+    print('PING RUN')
+    print('SUCCESS' if pingRun() else 'FAIL')
+
+    checkMonitor()
+
+    print('All tests run')
 
 
 main()
