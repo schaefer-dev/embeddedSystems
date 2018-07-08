@@ -232,6 +232,17 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
+        case 0x66: {
+            /* case for monitor status request */
+            char status[9];
+#ifdef COLLECTOR_MONITOR
+            CollectorMonitor::getStatus(status);
+#endif
+            char command[1] = {0x67};
+            Serial1.print(command);
+            Serial1.print(status);
+            Serial1.print("\n");
+        }
         case 0x70:
             /* MESSAGE case */
             break;

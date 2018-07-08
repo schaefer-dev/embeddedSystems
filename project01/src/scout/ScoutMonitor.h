@@ -26,6 +26,8 @@ public:
     static void emptyBuffer();
 
     static void verifyState();
+
+    static void getStatus(char*);
 };
 
 #endif

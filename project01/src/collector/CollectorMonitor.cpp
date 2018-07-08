@@ -1,7 +1,5 @@
 #include "CollectorMonitor.h"
 #ifdef COLLECTOR_MONITOR
-#include <Arduino.h>
-
 
 char CollectorMonitor::collectorCheckProximityState = 0;
 char CollectorMonitor::collectorReactToPingState = 0;
@@ -78,6 +76,38 @@ void CollectorMonitor::verifyState() {
         Serial1.println(messageBadEmptyBuffer);
     } else {
         Serial1.println("Prelim good. Buffer always emptied.");
+    }
+}
+
+void CollectorMonitor::getStatus(char * status) {
+    if (collectorCheckProximityState == 1) {
+        status[0] = 'b';
+        status[1] = 'b';
+        status[2] = ' ';
+    } else {
+        status[0] = 'p';
+        status[1] = 'g';
+        status[2] = ' ';
+    }
+    if (collectorReactToPingState == 4) {
+        status[3] = 'b';
+        status[4] = 'b';
+        status[5] = ' ';
+    } else {
+        status[3] = 'p';
+        status[4] = 'b';
+        status[5] = ' ';
+    }
+    unsigned long now = millis();
+    if (now - lastBufferEmpty > 500 || collectorEmptyBufferState == 1) {
+        collectorEmptyBufferState = 1;
+        status[6] = 'b';
+        status[7] = 'b';
+        status[8] = ' ';
+    } else {
+        status[6] = 'p';
+        status[7] = 'g';
+        status[8] = ' ';
     }
 }
 

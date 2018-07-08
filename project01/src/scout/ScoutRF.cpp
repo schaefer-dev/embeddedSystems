@@ -142,7 +142,7 @@ void ScoutRF::debug_RFModule(){
 #endif
 
 
-int ScoutRF::queryRFModule(){
+int ScoutRF::queryRFModule() {
 #ifndef ROBOT_SIMULATOR
     ScoutSPI::slaveSelect(SLAVE_RF);
     unsigned int payload = 255;
@@ -202,13 +202,13 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     ScoutSerial::receiveSerialBlocking(serialInputArray);
     uint8_t payloadArray[32];
 
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 32; i++) {
         payloadArray[i] = serialInputArray[i];
     }
 
 #endif
 
-    switch(payloadArray[0]){
+    switch (payloadArray[0]) {
         case 0x50: {
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef SCOUT_MONITOR
@@ -226,19 +226,22 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             /* POS update case */
             scoutState->drivingDisabled = false;
 #ifdef ROBOT_SIMULATOR
-            ScoutSerial::serialWrite("Position update received!\n",26);
+            ScoutSerial::serialWrite("Position update received!\n", 26);
 #endif
-            ScoutSerial::serialWrite("Position update received!\n",26);
+            ScoutSerial::serialWrite("Position update received!\n", 26);
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
         case 0x61:
 #ifdef ROBOT_SIMULATOR
-            ScoutSerial::serialWrite("OOB Message received!\n",22);
+            // Uncomment to let robot wait too long
+            // delay_ms(100);
+            ScoutSerial::serialWrite("OOB Message received!\n", 22);
 #endif
-            ScoutSerial::serialWrite("OOB POS update received!\n",26);
+            ScoutSerial::serialWrite("OOB POS update received!\n", 26);
             /* Out of Bounds Message */
+
             scoutState->outOfBoundsMessage();
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
@@ -251,21 +254,31 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             /* case for RELAY, scount sends and collector echos message with prefix 81 */
             /* Scout has to print messages here to serial */
 
-            for (int i = 0; i < answerArray[0]; i++){
+            for (int i = 0; i < answerArray[0]; i++) {
                 char buffer[1] = {payloadArray[i]};
                 ScoutSerial::serialWrite(buffer, 1);
             }
-            ScoutSerial::serialWrite("\n",1);
+            ScoutSerial::serialWrite("\n", 1);
+            break;
+        case 0x66: {
+            /* case for monitor status request */
+            char status[9];
+#ifdef SCOUT_MONITOR
+            ScoutMonitor::getStatus(status);
+#endif
+            char command[1] = {0x67};
+            ScoutSerial::serialWrite(command, 1);
+            ScoutSerial::serialWrite(status, 9);
+            ScoutSerial::serialWrite("\n", 1);
+        }
             break;
         default:
-            ScoutSerial::serialWrite("Illegal Message Identifer\n",26);
+            ScoutSerial::serialWrite("Illegal Message Identifer\n", 26);
     }
 }
 
 
-
-
-void ScoutRF::sendMessageTo(uint8_t* receiverAdress, uint8_t* payloadArray, int payloadArrayLength){
+void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int payloadArrayLength) {
 #ifndef ROBOT_SIMULATOR
 
     /* Write Referee adress to TX Register */
@@ -329,7 +342,7 @@ void ScoutRF::sendMessageTo(uint8_t* receiverAdress, uint8_t* payloadArray, int 
 
 #ifdef ROBOT_SIMULATOR
     char outputArray[32];
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 32; i++) {
         outputArray[i] = payloadArray[i];
     }
 
@@ -349,7 +362,6 @@ void ScoutRF::sendMessageTo(uint8_t* receiverAdress, uint8_t* payloadArray, int 
     ScoutSerial::serialWrite(outputArray, payloadArrayLength);
     ScoutSerial::serialWrite("\n", 1);
 #endif
-
 
 
 #ifndef ROBOT_SIMULATOR
