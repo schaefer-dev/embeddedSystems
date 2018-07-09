@@ -49,49 +49,66 @@
 \section*{Test Series}
 \subsection*{Line Sensor Readings}
 We tested the line sensors in different lighting environments and for multiple line colours.
+Using the sensor in the center, we calibrated the robot for a bright environment, moderate lighting and dark environment each, then let it detect lines of different color.
 
-
-\begin{tabular}{ | l | r | r | r | r | }
+\begin{tabular}{ | l || r | r | r | r | r | }
 \hline
-Lighting & Readings for & & & \\
-Conditions & White ground & Blue line & Grey line & Black line \\ \hline
-Bright & 0000 & 0000 & 0000 & 0000 \\ \hline
-Medium & 0000 & 0000 & 0000 & 0000 \\ \hline
-Dark & 0000 & 0000 & 0000 & 0000 \\
+Lighting & Readings for & & & & \\
+Conditions & White ground & Black line & Grey line & Blue line & Red line \\ \hline
+Bright & 0 & 1000 & 158 & 92 & 56\\ \hline
+Medium & 0 & 1000 & 186 & 100 & 64\\ \hline
+Dark & 0 & 940 & 131 & 66 & 33\\
 \hline
 \end{tabular}
 
+\begin{center}
+
+\includegraphics[width = 0.8\textwidth]{images/chart_brightness.png}
+
+
+\textit{(The y axis is capped at 300 for readibility reasons.)}
+
+\end{center}
+
 \subsection*{Velocity vs. Line Count}
-The following table contains our results from testing the accuracy of the motor velocity against the lines our line sensors counted.
+The following table contains our results from testing the accuracy of the line sensors for different velocities. We let the robot drive in the arena at different speeds and instructed to stop after a certain number of lines counted. This worked perfectly for any speed.
 
 
-\begin{tabular}{ | c || r | r | r | r | }
+\begin{tabular}{ | c || r | r | r | }
 \hline
-Real distance & Velocity & Line Count & $\delta$Velocity & $\delta$Lines \\
- ( x, y) & & & & \\ \hline
-10, 0 & 9.8,0 & 1,0 & 0.2 & 0 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 1,0 & 0.7 & 5 \\ \hline
+Velocity & Lines Crossed & Lines Counted & $\Delta$ Lines \\
+ & & &  \\ \hline
+Slow & 3 & 3 & $\pm 0$  \\ \hline
+(50) & 10 & 10 & $\pm 0$  \\ \hline
+Medium & 3 & 3 & $\pm 0$  \\ \hline
+(100)  & 10 & 10 & $\pm 0$  \\ \hline
+Fast & 3 & 3 & $\pm 0$ \\ \hline
+(200) & 10 & 10 & $\pm 0$ \\ \hline
+Max & 3 & 3 & $\pm 0$  \\ \hline
+(400) & 10 & 10 & $\pm 0$  \\ \hline
 \end{tabular}
 
 \subsection*{Velocity vs. Referee Updates}
-Accuracy of the position updates sent by the referee versus the interpolation of our position with motor velocity.
+Accuracy of the position updates sent by the referee for different velocities.
+To test this the robot drives 100cm through the arena at a different speed each; 
+we monitor the referee interface and send position updates every second.
 
 
-\begin{tabular}{ | c || r | r | r | r | }
+\begin{tabular}{ | c || r | r | r | }
 \hline
-Real distance & Velocity & Pos Update & $\delta$Velocity & $\delta$Pos Update \\
- ( x, y) & & & & \\ \hline
-10, 0 & 9.8,0 & 10,0 & 0.2 & 0 \\ \hline
-15, 0 & 14.3,0 & 10,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 10,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 15,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 15,0 & 0.7 & 5 \\ \hline
-15, 0 & 14.3,0 & 15,0 & 0.7 & 5 \\ \hline
+Velocity & Number of & Estimated Distance & Update Delay \\
+  & unique Updates & per Update &  \\ \hline
+Slow & $>$50 & ~1cm & 0.5s  \\ 
+(50) &  & &  \\ \hline
+Medium & 31 & 3cm & 0.5s \\ 
+(100) &  &  &  \\ \hline
+Fast & 8 & 15cm & 0.5s \\ 
+(200) &  &  &  \\ \hline
+Max & 2 & 100cm & 4s \\ 
+(400) &  &  &  \\ \hline
 \end{tabular}
+
+The results show that the referee is at least half a second delayed, and we found that for speeds above 300 it cannot track the robots sufficiently. Below that we just cover more distance between the referees updates for faster velocities, which makes the position updates less accurate.
 
 \section*{Testing Against a Model}
 
