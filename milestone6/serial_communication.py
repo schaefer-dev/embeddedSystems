@@ -201,8 +201,9 @@ def outOfBoundsRun():
 def checkMonitor():
     time.sleep(0.5)
     print('\nHardware Monitor:')
-    ser.timeout = 0.5
+    ser.timeout = 1
     sendRequestStatus()
+    time.sleep(1)
     readSerial()
     print()
 

@@ -154,7 +154,7 @@ int CollectorRF::queryRFModule(){
 
 
 void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
-#ifndef COLLECTOR_COLLECTOR_ROBOT_SIMULATOR
+#ifndef COLLECTOR_ROBOT_SIMULATOR
     /* case for Message arrived */
     uint8_t answerArray[1];
     getCommandAnswer(answerArray, 1, RF_COMMAND_R_RX_PL_WID);
@@ -234,14 +234,13 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             break;
         case 0x66: {
             /* case for monitor status request */
-            char status[9];
+            char status[9] = {0,0,0,0,0,0,0,0,0};
 #ifdef COLLECTOR_MONITOR
             CollectorMonitor::getStatus(status);
 #endif
             char command[1] = {0x67};
             Serial1.print(command);
             Serial1.print(status);
-            Serial1.print("\n");
         }
         case 0x70:
             /* MESSAGE case */

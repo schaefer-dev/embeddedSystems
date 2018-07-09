@@ -61,7 +61,7 @@ bool ScoutLineSensors::readNewLines() {
 }
 
 void ScoutLineSensors::checkForLines(ScoutState* state) {
-    int number = 6;
+    int number = 4;
 
 #ifdef DEBUG
 #endif
