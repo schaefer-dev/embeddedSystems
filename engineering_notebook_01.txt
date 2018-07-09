@@ -604,9 +604,126 @@ No success in intergrating our implementation.
 	Extended spi state machine from last milestone to include RF module.
 	proofreading of milestone submission
 	
+# Mon 25.06
+- Kevin: 
+	Study RF Module documentation. Use existing SPI communication to talk to the RF.
+	Reviewed lecture on LTL and translated specifications into LTL formulas.
+	Drew monitoring automata in drawio and did first rough monitor implementation.
+- Daniel:
+	Debugging of ADC output, as there still seem to be some timing issues, which causes our adress to not be read correctly by ADC
+	FIX: ADC communication working now
+	SPI communication now no longer specific to ADC, instead functions in place which can fullfill all criteria of SPI communication in BOTH directions (readWriteSPI)
+	FIX: Issue with power function detected when working with int, as double was expected and floating point imprecision messes our values up
+- Rafael:
+	Read nRF240L specification, should work analogous to ADC communication
+	
+	
+# Wed 27.06.
+- Kevin:
+	Written down milestone solution in latex.
+- Daniel:
+	Optimization allows removal of some volatile values which had to be tracked previously.
+	FIX: Race condition of reading status register of RF Module removed
+	Implemented: Query function which will receive the status register of the RF module
+	Implemented: SPI functionality ported to collector, but issues caused by uneven interrupts being triggered
+- Rafael:
+	Implemented general SPI functionality for RF module, 
+	including initialisation according to milestone description
+	defined register names for better readability
+	Implemented functions to write and read registers of SPI
+	
+	
+# Thu 28.06.
+- Kevin:
+	Finished monitor implementation with the given set of specs.
+	Tested monitor using sequence of fake logging calls that result in (prelim) good and bad traces.
+	Implemented homing functionality (over serial input).
+- Daniel:
+	Photophobic scout scenario implemented (not tested yet)
+	FIX: Collector Timing interrupts fixed, Rafael found double triggers - fixed by interrupting at value 120 instead of <10
+	FIX: Communication and initialization of RF module fixed, scout can now receive messages at PIPE 0
+	Implemented: Collector can now also receive messages at pipe 0
+	FIX: Photophobic sensor state debugged and fixed error with condition and initialization
+	Implemented: SPI updates receive pings and send respective pongs now automatically
+- Rafael:
+	Testing RX mode of Scout RF module with Referee Ping messages
+	Debug Collector Timer 
+	Proof read LTL formulas and reasoning for monitor submission
+	
+	
+# Fri 29.06.
+- Kevin:
+	Fixed bug in differential drive reset for homing use case.
+	Optimized monitor for better performance.
+- Daniel:
+	Refactoring of RF and SPI implementation to reduce code space
+	FIX: Ping Pong Scout and Collector fixed
+	Implemented: Homing with position update verified to be working perfectly
+	Refactor: Changing of how messages with variable payload are handled, now lo longer require a seperate function/handling -> reducing code space
+	Implemented: Collector and Scout relay working perfectly
+	Implemented: Easy switching of seperate scenarios to be shown on monday
+	
+	
+# Mon 02.07.
+- Daniel: 
+	Implemented OOB, Hardware Abstraction Layer
+- Kevin:
+	Created python script for serial
+- Rafael:
+	did stuff
+
+# Tue 03.07.
+- Rafael:
+	created timed automaton for referee simulation
+- Kevin:
+	Line sensor Implementation
+- Daniel:
+	fixed navigation in scout
+
+# Thu 05.07.
+- Rafael: 
+	Refined python script for testing
+- Daniel:
+	ported changes on scout to collector, NEED TESTING
+- Kevin:
+	drafted line counting function
 
 
+# Fri 06.07.
+- Daniel:
+	Small fix in Homing collector
+	Reduced Program memory on collector substantially
+	Timing changes
+	Compiler Optimization
+	missed define rename
+- Kevin: 
+	python script over serial, verification working for collector
+	Fix nitro
+- Rafael:
+	Line reading and counting on Collector
+	Collector Line sensors numbah 2
+	Exported line sensors into own class
 
+# Sat 07.07.
+!!! REF ROOM NOT AVAILABLE !!!
+!!! REF ROOM NOT AVAILABLE !!!
+!!! REF ROOM NOT AVAILABLE !!!
+
+# Sun 08.07.
+!!! REF ROOM NOT AVAILABLE !!!
+- Rafael:
+	Test runs for milestone
+- Kevin:
+	Fixes in Scout for Line sensors
+	Collecotr serial script fiwxed
+
+# Mon 09.07.
+- Kevin:
+	fixed bug in Collector
+	test run for referee accuracy
+- Rafael: 
+	engineering notebook reformating
+	test run for line counting at diff velocities
 
 
 TODO: take care of negative coordinates being sent via position update/out of bounds message
