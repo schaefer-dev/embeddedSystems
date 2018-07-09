@@ -49,17 +49,23 @@
 \section*{Test Series}
 \subsection*{Line Sensor Readings}
 We tested the line sensors in different lighting environments and for multiple line colours.
+Using the sensor in the center, we calibrated the robot for a bright environment, moderate lighting and dark environment each, then let it detect lines of different color.
 
-
-\begin{tabular}{ | l | r | r | r | r | }
+\begin{tabular}{ | l || r | r | r | r | r | }
 \hline
-Lighting & Readings for & & & \\
-Conditions & White ground & Blue line & Grey line & Black line \\ \hline
-Bright & 0000 & 0000 & 0000 & 0000 \\ \hline
-Medium & 0000 & 0000 & 0000 & 0000 \\ \hline
-Dark & 0000 & 0000 & 0000 & 0000 \\
+Lighting & Readings for & & & & \\
+Conditions & White ground & Black line & Grey line & Blue line & Red line \\ \hline
+Bright & 0 & 1000 & 64 & 92 & 56\\ \hline
+Medium & 0 & 1000 & 80 & 100 & 64\\ \hline
+Dark & 0 & 940 & 51 & 66 & 33\\
 \hline
 \end{tabular}
+
+\begin{center}
+
+\includegraphics[width = 0.8\textwidth]{images/chart_brightness.png}
+
+\end{center}
 
 \subsection*{Velocity vs. Line Count}
 The following table contains our results from testing the accuracy of the line sensors for different velocities.
