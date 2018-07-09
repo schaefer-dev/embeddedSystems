@@ -21,7 +21,7 @@ void CollectorLineSensors::init(CollectorState *collectorState) {
 }
 
 void CollectorLineSensors::calibrate(CollectorState *collectorState) {
-    int calibrationSpeed = collectorState->forwardSpeed / 4;
+    int calibrationSpeed = 50;
     collectorState->drivingDisabled = false;
 
     for (int i = 0; i < 80; i++) {
@@ -82,7 +82,7 @@ void CollectorLineSensors::driveOverLines(CollectorState *collectorState) {
     Serial1.write("\n");
 #endif
 
-    int number = 6;
+    int number = 10;
     /*
     int number = serialMessage[0] - 48;
     if (serialMessageLength > 1) {
@@ -96,7 +96,7 @@ void CollectorLineSensors::driveOverLines(CollectorState *collectorState) {
 #endif
     collectorState->drivingDisabled = false;
     while (number > 0) {
-        collectorState->setSpeeds(collectorState->forwardSpeed/2, collectorState->forwardSpeed/2);
+        collectorState->setSpeeds(collectorState->forwardSpeed, collectorState->forwardSpeed);
         if (detectLine()) {
             Serial1.write("Found a line\n");
             --number;

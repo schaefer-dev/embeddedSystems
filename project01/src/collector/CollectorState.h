@@ -36,7 +36,7 @@ public:
     unsigned long earliestNextRotationTime;
     short navigationStep;
 
-    const int forwardSpeed = 200;
+    const int forwardSpeed = 100;
     const int turningSpeed = 100;
 
     /* for base speed rotation of 100, 0.47f perfect */

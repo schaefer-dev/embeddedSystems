@@ -8,6 +8,7 @@ oobDetected = False
 missedPings = 0
 lastNonce = 0
 oobMessageSentTime = 0
+scout = False
 messageTemplate = b'\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30\x30'
 
 # initialize serial
@@ -107,7 +108,7 @@ def receivePong(payload):
 
     # check if original and received nonce match
     if (nonceMSB == lastNonce[0] and nonceLSB == lastNonce[1]):
-        print ("Received a pong")
+        print ("Received  pong")
         pongReceived = True;
     else:
         print ("Received a pong with wrong nonce " + str(nonceMSB) + str(nonceLSB))
@@ -127,8 +128,25 @@ def checkOOBDetection(payload):
     oobDetected = False
 
 def checkStatus(payload):
-    messageDec = payload.decode("utf-8")
-    print ("Status: " + messageDec[1:9])
+    global scout
+    messageDecCollector = payload[3:15].decode("utf-8")
+    messageDecScout = payload[1:15].decode("utf-8")
+
+    if (scout):
+        print ("Status Scout: " + messageDecScout)
+        print()
+        if ('bb' in messageDecScout):
+            print('FAIL')
+        else:
+            print('SUCCESS')
+    else:    
+        print ("Status Collector: " + messageDecCollector)
+        print()
+        if ('bb' in messageDecCollector):
+            print('FAIL')
+        else:
+            print('SUCCESS')
+
 
 def readSerial(payloadLength = 15):
     global ser
@@ -160,6 +178,7 @@ def pingRun():
     global lastNonce
 
     cycle = 0;
+    success = True
     while cycle < 6:
         cycle += 1
         
@@ -177,51 +196,64 @@ def pingRun():
 
         if (missedPings >= 3):
             print('Missed 3 pings, robot disqualified!')
-            return False
-    return True
+            success = False
+        print()
+    return success
 
 def outOfBoundsRun():
     global ser
     global oobDetected
     global oobMessageSentTime
 
-    sendPosUpdate()
-    time.sleep(0.1)     # give him some time to process the update
-    
-    ser.timeout = 0.2                                       # timeout can be 0.1, anything longer will be too late anyway
-    sendOutOfBounds()
-    oobMessageSentTime = int(round(time.time() * 1000))     # track time when OOB message was sent
-    readSerial()
+    cycle = 0;
+    success = True
+    while cycle < 6:
+        cycle += 1
+        sendPosUpdate()
+        
+        wait = random.randint(0, 5) / 100.0    # wait before sending oob
+        print('Waiting ' + str(wait) + ' between pos und oob')
+        time.sleep(wait)
+        
+        ser.timeout = 0.2                                       # timeout can be 0.1, anything longer will be too late anyway
+        sendOutOfBounds()
+        oobMessageSentTime = int(round(time.time() * 1000))     # track time when OOB message was sent
+        readSerial()
 
-    if (not oobDetected):
-        print('Did not stop after oob, robot disqualified!')
-        return False
-    return True
+        if (not oobDetected):
+            print('Did not stop after oob, robot disqualified!')
+            success = False
+        print()
+    return success
 
 def checkMonitor():
     time.sleep(0.5)
-    print('\nHardware Monitor:')
+    print('\nHARDWARE MONITOR:')
     ser.timeout = 1
     sendRequestStatus()
-    time.sleep(1)
-    readSerial()
+    time.sleep(0.5)
+    readSerial(11)
     print()
-
 
 def main():
     print('Referee started')
 
     checkMonitor()
+    print()
 
     print('OUT OF BOUNDS RUN')
     print('SUCCESS' if outOfBoundsRun() else 'FAIL')
+    print()
 
     checkMonitor()
+    print()
 
     print('PING RUN')
     print('SUCCESS' if pingRun() else 'FAIL')
+    print()
 
     checkMonitor()
+    print()
 
     print('All tests run')
 

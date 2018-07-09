@@ -125,7 +125,7 @@ void CollectorRF::debug_RFModule(){
 #endif
 
 
-int CollectorRF::queryRFModule(){
+int CollectorRF::queryRFModule() {
 #ifndef COLLECTOR_ROBOT_SIMULATOR
     CollectorSPI::slaveSelect(SLAVE_RF);
     unsigned int payload = 255;
@@ -149,8 +149,6 @@ int CollectorRF::queryRFModule(){
     }
 #endif
 }
-
-
 
 
 void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
@@ -190,25 +188,25 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
     CollectorSerial::receiveSerialBlocking(serialInputArray);
     uint8_t payloadArray[32];
 
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 32; i++) {
         payloadArray[i] = serialInputArray[i];
     }
 
 #endif
 
-    switch(payloadArray[0]){
+    switch (payloadArray[0]) {
         case 0x50: {
-                /* PING case -> simply respond with PONG which contains nonce+1 */
+            /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef COLLECTOR_MONITOR
-                CollectorMonitor::logPingCollector();
+            CollectorMonitor::logPingCollector();
 #endif
-                uint16_t incNonce = 0;
-                incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
-                payloadArray[0] = 0x51;
-                payloadArray[1] = (uint8_t) (incNonce / 256);
-                payloadArray[2] = (uint8_t) (incNonce % 256);
-                sendMessageTo(refereeAdress, payloadArray, 3);
-            }
+            uint16_t incNonce = 0;
+            incNonce = payloadArray[1] * 256 + payloadArray[2] + 1;
+            payloadArray[0] = 0x51;
+            payloadArray[1] = (uint8_t) (incNonce / 256);
+            payloadArray[2] = (uint8_t) (incNonce % 256);
+            sendMessageTo(refereeAdress, payloadArray, 3);
+        }
             break;
         case 0x60:
             /* POS update case */
@@ -234,13 +232,16 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             break;
         case 0x66: {
             /* case for monitor status request */
-            char status[9] = {0,0,0,0,0,0,0,0,0};
+            char status[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 #ifdef COLLECTOR_MONITOR
             CollectorMonitor::getStatus(status);
 #endif
             char command[1] = {0x67};
             Serial1.print(command);
             Serial1.print(status);
+            Serial1.print(0x00);
+            Serial1.flush();
+            break;
         }
         case 0x70:
             /* MESSAGE case */
@@ -256,16 +257,15 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             sendMessageTo(scoutAdress, payloadArray, answerArray[0]);
             break;
 
-        default:
-            {
+        default: {
 #ifdef COLLECTOR_DEBUG
             Serial1.println("Illegal Message Identifer");
 #endif
-            }
+        }
     }
 }
 
-void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray, int payloadArrayLength){
+void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int payloadArrayLength) {
 #ifndef COLLECTOR_ROBOT_SIMULATOR
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
@@ -327,11 +327,11 @@ void CollectorRF::sendMessageTo(uint8_t* receiverAdress, uint8_t * payloadArray,
 
 #ifdef COLLECTOR_ROBOT_SIMULATOR
     char outputArray[32];
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 32; i++) {
         outputArray[i] = payloadArray[i];
     }
     if (payloadArrayLength < 32) {
-        for (int i = payloadArrayLength; i < 31; i++){
+        for (int i = payloadArrayLength; i < 31; i++) {
             outputArray[i] = '_';
         }
         outputArray[31] = '\0';

@@ -94,7 +94,7 @@ void CollectorMonitor::getStatus(char* status) {
         status[5] = ',';
     } else {
         status[3] = 'p';
-        status[4] = 'b';
+        status[4] = 'g';
         status[5] = ',';
     }
     unsigned long now = millis();

@@ -269,9 +269,8 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             char command[1] = {0x67};
             ScoutSerial::serialWrite(command, 1);
             ScoutSerial::serialWrite(status, 9);
-            ScoutSerial::serialWrite("\n", 1);
-        }
             break;
+        }
         default:
             ScoutSerial::serialWrite("Illegal Message Identifer\n", 26);
     }
