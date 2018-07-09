@@ -249,7 +249,6 @@ int ScoutSPI::readADC(char sensorAdress) {
     // drive SS/CS low
     slaveSelect(SLAVE_ADC);
 
-
     // wait for 2 rising , 1 falling edge of ADC clock
     waitNextADCRisingEdge();
     waitNextADCRisingEdge();
@@ -257,8 +256,6 @@ int ScoutSPI::readADC(char sensorAdress) {
     waitNextADCRisingEdge();
     waitNextADCFallingEdge();
 
-
-    // TODO: fix readWriteSPI, to mimic the behaviour of the function below
     output = readWriteSPI(payload);
     slaveSelect(SLAVE_NONE);
     return output;
@@ -268,7 +265,6 @@ int ScoutSPI::readADC(char sensorAdress) {
 ISR (TIMER1_COMPA_vect) {
 
     ScoutSPI::interruptCounter = (ScoutSPI::interruptCounter + 1) % SPI_CLOCK_FACTOR;
-
 
     /* switch SPI sck only every ADC_SCK_SPEED_FACTOR times this interrupt is triggered */
     if (ScoutSPI::interruptCounter == 0) {

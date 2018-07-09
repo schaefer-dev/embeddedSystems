@@ -12,6 +12,18 @@
 #define SLAVE_ADC 1
 #define SLAVE_RF 2
 
+
+// define Pins
+#define PIN_SS_RF_D PD4
+#define PIN_SS_ADC_C PC5
+#define PIN_MOSI_B  PB5
+#define PIN_MISO_B  PB0
+#define PIN_SPI_SCK_B PB4
+#define PIN_RF_ENABLE_D PD7
+#define PIN_RF_IRQ_D PD2
+#define PIN_ADC_SCK_B PB1
+
+
 /**
  * initialize Master node for SPI communication on Scout robot
  * PB0 -- MISO
@@ -23,17 +35,6 @@
  * PD4 -- RF select
  * PD7 -- RF enable
  */
-
-
-// define Pins
-#define PIN_SS_RF_D PD4
-#define PIN_SS_ADC_C PC5
-#define PIN_MOSI_B  PB5
-#define PIN_MISO_B  PB0
-#define PIN_SPI_SCK_B PB4
-#define PIN_RF_ENABLE_D PD7
-#define PIN_RF_IRQ_D PD2
-#define PIN_ADC_SCK_B PB1
 
 
 /* SPI_INTERRUPT_SPEED has to be 1 with the current setup */

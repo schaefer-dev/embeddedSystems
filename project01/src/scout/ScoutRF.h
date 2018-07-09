@@ -9,7 +9,6 @@
 #include "ScoutState.h"
 
 
-
 // RF module command bytes
 #define RF_COMMAND_R_REGISTER		0x00
 #define RF_COMMAND_W_REGISTER		0x20
