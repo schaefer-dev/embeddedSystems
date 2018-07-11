@@ -49,7 +49,15 @@
 \section*{Problem G1: Reactive Synthesis}
 %TODO
 \subsection*{a)}
+From time to time, she realizes that she is late:
+\[ \mathbf{GF} \: realize\_late \]
+She will eventually start speeding, but never twice in a row:
+\[ (\mathbf{F} \: speeding) \land \mathbf{G}(speeding \rightarrow \mathbf{X} \neg speeding) \]
+When speeding in front of a police car, she has to go to jail some time in the future:
+\[ \mathbf{G}(speeding \land near\_police\_car) \rightarrow (\mathbf{F} \: in\_jail) \]
 
+We get the complete requirements by conjoining the above:
+\[ (\mathbf{GF} \: r) \land ((\mathbf{F} \: s) \land \mathbf{G}(s \rightarrow \mathbf{X} \neg s)) \land (\mathbf{G}(s \land p) \rightarrow (\mathbf{F} \: j)) \]
 \subsection*{b)}
 
 \subsection*{c)}
@@ -68,10 +76,10 @@
 %TODO
 
 \paragraph*{Player 0 wins from every state:}
-
+\[ \: \]
 
 \begin{tabular}{c | c | c | c | c | c | c}
-$_y ^x$ & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
+$_y ^x$ & $\:$0$\:$ & $\:$1$\:$ & $\:$2$\:$ & $\:$3$\:$ & $\:$4$\:$ & $\:$5$\:$ \\ \hline
 0 & & & & & & \\ \hline
 1 & & & & & & \\ \hline
 2 & & & & & & \\ \hline
@@ -79,13 +87,14 @@ $_y ^x$ & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
 4 & & & & & & \\ \hline
 5 & & & & & & \\ 
 
+
 \end{tabular}
 
 \paragraph*{Player 1 wins from every state:}
-
+\[ \: \]
 
 \begin{tabular}{c | c | c | c | c | c | c}
-$_y ^x$ & 0 & 1 & 2 & 3 & 4 & 5 \\ \hline
+$_y ^x$ & $\:$0$\:$ & $\:$1$\:$ & $\:$2$\:$ & $\:$3$\:$ & $\:$4$\:$ & $\:$5$\:$ \\ \hline
 0 & & & & & & \\ \hline
 1 & & & & & & \\ \hline
 2 & & & & & & \\ \hline
