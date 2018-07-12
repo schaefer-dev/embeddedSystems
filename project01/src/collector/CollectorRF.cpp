@@ -13,7 +13,7 @@
 uint8_t CollectorRF::refereeAdress[5];
 uint8_t CollectorRF::scoutAdress[5];
 uint8_t CollectorRF::collectorAdress[5];
-
+uint8_t CollectorRF::teamChannel;
 
 void CollectorRF::initializeRFModule() {
 
@@ -195,6 +195,17 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
 #endif
 
     switch (payloadArray[0]) {
+
+        case 0x01:
+            /* Config case -> simply set Team channel according to received message */
+            // TODO
+            break;
+
+        case 0x02:
+            /* Collision case -> force robot to drive backwards (with low speed) for 500ms*/
+            // TODO
+            break;
+
         case 0x50: {
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef COLLECTOR_MONITOR
@@ -208,6 +219,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             sendMessageTo(refereeAdress, payloadArray, 3);
         }
             break;
+
         case 0x60:
             /* POS update case */
             collectorState->drivingDisabled = false;
@@ -218,6 +230,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
+
         case 0x61:
 #ifdef COLLECTOR_ROBOT_SIMULATOR
             Serial1.println("OOB Message received!");
@@ -230,6 +243,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
+
         case 0x66: {
             /* case for monitor status request */
             char status[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
@@ -243,9 +257,11 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             Serial1.flush();
             break;
         }
+
         case 0x70:
             /* MESSAGE case */
             break;
+
         case 0x80:
 #ifdef COLLECTOR_DEBUG
             Serial1.println("Message from scout arrived, echo performing ...");
@@ -258,9 +274,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             break;
 
         default: {
-#ifdef COLLECTOR_DEBUG
             Serial1.println("Illegal Message Identifer");
-#endif
         }
     }
 }
@@ -448,7 +462,6 @@ void CollectorRF::write5ByteAdress(int reg, uint8_t* bytes){
 #endif
 
 
-#ifndef COLLECTOR_ROBOT_SIMULATOR
 int CollectorRF::readRegister(uint8_t reg){
 
     CollectorSPI::slaveSelect(SLAVE_RF);
@@ -462,9 +475,7 @@ int CollectorRF::readRegister(uint8_t reg){
 
     return output;
 }
-#endif
 
-#ifndef COLLECTOR_ROBOT_SIMULATOR
 void CollectorRF::readAdressRegister(uint8_t reg, uint8_t* outputArray){
     CollectorSPI::slaveSelect(SLAVE_RF);
 
@@ -478,4 +489,17 @@ void CollectorRF::readAdressRegister(uint8_t reg, uint8_t* outputArray){
     CollectorSPI::slaveSelect(SLAVE_NONE);
     delay(delay_after_RF_select);
 }
-#endif
+
+void CollectorRF::setTeamChannel(uint8_t teamChannel) {
+    /* drive RF module enable pin, might not be necessary */
+    PORTC &= ~(1 << PIN_RF_ENABLE_C);
+    delayMicroseconds(30);
+
+    // write register 05: set channel to 111
+    writeRegister(0x00000005, teamChannel);
+
+    /* drive RF module enable pin, might not be necessary */
+    PORTC |= (1 << PIN_RF_ENABLE_C);
+    delayMicroseconds(30);
+
+}

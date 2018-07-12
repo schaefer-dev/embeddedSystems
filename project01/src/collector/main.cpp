@@ -284,36 +284,6 @@ void performRotation(int degrees) {
     }
 }
 
-void performStraightDrive(int cmLength) {
-    float startX = collectorState->currentX;
-    float targetX = startX + cmLength;
-    bool loopCondition = true;
-
-    while (loopCondition) {
-
-        // drive straight
-        collectorState->setSpeeds(collectorState->forwardSpeed, collectorState->forwardSpeed);
-
-        delay(10);
-
-        collectorState->updateRoboterPositionAndAngles();
-
-        /* rotation completed condition */
-        if (collectorState->currentX > targetX) {
-            loopCondition = false;
-#ifdef COLLECTOR_DEBUG
-            Serial1.println("Driving performed!");
-#endif
-            collectorState->setSpeeds(0, 0);
-
-        } else {
-#ifdef COLLECTOR_DEBUG
-            Serial1.println(collectorState->currentX);
-#endif
-        }
-    }
-}
-
 void generateBrightnessLevels() {
     //uint16_t defaultBrightnessLevels[] = { 5, 15, 32, 55, 85, 120 };
     const uint16_t numBrightnessLevels = 10;

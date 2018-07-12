@@ -48,6 +48,8 @@ public:
 
     static void processReceivedMessage(CollectorState *collectorState);
 
+    static void setTeamChannel(uint8_t teamChannel);
+
     static void flushRXTX();
 
     static void sendMessageTo(uint8_t * receiverAdress, uint8_t* payloadArray, int payloadArrayLength);
@@ -55,6 +57,7 @@ public:
     static uint8_t refereeAdress[5];
     static uint8_t scoutAdress[5];
     static uint8_t collectorAdress[5];
+    static uint8_t teamChannel;
 
 };
 

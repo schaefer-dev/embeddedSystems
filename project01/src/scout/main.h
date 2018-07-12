@@ -27,17 +27,15 @@
 // #define DEBUG_SERIAL_PORT_ECHO
 
 #define SCOUT_MONITOR
-#define ROBOT_SIMULATOR
+// #define ROBOT_SIMULATOR
 
 
 void initialize();
 int main();
 void performRotation(int degrees);
 void debug_printPhotosensorReadings();
-void performStraightDrive(int cmLength);
 void photophobicScout();
 void checkForNewRFMessage();
-void debug_sendPingToCollector();
 void homing();
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);

@@ -22,6 +22,7 @@
 uint8_t ScoutRF::refereeAdress[5];
 uint8_t ScoutRF::scoutAdress[5];
 uint8_t ScoutRF::collectorAdress[5];
+uint8_t ScoutRF::teamChannel;
 
 void ScoutRF::initializeRFModule() {
 
@@ -209,6 +210,16 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 #endif
 
     switch (payloadArray[0]) {
+        case 0x01:
+            /* Config case -> simply set Team channel according to received message */
+            // TODO
+            break;
+
+        case 0x02:
+            /* Collision case -> force robot to drive backwards (with low speed) for 500ms*/
+            // TODO
+            break;
+
         case 0x50: {
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef SCOUT_MONITOR
@@ -222,6 +233,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             sendMessageTo(refereeAdress, payloadArray, 3);
         }
             break;
+
         case 0x60:
             /* POS update case */
             scoutState->drivingDisabled = false;
@@ -233,10 +245,9 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
+
         case 0x61:
 #ifdef ROBOT_SIMULATOR
-            // Uncomment to let robot wait too long
-            // delay_ms(100);
             ScoutSerial::serialWrite("OOB Message received!\n", 22);
 #endif
             ScoutSerial::serialWrite("OOB POS update received!\n", 26);
@@ -247,9 +258,11 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
+
         case 0x70:
             /* MESSAGE case */
             break;
+
         case 0x81:
             /* case for RELAY, scount sends and collector echos message with prefix 81 */
             /* Scout has to print messages here to serial */
@@ -260,6 +273,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             }
             ScoutSerial::serialWrite("\n", 1);
             break;
+
         case 0x66: {
             /* case for monitor status request */
             char status[9];
@@ -271,6 +285,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             ScoutSerial::serialWrite(status, 9);
             break;
         }
+
         default:
             ScoutSerial::serialWrite("Illegal Message Identifer\n", 26);
     }
@@ -476,3 +491,17 @@ void ScoutRF::readAdressRegister(uint8_t reg, uint8_t* outputArray){
     delay(delay_after_RF_select);
 }
 #endif
+
+void ScoutRF::setTeamChannel(uint8_t teamChannel) {
+    /* drive RF module enable pin, might not be necessary */
+    PORTD &= ~(1 << PIN_RF_ENABLE_D);
+    delayMicroseconds(30);
+
+    // write register 05: set channel to 111
+    writeRegister(0x00000005, teamChannel);
+
+    /* drive RF module enable pin, might not be necessary */
+    PORTD |= (1 << PIN_RF_ENABLE_D);
+    delayMicroseconds(30);
+
+}

@@ -355,40 +355,6 @@ void performRotation(int degrees) {
     }
 }
 
-void performStraightDrive(int cmLength) {
-    float startX = scoutState->currentX;
-    float targetX = startX + cmLength;
-    bool loopCondition = true;
-
-    while (loopCondition) {
-
-        // drive straight
-        scoutState->setSpeeds(scoutState->forwardSpeed, scoutState->forwardSpeed);
-
-        delay(10);
-
-        scoutState->updateRoboterPositionAndAngles();
-
-        /* rotation completed condition */
-        if (scoutState->currentX > targetX) {
-            loopCondition = false;
-#ifdef DEBUG
-            //serial_send("Driving performed!\n", 19);
-#endif
-            scoutState->setSpeeds(0, 0);
-
-        } else {
-#ifdef DEBUG
-            //Serial1.println(scoutState->currentX);
-#endif
-        }
-    }
-}
-
-void debug_sendPingToCollector() {
-
-}
-
 
 void operator delete(void *ptr) { free(ptr); }
 

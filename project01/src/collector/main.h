@@ -21,13 +21,12 @@
 
 // #define COLLECTOR_LINE_SENSOR_READINGS
 
-#define COLLECTOR_ROBOT_SIMULATOR
+//#define COLLECTOR_ROBOT_SIMULATOR
 #define COLLECTOR_MONITOR
 
 void setup();
 void loop();
 void performRotation(int degrees);
-void performStraightDrive(int cmLength);
 void huntObject();
 void generateBrightnessLevels();
 void homing();
