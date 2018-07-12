@@ -48,11 +48,14 @@ bool CollectorLineSensors::detectLine() {
 
     delay(10);
 
-    //Serial1.print("\nvals:\n");
+    Serial1.print(sensorReadings[1]);
+    Serial1.print("\n");
+
+    /*
     for (unsigned int sensorReading : sensorReadings) {
-        //Serial1.print(sensorReading);
-        //Serial1.print("\n");
-    }
+        Serial1.print(sensorReading);
+        Serial1.print("\n");
+    }*/
 
     if (sensorReadings[1] > threshold) {
         if (!onLine) {
@@ -81,7 +84,7 @@ void CollectorLineSensors::driveOverLines(CollectorState *collectorState) {
     Serial1.write("\n");
 #endif
 
-    int number = 10;
+    int number = 0;
     /*
     int number = serialMessage[0] - 48;
     if (serialMessageLength > 1) {
@@ -94,7 +97,9 @@ void CollectorLineSensors::driveOverLines(CollectorState *collectorState) {
     Serial1.write(number);
 #endif
     collectorState->drivingDisabled = false;
-    while (number > 0) {
+    while (true) {
+        detectLine();
+        continue;
         collectorState->setSpeeds(collectorState->forwardSpeed, collectorState->forwardSpeed);
         if (detectLine()) {
             Serial1.write("Found a line\n");
