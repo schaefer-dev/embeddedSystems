@@ -171,6 +171,10 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
+    if (newLeftSpeed > 300 || newRightSpeed > 300){
+        Serial1.println("ERROR: never allowed to drive faster than 300!");
+        return;
+    }
     if (drivingDisabled) {
         Zumo32U4Motors::setSpeeds(0, 0);
         return;
