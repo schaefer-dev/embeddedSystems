@@ -133,9 +133,9 @@ void loop() {
      */
 
 
-#ifdef COLLECTOR_SCENARIO_HOMING
-    homing();
-#endif
+    collectorState->navigate();
+    delay(1);
+    collectorState->updateRoboterPositionAndAngles();
 
 
 #ifdef COLLECTOR_SCENARIO_DEBUG_RF_REGISTER_CHECK
