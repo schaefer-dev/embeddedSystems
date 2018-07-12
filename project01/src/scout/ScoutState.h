@@ -8,6 +8,7 @@
 #include "../utils/Coordinates.h"
 
 #define OOB_PUNISH_TIME_MS 10000
+#define DRIVE_BACKWARDS_TIME 500
 
 #define PHOTOSENSOR_TRESHOLD 100
 
@@ -49,10 +50,17 @@ public:
     int photoSensorBack;
     long lastPhotoSensorUpdate;
 
+
     long photoSensorTimer;
     int photoSensorCurrentMax;
     float photoX;
     float photoY;
+
+
+    bool unhandledCollisionFlag;
+    unsigned long driveBackwardsUntil;
+    const int backwardsSpeed = -20;
+
 
     const int forwardSpeed = 80;
     const int turningSpeed = 50;

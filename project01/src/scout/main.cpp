@@ -115,9 +115,9 @@ int main() {
         delay(100);
 #endif
 
-#ifdef SCENARIO_HOMING
-        homing();
-#endif
+    scoutState->navigate();
+    delay(1);
+    scoutState->updateRoboterPositionAndAngles();
 
 
 #ifdef SCENARIO_RELAY
@@ -156,17 +156,17 @@ int main() {
 
 }
 
-void homing() {
-
-    scoutState->navigate();
-
-    delay(1);
-    scoutState->updateRoboterPositionAndAngles();
-}
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y) {
     float currentAngle = (float) angle / 10000.0f;
     currentAngle += 0.5f * M_PI;
+
+    /* catch negative coordinates which are encoded to large ints */
+    if (x > 2000)
+        x = 0;
+    if (y > 2000)
+        y = 0;
+
     int currentX = ARENA_SIZE_X - x / 10.0f;
     int currentY = y / 10.0f;
 
@@ -184,6 +184,7 @@ void checkForNewRFMessage() {
         ScoutRF::processReceivedMessage(scoutState);
     }
 }
+
 
 bool checkForConfigMessage() {
     statusRF = ScoutRF::queryRFModule();

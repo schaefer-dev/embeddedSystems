@@ -36,6 +36,10 @@ public:
     unsigned long earliestNextRotationTime;
     short navigationStep;
 
+    bool unhandledCollisionFlag;
+    unsigned long driveBackwardsUntil;
+    const int backwardsSpeed = -30;
+
     const int forwardSpeed = 100;
     const int turningSpeed = 100;
 

@@ -31,6 +31,9 @@ CollectorState::CollectorState() {
     drivingDisabled = true;
     earliestNextRotationTime = millis();
     navigationStep = NAV_NONE;
+
+    unhandledCollisionFlag = false;
+    driveBackwardsUntil = millis();
 }
 
 /*
@@ -81,6 +84,19 @@ void CollectorState::navigate(){
         destinationReached = false;
     }
 
+    /*  check if collision has just happened  */
+    if (unhandledCollisionFlag){
+        driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        unhandledCollisionFlag = false;
+        return;
+    }
+
+    /*  check if we still have to drive backwards */
+    if (millis() <= driveBackwardsUntil){
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        return;
+    }
 
     // check if destination reached
     if (abs(currentX - destinationX) < destination_reached_threshhold

@@ -41,6 +41,8 @@ ScoutState::ScoutState() {
     drivingDisabled = true;
     earliestNextRotationTime = millis();
     navigationStep = NAV_NONE;
+    unhandledCollisionFlag = false;
+    driveBackwardsUntil = millis();
 }
 
 /*
@@ -89,6 +91,20 @@ void ScoutState::navigate(){
         destinationX = nextDestinationX;
         destinationY = nextDestinationY;
         destinationReached = false;
+    }
+
+    /*  check if collision has just happened  */
+    if (unhandledCollisionFlag){
+        driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        unhandledCollisionFlag = false;
+        return;
+    }
+
+    /*  check if we still have to drive backwards */
+    if (millis() <= driveBackwardsUntil){
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        return;
     }
 
 
@@ -253,6 +269,7 @@ void ScoutState::outOfBoundsMessage() {
     outOfBoundsTime = millis();
 }
 
+
 /* check for high photo sensor readings, if they meet threshold, call handleHighPhotoReadings */
 void ScoutState::checkForHighPhotoReadings(){
     ScoutState::updatePhotoSensorReadings();
@@ -297,3 +314,4 @@ void ScoutState::handleHighPhotoReadings() {
     photoSensorTimer = 0;
     photoSensorCurrentMax = 0;
 }
+

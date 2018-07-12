@@ -182,7 +182,11 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
         case 0x02:
             /* Collision case -> force robot to drive backwards (with low speed) for 500ms*/
-            // TODO
+            scoutState->unhandledCollisionFlag = true;
+            ScoutSerial::serialWrite("Collision received!\n", 20);
+            receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
+                             payloadArray[3] * 256 + payloadArray[4],
+                             payloadArray[5] * 256 + payloadArray[6]);
             break;
 
         case 0x50: {
