@@ -10,7 +10,6 @@
 #include "../scout/main.h"
 #include "CollectorMonitor.h"
 #include "CollectorRF.h"
-#include "CollectorSerial.h"
 #include "Zumo32U4LineSensors.h"
 #include "CollectorLineSensors.h"
 #include "Zumo32U4Motors.h"

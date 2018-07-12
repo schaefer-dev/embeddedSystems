@@ -21,7 +21,6 @@
 
 // #define COLLECTOR_LINE_SENSOR_READINGS
 
-//#define COLLECTOR_ROBOT_SIMULATOR
 #define COLLECTOR_MONITOR
 
 void setup();

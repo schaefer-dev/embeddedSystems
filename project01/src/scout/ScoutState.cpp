@@ -57,9 +57,7 @@ void ScoutState::navigate(){
     if (drivingDisabled) {
         setSpeeds(0,0);
 #ifdef DEBUG
-#ifndef ROBOT_SIMULATOR
         ScoutSerial::serialWrite("driving disabled\n",17);
-#endif
 #endif
         return;
     }
@@ -69,9 +67,7 @@ void ScoutState::navigate(){
         if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
 #ifdef DEBUG
-#ifndef ROBOT_SIMULATOR
             ScoutSerial::serialWrite("no new destination in queue\n",28);
-#endif
 #endif
             return;
         }
@@ -133,9 +129,7 @@ void ScoutState::navigate(){
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
 #ifdef DEBUG
-#ifndef ROBOT_SIMULATOR
         ScoutSerial::serialWrite("straight ahead!\n", 16);
-#endif
 #endif
         return;
     }
@@ -149,9 +143,7 @@ void ScoutState::navigate(){
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
 #ifdef DEBUG
-#ifndef ROBOT_SIMULATOR
         ScoutSerial::serialWrite("straight ahead!\n", 16);
-#endif
 #endif
         return;
     }
@@ -162,9 +154,7 @@ void ScoutState::navigate(){
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
 #ifdef DEBUG
-#ifndef ROBOT_SIMULATOR
         ScoutSerial::serialWrite("turning left!\n", 14);
-#endif
 #endif
     } else {
         // turn right
@@ -201,16 +191,7 @@ void ScoutState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
-#ifndef ROBOT_SIMULATOR
     OrangutanMotors::setSpeeds(newLeftSpeed, newRightSpeed);
-#endif
-#ifdef ROBOT_SIMULATOR
-    ScoutSerial::serialWrite("Speed left: ", 12);
-    ScoutSerial::serialWrite8Bit(newLeftSpeed);
-    ScoutSerial::serialWrite(" right: ", 8);
-    ScoutSerial::serialWrite8Bit(newRightSpeed);
-    ScoutSerial::serialWrite("\n", 1);
-#endif
     leftSpeed = newLeftSpeed;
     rightSpeed = newRightSpeed;
 }

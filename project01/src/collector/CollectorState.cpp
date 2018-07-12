@@ -190,15 +190,7 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (rightSpeed == newRightSpeed && leftSpeed == newLeftSpeed)
         return;
     updateRoboterPositionAndAngles();
-#ifndef COLLECTOR_ROBOT_SIMULATOR
     Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
-#endif
-#ifdef COLLECTOR_ROBOT_SIMULATOR
-    Serial1.print("Speed left: ");
-    Serial1.print(newLeftSpeed);
-    Serial1.print(" right: ");
-    Serial1.println(newRightSpeed);
-#endif
     leftSpeed = newLeftSpeed;
     rightSpeed = newRightSpeed;
 }

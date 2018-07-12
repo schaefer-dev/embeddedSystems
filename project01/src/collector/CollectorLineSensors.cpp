@@ -2,7 +2,6 @@
 #include "Arduino.h"
 #include "CollectorLineSensors.h"
 #include "Zumo32U4LineSensors.h"
-#include "CollectorSerial.h"
 #include "CollectorState.h"
 
 

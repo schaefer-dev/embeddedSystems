@@ -27,7 +27,6 @@
 // #define DEBUG_SERIAL_PORT_ECHO
 
 #define SCOUT_MONITOR
-// #define ROBOT_SIMULATOR
 
 
 void initialize();

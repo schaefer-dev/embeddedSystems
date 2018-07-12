@@ -98,38 +98,6 @@ void ScoutSerial::serialWrite8BitBinary(int input) {
 }
 
 
-
-#ifdef ROBOT_SIMULATOR
-/* checks if the synchronizing prefix 0x7A (z) has been send over serial, if yes return true */
-bool ScoutSerial::simulatorMessageIncoming(){
-    delay(5);
-    int newReceiveIndex = OrangutanSerial::getReceivedBytes();
-    if (receiveIndex == newReceiveIndex)
-        return false;
-
-    int iterator = receiveIndex;
-
-    if ('z' == (char)receiveBuffer[iterator]) {
-        initScoutSerial();
-        return true;
-    }
-
-    initScoutSerial();
-    return false;
-}
-#endif
-
-
-
-#ifdef ROBOT_SIMULATOR
-/* reads exactly 32 bytes blocking into array */
-void ScoutSerial::receiveSerialBlocking(char *returnArray){
-    OrangutanSerial::receiveBlocking(returnArray, 32, TIMEOUT_BLOCKING_READING);
-    return;
-}
-#endif
-
-
 char ScoutSerial::readSingleCharFromSerial(){
     int newReceiveIndex = OrangutanSerial::getReceivedBytes();
     if (receiveIndex == newReceiveIndex)
