@@ -32,13 +32,6 @@ void initialize() {
     ScoutLineSensors::calibrate(scoutState);
 #endif
 
-#ifdef SCENARIO_HOMING
-    /* Home is always our next destination */
-    scoutState->nextDestinationX = home[0];
-    scoutState->nextDestinationY = home[1];
-    scoutState->nextDestinationCounter += 1;
-#endif
-
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
 
@@ -62,7 +55,17 @@ void initialize() {
         */
     }
 
-    ScoutSerial::serialWrite("\nInitialization complete\n", 25);
+    ScoutSerial::serialWrite("\nInitialization complete, waiting for button press to continue\n", 63);
+
+    /*  TODO busy wait for Button press here  */
+
+
+    /*  Busy wait until config message received  */
+    while(!configReceived)
+        ASM("NOP");
+
+    /*  TODO Calibrate light sensors now for 3s + 3s */
+
 }
 
 int main() {
@@ -181,6 +184,24 @@ void checkForNewRFMessage() {
         ScoutRF::processReceivedMessage(scoutState);
     }
 }
+
+bool checkForConfigMessage() {
+    statusRF = ScoutRF::queryRFModule();
+    char messageReceived = statusRF & (1 << 6);
+
+    if (messageReceived) {
+        ScoutRF::processReceivedMessage(scoutState);
+    }
+
+    if(ScoutRF::teamChannel != 0){
+        /*  Case for Config Message received  */
+        ScoutRF::setTeamChannel(ScoutRF::teamChannel);
+        ScoutSerial::write("Team channel changed accordingly.\n", 34);
+        return true;
+    }
+    return false;
+}
+
 
 
 /* run photophobic Scout Controller as explained in Milestone 5
