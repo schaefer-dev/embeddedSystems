@@ -733,3 +733,40 @@ TODO: Drive over X lines with collector
 TODO: Messreihe Line sensors Collector
 TODO: Messreihe Line sensors Scout
 
+
+-------------------------- Engineering Notebook 07 --------------------------
+---------------------------- Week 12.07 - 23.07 -----------------------------
+-----------------------------------------------------------------------------
+--------------- Rafael Dewes, Kevin Mueller, Daniel Schaefer ----------------
+-----------------------------------------------------------------------------
+
+Important fixes from last iteration:
+    - take care of negative coordinates being sent via position update/out of bounds message
+
+TODO list for this Iteration:
+    - Rewrite Initialization to
+        - Calibrate robots first (line sensors), maybe prox sensors
+        - Wait for Button Press
+        - Send Hello with RobotID
+        - Receive Config Message
+        - Set channel depending on config message
+        - Calibrate Light sensors (first 3s dark then 3s bright)
+    
+    - Implement Tactics:
+        - Drive 500ms backwards when receiving message (NON BLOCKING)
+
+    - Verify that everything is working on tournament hardware
+
+    - Implement Passing Conditions Check
+        - Monitor checks max speed never over 300 on collector
+        - Monitor checks that robot drives 500ms backwards when receiving collision
+        - Monitor alerts using beeper
+
+    - Taktik:
+        - Send coordinates of good harvesting positions
+
+
+    - Maybe:
+        - Track Grid position independently of differential drive and occasionally update diff drive position depending on Grid position
+        - send robot positions to each other to avoid collisions with own team
+        
