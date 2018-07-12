@@ -37,7 +37,8 @@ public:
     short navigationStep;
 
     bool unhandledCollisionFlag;
-    unsigned long writeBackwardsUntil;
+    unsigned long driveBackwardsUntil;
+    const int backwardsSpeed = -30;
 
     const int forwardSpeed = 100;
     const int turningSpeed = 100;

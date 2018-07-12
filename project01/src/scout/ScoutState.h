@@ -8,6 +8,7 @@
 #include "../utils/Coordinates.h"
 
 #define OOB_PUNISH_TIME_MS 10000
+#define DRIVE_BACKWARDS_TIME 500
 
 #define DO_NOT_ROTATE_AGAIN_MS 200
 #define NAV_NONE 0
@@ -48,7 +49,8 @@ public:
     long lastPhotoSensorUpdate;
 
     bool unhandledCollisionFlag;
-    unsigned long writeBackwardsUntil;
+    unsigned long driveBackwardsUntil;
+    const int backwardsSpeed = -20;
 
     const int forwardSpeed = 80;
     const int turningSpeed = 50;
