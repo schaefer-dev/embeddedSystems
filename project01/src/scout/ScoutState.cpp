@@ -2,6 +2,7 @@
 #include "OrangutanMotors.h"
 #include "OrangutanTime.h"
 #include <OrangutanSerial.h>
+#include "../utils/Utility.h"
 #include <math.h>
 #include <stdlib.h>
 #include "main.h"
@@ -274,9 +275,9 @@ void ScoutState::outOfBoundsMessage() {
 void ScoutState::checkForHighPhotoReadings(){
     ScoutState::updatePhotoSensorReadings();
     int readingsMax = 0;
-    readingsMax = std::max(std::max(photoSensorFront, photoSensorBack), std::max(photoSensorLeft, photoSensorRight));
+    readingsMax = Utility::max(Utility::max(photoSensorFront, photoSensorBack), Utility::max(photoSensorLeft, photoSensorRight));
     if (readingsMax > PHOTOSENSOR_TRESHOLD){
-        handleHighPhotoReadings();
+        handleHighPhotoReadings(readingsMax);
     }
 
 }
@@ -284,12 +285,12 @@ void ScoutState::checkForHighPhotoReadings(){
 
 /* handle high photosensor readings by notifying Collector;
  * Send Light Intensity, X position, Y position like pos update */
-void ScoutState::handleHighPhotoReadings() {
+void ScoutState::handleHighPhotoReadings(int maxReading) {
 
     if (photoSensorTimer == 0){
 
         photoSensorTimer = millis()+2000;
-        photoSensorCurrentMax = std::max(std::max(photoSensorFront, photoSensorBack), std::max(photoSensorLeft, photoSensorRight));
+        photoSensorCurrentMax = maxReading;
         photoX = currentX;
         photoY = currentY;
 

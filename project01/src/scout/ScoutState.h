@@ -74,7 +74,7 @@ public:
     void updateRoboterPositionAndAngles();
     void updatePhotoSensorReadings();
     void checkForHighPhotoReadings();
-    void handleHighPhotoReadings();
+    void handleHighPhotoReadings(int maxReading);
     void outOfBoundsMessage();
     void navigate();
 
