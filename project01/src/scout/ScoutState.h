@@ -47,6 +47,9 @@ public:
     int photoSensorBack;
     long lastPhotoSensorUpdate;
 
+    bool unhandledCollisionFlag;
+    unsigned long writeBackwardsUntil;
+
     const int forwardSpeed = 80;
     const int turningSpeed = 50;
 

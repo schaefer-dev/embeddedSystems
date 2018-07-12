@@ -183,6 +183,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
     collectorState->destinationReached = true;
 };
 
+
 void checkForNewRFMessage(){
     statusRF = CollectorRF::queryRFModule();
     char messageReceived = statusRF & (1 << 6);

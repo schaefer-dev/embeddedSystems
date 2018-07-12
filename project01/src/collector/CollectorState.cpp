@@ -31,6 +31,9 @@ CollectorState::CollectorState() {
     drivingDisabled = true;
     earliestNextRotationTime = millis();
     navigationStep = NAV_NONE;
+
+    unhandledCollisionFlag = false;
+    writeBackwardsUntil = millis();
 }
 
 /*

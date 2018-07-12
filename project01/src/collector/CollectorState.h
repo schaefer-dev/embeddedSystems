@@ -36,6 +36,9 @@ public:
     unsigned long earliestNextRotationTime;
     short navigationStep;
 
+    bool unhandledCollisionFlag;
+    unsigned long writeBackwardsUntil;
+
     const int forwardSpeed = 100;
     const int turningSpeed = 100;
 

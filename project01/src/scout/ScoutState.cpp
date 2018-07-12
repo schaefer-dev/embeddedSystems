@@ -36,6 +36,8 @@ ScoutState::ScoutState() {
     drivingDisabled = true;
     earliestNextRotationTime = millis();
     navigationStep = NAV_NONE;
+    unhandledCollisionFlag = false;
+    driveBackwardsUntil = millis();
 }
 
 /*

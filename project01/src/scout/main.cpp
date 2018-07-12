@@ -192,6 +192,7 @@ void checkForNewRFMessage() {
     }
 }
 
+
 bool checkForConfigMessage() {
     statusRF = ScoutRF::queryRFModule();
     char messageReceived = statusRF & (1 << 6);
