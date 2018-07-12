@@ -9,6 +9,8 @@
 
 #define OOB_PUNISH_TIME_MS 10000
 
+#define PHOTOSENSOR_TRESHOLD 100
+
 #define DO_NOT_ROTATE_AGAIN_MS 200
 #define NAV_NONE 0
 #define NAV_AT_DESTINATION 1
@@ -47,6 +49,11 @@ public:
     int photoSensorBack;
     long lastPhotoSensorUpdate;
 
+    long photoSensorTimer;
+    int photoSensorCurrentMax;
+    float photoX;
+    float photoY;
+
     const int forwardSpeed = 80;
     const int turningSpeed = 50;
 
@@ -58,6 +65,8 @@ public:
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
     void updatePhotoSensorReadings();
+    void checkForHighPhotoReadings();
+    void handleHighPhotoReadings();
     void outOfBoundsMessage();
     void navigate();
 
@@ -65,6 +74,9 @@ private:
     /* TODO */
     static constexpr float WHEEL_RADIUS = 1.75f;
     static constexpr float WHEEL_DISTANCE = 9.3f;
+
+
+
 
 };
 

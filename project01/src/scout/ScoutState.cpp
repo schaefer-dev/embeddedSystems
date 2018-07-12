@@ -5,6 +5,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include "main.h"
+#include "ScoutRF.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -31,6 +32,10 @@ ScoutState::ScoutState() {
     photoSensorLeft = 0;
     photoSensorRight = 0;
     lastPhotoSensorUpdate = 0;
+    photoSensorTimer = 0;
+    photoSensorCurrentMax = 0;
+    photoX = 0;
+    photoY = 0;
     outOfBounds = false;
     outOfBoundsTime = 0;
     drivingDisabled = true;
@@ -246,4 +251,49 @@ void ScoutState::outOfBoundsMessage() {
     outOfBounds = true;
     ScoutSerial::serialWrite("OOB Punish start\n",17);
     outOfBoundsTime = millis();
+}
+
+/* check for high photo sensor readings, if they meet threshold, call handleHighPhotoReadings */
+void ScoutState::checkForHighPhotoReadings(){
+    ScoutState::updatePhotoSensorReadings();
+    int readingsMax = 0;
+    readingsMax = std::max(std::max(photoSensorFront, photoSensorBack), std::max(photoSensorLeft, photoSensorRight));
+    if (readingsMax > PHOTOSENSOR_TRESHOLD){
+        handleHighPhotoReadings();
+    }
+
+}
+
+
+/* handle high photosensor readings by notifying Collector;
+ * Send Light Intensity, X position, Y position like pos update */
+void ScoutState::handleHighPhotoReadings() {
+
+    if (photoSensorTimer == 0){
+
+        photoSensorTimer = millis()+2000;
+        photoSensorCurrentMax = std::max(std::max(photoSensorFront, photoSensorBack), std::max(photoSensorLeft, photoSensorRight));
+        photoX = currentX;
+        photoY = currentY;
+
+    } else if (photoSensorTimer - millis() > 0){
+
+        return;
+    }
+
+    uint8_t harvestUpdate[7];
+
+    harvestUpdate[0] = 0x0069;
+    harvestUpdate[2] = photoSensorCurrentMax;
+
+    harvestUpdate[3] = ( (int) (photoX * 10) ) / 256;
+    harvestUpdate[4] = ( (int) (photoX * 10) ) % 256;
+
+    harvestUpdate[5] = ( (int) (photoY * 10) ) / 256;
+    harvestUpdate[6] = ( (int) (photoY * 10) ) % 256;
+
+    ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
+
+    photoSensorTimer = 0;
+    photoSensorCurrentMax = 0;
 }
