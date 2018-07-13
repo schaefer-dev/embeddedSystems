@@ -14,14 +14,23 @@ void ScoutLineSensors::init(){
     delay(10);
 }
 
-void ScoutLineSensors::calibrate(ScoutState* state){
-    int calibrationSpeed = state->forwardSpeed / 4;
+void ScoutLineSensors::calibrate(ScoutState* state, int duration){
+    int calibrationSpeed = state->forwardSpeed / 3;
     state->drivingDisabled = false;
 
-    for (int i = 0; i < 80; i++) {
-        if (i < 40) {
+    uint8_t calibrations = duration/20;
+
+    for (int i = 0; i < calibrations; i++) {
+        if (i < calibrations/4) {
             OrangutanMotors::setSpeeds(calibrationSpeed, calibrationSpeed);
-        } else {
+        }
+        else if (i < calibrations/2 && i >= calibrations/4) {
+            OrangutanMotors::setSpeeds(calibrationSpeed/1.5, calibrationSpeed/1.5);
+        }
+        else if (i >= calibrations/2 && i <= calibrations/1.5) {
+            OrangutanMotors::setSpeeds(-calibrationSpeed/1.5, -calibrationSpeed/1.5);
+        }
+        else {
             OrangutanMotors::setSpeeds(-calibrationSpeed, -calibrationSpeed);
         }
         calibrate_line_sensors(IR_EMITTERS_OFF);

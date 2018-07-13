@@ -43,6 +43,8 @@ ScoutState::ScoutState() {
     earliestNextRotationTime = millis();
     navigationStep = NAV_NONE;
     unhandledCollisionFlag = false;
+    configurationReceived = false;
+    gameStarted = false;
     driveBackwardsUntil = millis();
 }
 

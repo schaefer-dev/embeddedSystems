@@ -68,6 +68,10 @@ public:
     const float rotationImprecision = 2.1f;     // simple approximation for friction when turning
     const float straightImprecision = 2.3f;     // simple approximation for friction when driving straight
 
+    bool configurationReceived = false;
+    bool gameStarted = false;
+
+
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);
     void setSpeeds(int newLeftSpeed, int newRightSpeed);

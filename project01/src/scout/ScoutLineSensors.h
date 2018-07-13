@@ -13,7 +13,7 @@ class ScoutLineSensors
 
 public:
     static void init();
-    static void calibrate(ScoutState*);
+    static void calibrate(ScoutState*, int duration = 1600);
     static bool detectLine();
     static void checkForLines(ScoutState*);
     static bool readNewLines();

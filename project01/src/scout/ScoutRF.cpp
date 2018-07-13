@@ -56,7 +56,7 @@ void ScoutRF::initializeRFModule() {
     /* TODO: some of this is default set already, so can be optimized */
 
     // write command register 02: enable all data pipes
-    writeRegister(0x00000002,  63);
+    writeRegister(0x00000002, 63);
 
     // write command register 04: enable 10 retries w delay 2ms
     writeRegister(0x00000004, 138);
@@ -65,20 +65,20 @@ void ScoutRF::initializeRFModule() {
     writeRegister(0x00000005, 111);
 
     // write register 06: data rate 1 mbps, max power
-    writeRegister(0x00000006,   6);
+    writeRegister(0x00000006, 6);
 
 
 
     /* write command register 11 to 16 to maximum RX payload (32 Bytes) */
-    for (int i = 0x00000011; i < 0x00000017; i ++){
-        writeRegister( i,  32);
+    for (int i = 0x00000011; i < 0x00000017; i++) {
+        writeRegister(i, 32);
     }
 
     // write register 1D: enable dyn payload, dyn ack
-    writeRegister(0x0000001C,   63);
+    writeRegister(0x0000001C, 63);
 
     // write register 1D: enable dyn payload, dyn ack
-    writeRegister(0x0000001D,   7);
+    writeRegister(0x0000001D, 7);
 
 
     write5ByteAdress(RF_REGISTER_RX_ADDR_P0, scoutAdress);
@@ -105,9 +105,9 @@ void ScoutRF::flushRXTX() {
 }
 
 
-void ScoutRF::debug_RFModule(){
+void ScoutRF::debug_RFModule() {
     int output = 0;
-    for (int i = 0; i < 30; i++){
+    for (int i = 0; i < 30; i++) {
         output = readRegister(i);
 
         ScoutSerial::serialWrite("Register ", 9);
@@ -122,14 +122,14 @@ void ScoutRF::debug_RFModule(){
     uint8_t adressArray[5];
     readAdressRegister(0x0A, adressArray);
     ScoutSerial::serialWrite("ADDR Register: 0A (", 19);
-    for (int i=0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
         ScoutSerial::serialWrite8BitHex(adressArray[i]);
     }
     ScoutSerial::serialWrite(")\n", 2);
 
     readAdressRegister(0x0B, adressArray);
     ScoutSerial::serialWrite("ADDR Register: 0B (", 19);
-    for (int i=0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
         ScoutSerial::serialWrite8BitHex(adressArray[i]);
     }
     ScoutSerial::serialWrite(")\n", 2);
@@ -165,7 +165,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
     ScoutSerial::serialWrite("Message: ", 9);
 
-    for (int i = 0; i < answerArray[0]; i++){
+    for (int i = 0; i < answerArray[0]; i++) {
         ScoutSerial::serialWrite8BitHex(payloadArray[i]);
     }
     ScoutSerial::serialWrite(" (only first 3 bytes displayed)\n", 32);
@@ -187,6 +187,27 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
+            break;
+
+        case 0x42: {
+            // Hello
+            ScoutSerial::serialWrite("Ref sent HELLO\n", 15);
+        }
+            break;
+
+        case 0x43: {
+            // Config
+            uint8_t channel = payloadArray[1];
+            // switch to new comminucation channel
+
+            writeRegister(0x00000005, channel);
+            flushRXTX();
+            scoutState->configurationReceived = true;
+        }
+            break;
+
+        case 0x44:
+            scoutState->gameStarted = true;
             break;
 
         case 0x50: {
@@ -267,8 +288,8 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 
     uint8_t commandArray[payloadArrayLength + 1];
     commandArray[0] = RF_COMMAND_W_TX_PAYLOAD;
-    for (int i = 1; i < payloadArrayLength + 1; i++){
-        commandArray[i] = payloadArray[i-1];
+    for (int i = 1; i < payloadArrayLength + 1; i++) {
+        commandArray[i] = payloadArray[i - 1];
     }
 
     sendCommandWithPayload(commandArray, payloadArrayLength + 1);
@@ -278,7 +299,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 
     delay(10);
     flushRXTX();
-    while (true){
+    while (true) {
         status = queryRFModule();
 
         /* either message sent or max retries reached case */
@@ -316,7 +337,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 #endif
 
     /* clear received status */
-    writeRegister(RF_REGISTER_STATUS, (1 << 4)|(1 << 5) );
+    writeRegister(RF_REGISTER_STATUS, (1 << 4) | (1 << 5));
 
     /* Write Scout adress in RX Register Pipe 0 */
     write5ByteAdress(RF_REGISTER_RX_ADDR_P0, scoutAdress);
@@ -326,7 +347,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 }
 
 
-void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
+void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount) {
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -340,7 +361,7 @@ void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount){
 }
 
 
-void ScoutRF::getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t command){
+void ScoutRF::getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t command) {
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -355,8 +376,7 @@ void ScoutRF::getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t comma
 }
 
 
-
-void ScoutRF::writeRegister(uint8_t reg, uint8_t setting){
+void ScoutRF::writeRegister(uint8_t reg, uint8_t setting) {
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -370,13 +390,13 @@ void ScoutRF::writeRegister(uint8_t reg, uint8_t setting){
 
 
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
-void ScoutRF::write5ByteAdress(int reg, uint8_t* bytes){
+void ScoutRF::write5ByteAdress(int reg, uint8_t *bytes) {
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
     ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
-    for (int i = 4; i >= 0; i--){
+    for (int i = 4; i >= 0; i--) {
         ScoutSPI::readWriteSPI(bytes[i]);
         delayMicroseconds(command_delay);
     }
@@ -386,7 +406,7 @@ void ScoutRF::write5ByteAdress(int reg, uint8_t* bytes){
 }
 
 
-int ScoutRF::readRegister(uint8_t reg){
+int ScoutRF::readRegister(uint8_t reg) {
 
     ScoutSPI::slaveSelect(SLAVE_RF);
 
@@ -401,7 +421,7 @@ int ScoutRF::readRegister(uint8_t reg){
 }
 
 
-void ScoutRF::readAdressRegister(uint8_t reg, uint8_t* outputArray){
+void ScoutRF::readAdressRegister(uint8_t reg, uint8_t *outputArray) {
     ScoutSPI::slaveSelect(SLAVE_RF);
 
     ScoutSPI::readWriteSPI(RF_COMMAND_R_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register

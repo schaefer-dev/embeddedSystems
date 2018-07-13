@@ -16,7 +16,10 @@ int home[2] = {10, 10};
 ScoutState *scoutState;
 
 void initialize() {
+    // 1.1. Place the robot in the arena, 1 sec to do this
     delay(1000);
+
+    // 1.2 Start calibrating
     // initialize serial connection
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
@@ -28,13 +31,13 @@ void initialize() {
     scoutState->lastDiffDriveCall = millis();
 
 #ifdef LINE_SENSOR_READINGS
+    // Calibrate on dark arena
     ScoutLineSensors::init();
     ScoutLineSensors::calibrate(scoutState);
 #endif
 
     // initialize differential updateRoboterPositionAndAngles
     scoutState->setSpeeds(0, 0);
-
 
 #ifdef SCOUT_MONITOR
     ScoutMonitor::verifyState();
@@ -47,29 +50,47 @@ void initialize() {
         delay(10);
         ScoutRF::initializeRFModule();
         delay(10);
-
-        /* RF DEBUGGING
-        ScoutSerial::serialWrite("REGISTER CHECk START:\n", 23);
-        ScoutSPI::debug_RFModule();
-        ScoutSerial::serialWrite("REGISTER CHECk END:\n", 20);
-        */
     }
 
-    ScoutSerial::serialWrite("\nInitialization complete, waiting for button press to continue\n", 63);
+    ScoutSerial::serialWrite("SPI and RF Initialization complete\n", 36);
+    // time to cancel and restart the robot
+    delay(1000);
 
-    /*  TODO busy wait for Button press here  */
+    // 2. Send a HELLO message to the referee on channel 111
+    uint8_t payloadArray[2];
+    payloadArray[0] = 0x42;
+    payloadArray[1] = (uint8_t) (14);
+    ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
+
+    ScoutSerial::serialWrite("HELLO sent\n", 11);
 
 
     /*  Busy wait until config message received  */
-    while(!configReceived)
-        ASM("NOP");
+    while(!scoutState->configurationReceived) {
+        checkForNewRFMessage();
+    }
+    ScoutSerial::serialWrite("CONFIG received\n", 16);
 
-    /*  TODO Calibrate light sensors now for 3s + 3s */
+    // wait until the light turns on
+    delay(3100);
 
+    int calibrationDuration = 1600;
+    ScoutLineSensors::calibrate(scoutState, calibrationDuration);
+
+    // wait until the light turns off
+    delay(2900-calibrationDuration);
+
+    ScoutSerial::serialWrite("Waiting for GO Message\n", 24);
+    while(!scoutState->gameStarted) {
+        checkForNewRFMessage();
+    }
+
+    ScoutSerial::serialWrite("GO!!!\n", 6);
 }
 
 int main() {
     initialize();
+    return 0;
 
 #ifdef DEBUG_SERIAL_PORT_ECHO
     char serialMessage[50];
@@ -197,7 +218,7 @@ bool checkForConfigMessage() {
     if(ScoutRF::teamChannel != 0){
         /*  Case for Config Message received  */
         ScoutRF::setTeamChannel(ScoutRF::teamChannel);
-        ScoutSerial::write("Team channel changed accordingly.\n", 34);
+        ScoutSerial::serialWrite("Team channel changed accordingly.\n", 34);
         return true;
     }
     return false;
