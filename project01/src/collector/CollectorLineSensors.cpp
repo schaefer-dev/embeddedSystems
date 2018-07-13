@@ -19,20 +19,23 @@ void CollectorLineSensors::init(CollectorState *collectorState) {
 #endif
 }
 
-void CollectorLineSensors::calibrate(CollectorState *collectorState) {
-    int calibrationSpeed = 50;
+void CollectorLineSensors::calibrate(CollectorState *collectorState, int duration) {
+    int calibrationSpeed = collectorState->forwardSpeed / 2;
     collectorState->drivingDisabled = false;
 
-    for (int i = 0; i < 80; i++) {
-        if (i < 40) {
-            collectorState->setSpeeds(calibrationSpeed, calibrationSpeed);
-        }
-        else {
-            collectorState->setSpeeds(-calibrationSpeed, -calibrationSpeed);
-        }
+    long start = millis();
+
+    while (millis() - start < duration / 2) {
+        collectorState->setSpeeds(calibrationSpeed, calibrationSpeed);
         lineSensors.calibrate();
         delay(20);
     }
+    while (millis() - start < duration) {
+        collectorState->setSpeeds(-calibrationSpeed, -calibrationSpeed);
+        lineSensors.calibrate();
+        delay(20);
+    }
+
     collectorState->setSpeeds(0, 0);
     collectorState->drivingDisabled = true;
 #ifdef COLLECTOR_DEBUG

@@ -174,6 +174,29 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
 
+        case 0x42:
+            // Hello
+            Serial1.print("Ref sent HELLO\n");
+            break;
+
+        case 0x43: {
+            // Config
+            uint8_t channel = payloadArray[1];
+
+            Serial1.print("New channel: " + channel);
+
+            // switch to new comminucation channel
+            writeRegister(0x00000005, channel);
+            flushRXTX();
+            collectorState->configurationReceived = true;
+        }
+            break;
+
+        case 0x44:
+            // Go
+            collectorState->gameStarted = true;
+            break;
+
         case 0x50: {
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef COLLECTOR_MONITOR

@@ -74,12 +74,10 @@ void initialize() {
     // wait until the light turns on
     delay(3100);
 
-    int calibrationDuration = 1600;
+    int calibrationDuration = 2000;
     ScoutLineSensors::calibrate(scoutState, calibrationDuration);
 
     // wait until the light turns off
-    delay(2900-calibrationDuration);
-
     ScoutSerial::serialWrite("Waiting for GO Message\n", 24);
     while(!scoutState->gameStarted) {
         checkForNewRFMessage();

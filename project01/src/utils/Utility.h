@@ -10,8 +10,7 @@ class Utility {
 
 public:
     static int int_pow(int base, int exp);
-
-    static int max(int a, int b);
+    static int maximum(int a, int b);
 };
 
 

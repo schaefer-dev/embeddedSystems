@@ -11,7 +11,7 @@ class CollectorLineSensors
 
 public:
     static void init(CollectorState* collectorState);
-    static void calibrate(CollectorState* collectorState);
+    static void calibrate(CollectorState* collectorState, int calibrationDuration = 2500);
     static bool detectLine();
     static void driveOverLines(CollectorState* collectorState);
 

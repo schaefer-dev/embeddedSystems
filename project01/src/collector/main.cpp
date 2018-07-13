@@ -31,7 +31,10 @@ char testInput[53];
 bool terminate;
 
 void setup() {
+    // 1.1. Place the robot in the arena, 1 sec to do this
     delay(1000);
+
+    // 1.2 Start calibrating
     // initialize serial connection
     Serial1.begin(9600);
     Serial1.print(messageInitSerial);
@@ -108,12 +111,42 @@ void setup() {
 
     CollectorRF::initializeRFModule();
     Serial1.print(messageInitRF);
-
     delay(10);
 
+    // time to cancel and restart the robot
+    delay(1000);
+
+    // 2. Send a HELLO message to the referee on channel 111
+    uint8_t payloadArray[2];
+    payloadArray[0] = 0x42;
+    payloadArray[1] = (uint8_t) (15);
+    CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);
+    Serial1.print("HELLO sent\n");
+
+    /*  Busy wait until config message received  */
+    while (!collectorState->configurationReceived) {
+        checkForNewRFMessage();
+    }
+    Serial1.print("CONFIG received\n");
+
+    // wait until the light turns on
+    delay(3100);
+
+    int calibrationDuration = 2000;
+    CollectorLineSensors::calibrate(collectorState, calibrationDuration);
+
+    // wait until the light turns off
+    Serial1.print("Waiting for GO\n");
+    while(!collectorState->gameStarted) {
+        checkForNewRFMessage();
+    }
+    Serial1.print("GO!!!\n");
+
+    /*
 #ifdef COLLECTOR_LINE_SENSOR_READINGS
     CollectorLineSensors::driveOverLines(collectorState);
 #endif
+     */
 
 }
 

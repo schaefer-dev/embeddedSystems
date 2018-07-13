@@ -21,7 +21,7 @@
 
 #define COLLECTOR_LINE_SENSOR_READINGS
 
-#define COLLECTOR_MONITOR
+//#define COLLECTOR_MONITOR
 
 void setup();
 void loop();

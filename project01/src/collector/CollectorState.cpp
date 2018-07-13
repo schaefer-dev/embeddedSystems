@@ -32,6 +32,9 @@ CollectorState::CollectorState() {
     earliestNextRotationTime = millis();
     navigationStep = NAV_NONE;
 
+    configurationReceived = false;
+    gameStarted = false;
+
     unhandledCollisionFlag = false;
     driveBackwardsUntil = millis();
 }

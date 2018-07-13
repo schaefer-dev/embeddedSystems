@@ -19,7 +19,7 @@ int Utility::int_pow(int base, int exp)
     return result;
 }
 
-int Utility::max(int a, int b)
+int Utility::maximum(int a, int b)
 {
     if ( a > b )
         return a;

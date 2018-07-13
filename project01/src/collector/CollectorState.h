@@ -3,6 +3,7 @@
 
 
 #define OOB_PUNISH_TIME_MS 10000
+#define DRIVE_BACKWARDS_TIME 500
 
 #define DO_NOT_ROTATE_AGAIN_MS 500
 #define NAV_NONE 0
@@ -47,6 +48,9 @@ public:
     /* for base speed rotation of 200, 0.55f perfect */
     const float rotationImprecision = 0.47f;     // simple approximation for friction when turning
     const float straightImprecision = 0.665f;     // simple approximation for friction when driving straight
+
+    bool configurationReceived = false;
+    bool gameStarted = false;
 
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);

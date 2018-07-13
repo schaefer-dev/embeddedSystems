@@ -277,7 +277,8 @@ void ScoutState::outOfBoundsMessage() {
 void ScoutState::checkForHighPhotoReadings(){
     ScoutState::updatePhotoSensorReadings();
     int readingsMax = 0;
-    readingsMax = Utility::max(Utility::max(photoSensorFront, photoSensorBack), Utility::max(photoSensorLeft, photoSensorRight));
+    readingsMax = Utility::maximum(Utility::maximum(photoSensorFront, photoSensorBack),
+                                   Utility::maximum(photoSensorLeft, photoSensorRight));
     if (readingsMax > PHOTOSENSOR_TRESHOLD){
         handleHighPhotoReadings(readingsMax);
     }

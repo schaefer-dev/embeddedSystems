@@ -189,17 +189,19 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
 
-        case 0x42: {
+        case 0x42:
             // Hello
             ScoutSerial::serialWrite("Ref sent HELLO\n", 15);
-        }
             break;
 
         case 0x43: {
             // Config
             uint8_t channel = payloadArray[1];
-            // switch to new comminucation channel
 
+            ScoutSerial::serialWrite("New channel: ", 13);
+            ScoutSerial::serialWriteInt(channel);
+
+            // switch to new comminucation channel
             writeRegister(0x00000005, channel);
             flushRXTX();
             scoutState->configurationReceived = true;
@@ -207,6 +209,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             break;
 
         case 0x44:
+            // Go
             scoutState->gameStarted = true;
             break;
 

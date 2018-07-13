@@ -18,24 +18,29 @@ void ScoutLineSensors::calibrate(ScoutState* state, int duration){
     int calibrationSpeed = state->forwardSpeed / 3;
     state->drivingDisabled = false;
 
-    uint8_t calibrations = duration/20;
+    long start = millis();
 
-    for (int i = 0; i < calibrations; i++) {
-        if (i < calibrations/4) {
-            OrangutanMotors::setSpeeds(calibrationSpeed, calibrationSpeed);
-        }
-        else if (i < calibrations/2 && i >= calibrations/4) {
-            OrangutanMotors::setSpeeds(calibrationSpeed/1.5, calibrationSpeed/1.5);
-        }
-        else if (i >= calibrations/2 && i <= calibrations/1.5) {
-            OrangutanMotors::setSpeeds(-calibrationSpeed/1.5, -calibrationSpeed/1.5);
-        }
-        else {
-            OrangutanMotors::setSpeeds(-calibrationSpeed, -calibrationSpeed);
-        }
+    while (millis() - start < duration/4) {
+        OrangutanMotors::setSpeeds(calibrationSpeed, calibrationSpeed);
         calibrate_line_sensors(IR_EMITTERS_OFF);
         delay(20);
     }
+    while (millis() - start < duration/2) {
+        OrangutanMotors::setSpeeds(calibrationSpeed/1.5, calibrationSpeed/1.5);
+        calibrate_line_sensors(IR_EMITTERS_OFF);
+        delay(20);
+    }
+    while (millis() - start < duration/1.5) {
+        OrangutanMotors::setSpeeds(-calibrationSpeed/1.5, -calibrationSpeed/1.5);
+        calibrate_line_sensors(IR_EMITTERS_OFF);
+        delay(20);
+    }
+    while (millis() - start < duration) {
+        OrangutanMotors::setSpeeds(-calibrationSpeed, -calibrationSpeed);
+        calibrate_line_sensors(IR_EMITTERS_OFF);
+        delay(20);
+    }
+
     OrangutanMotors::setSpeeds(0, 0);
     state->drivingDisabled = true;
 }
