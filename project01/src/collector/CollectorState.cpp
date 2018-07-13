@@ -25,6 +25,7 @@ CollectorState::CollectorState() {
     rightSpeed = 0;
     lastDiffDriveCall = 0;
     destinationReached = true;
+    isHarvestDestination = false;
 
     outOfBounds = false;
     outOfBoundsTime = 0;
@@ -51,8 +52,6 @@ float CollectorState::getAngle() {
     return angle;
 }
 
-
-
 /* drives towards current destination */
 void CollectorState::navigate(){
 
@@ -65,7 +64,13 @@ void CollectorState::navigate(){
     }
 
     /* read new destination if no destination currently */
-    if (destinationReached == true){
+    if (destinationReached){
+        if (!isHarvestDestination) {
+            // if this was a random destination, continue driving randomly
+            generateDestination();
+        } else {
+            // if this was a harvest position, do X
+        }
         if (nextDestinationCounter == 0) {
             setSpeeds(0,0);
 #ifdef COLLECTOR_DEBUG
@@ -108,10 +113,11 @@ void CollectorState::navigate(){
 #ifdef COLLECTOR_DEBUG
         Serial1.println("\nDestination Reached!");
 #endif
+
         destinationX = 0;
         destinationY = 0;
         destinationReached = true;
-        drivingDisabled = true;
+        //drivingDisabled = true;
         return;
     }
 
@@ -181,7 +187,6 @@ void CollectorState::navigate(){
 
 }
 
-
 void CollectorState::resetDifferentialDrive(float x, float y, float a) {
     currentX = x;
     currentY = y;
@@ -218,8 +223,6 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     rightSpeed = newRightSpeed;
 }
 
-
-
 void CollectorState::updateRoboterPositionAndAngles() {
     float leftSpeedScaled = (50.0f / WHEEL_RADIUS) * (leftSpeed / 255.0f);
     float rightSpeedScaled = (50.0f / WHEEL_RADIUS) * (rightSpeed / 255.0f);
@@ -240,7 +243,6 @@ void CollectorState::updateRoboterPositionAndAngles() {
     currentAngle += angle_dot * timeFactor * rotationImprecision;
 }
 
-
 /* notifies the robot, that it drove out of bounds, disable all motor activity for 30s */
 void CollectorState::outOfBoundsMessage() {
     setSpeeds(0,0);
@@ -250,4 +252,27 @@ void CollectorState::outOfBoundsMessage() {
     Serial1.flush();
 #endif
     outOfBoundsTime = millis();
+}
+
+/**
+ * Can be called anytime upon receiving a harvest position over RF and will immediately update the
+ * @param x
+ * @param y
+ */
+void CollectorState::harvestPositionMessage(int x, int y) {
+    nextDestinationX = x;
+    nextDestinationY = y;
+
+    nextDestinationCounter = 1;
+    destinationReached = false;
+    drivingDisabled = false;
+    isHarvestDestination = true;
+}
+
+/**
+ * Generates and sets a new destination. Only called when the current destination is reached
+ */
+void CollectorState::generateDestination() {
+    harvestPositionMessage((int)random(10, ARENA_SIZE_X - 10), (int)random(10, ARENA_SIZE_Y - 10));
+    isHarvestDestination = false;
 }

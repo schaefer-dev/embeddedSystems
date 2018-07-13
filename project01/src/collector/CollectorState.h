@@ -26,6 +26,7 @@ public:
     float destinationY;
     float nextDestinationX;
     float nextDestinationY;
+    bool isHarvestDestination;
     unsigned short nextDestinationCounter;
     int leftSpeed;
     int rightSpeed;
@@ -57,7 +58,9 @@ public:
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
     void outOfBoundsMessage();
+    void harvestPositionMessage(int, int);
     void navigate();
+    void generateDestination();
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;

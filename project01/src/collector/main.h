@@ -7,11 +7,12 @@
 
 
 #define ARENA_SIZE_X 140
+#define ARENA_SIZE_Y 80
 #define PROXIMITY_THRESHOLD 7  // (10-7) * 5cm = 15cm
 
 #define SERIAL_TIMEOUT_BLOCKING_READING 20000
 
-// #define COLLECTOR_DEBUG
+#define COLLECTOR_DEBUG
 
 /* Scenario enabling disabling */
 // #define COLLECTOR_SCENARIO_RELAY

@@ -122,6 +122,9 @@ void setup() {
     payloadArray[1] = (uint8_t) (15);
     CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);
     Serial1.print("HELLO sent\n");
+    collectorState->drivingDisabled = false;
+
+    return;
 
     /*  Busy wait until config message received  */
     while (!collectorState->configurationReceived) {
@@ -151,7 +154,6 @@ void setup() {
 }
 
 void loop() {
-
     /* ALWAYS check for new RF Message */
     checkForNewRFMessage();
 
