@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <Arduino.h>
 #include "main.h"
+#include "CollectorRF.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -35,6 +36,10 @@ CollectorState::CollectorState() {
 
     configurationReceived = false;
     gameStarted = false;
+
+    scoutPosX = 0;
+    scoutPosY = 0;
+    scoutAngle = 0;
 
     unhandledCollisionFlag = false;
     driveBackwardsUntil = millis();
@@ -259,7 +264,7 @@ void CollectorState::outOfBoundsMessage() {
  * @param x
  * @param y
  */
-void CollectorState::harvestPositionMessage(int x, int y) {
+void CollectorState::harvestPositionMessage(int value, int x, int y) {
     nextDestinationX = x;
     nextDestinationY = y;
 
@@ -273,6 +278,27 @@ void CollectorState::harvestPositionMessage(int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    harvestPositionMessage((int)random(10, ARENA_SIZE_X - 10), (int)random(10, ARENA_SIZE_Y - 10));
+    harvestPositionMessage(0, (int)random(10, ARENA_SIZE_X - 10), (int)random(10, ARENA_SIZE_Y - 10));
     isHarvestDestination = false;
+}
+
+void CollectorState::scoutPositionMessage(int angle, int x, int y) {
+    scoutAngle = angle;
+    scoutPosY = x;
+    scoutPosY = y;
+}
+
+void CollectorState::sendPositionUpdate() {
+
+    uint8_t payloadArray[7];
+    payloadArray[0] = 0x30;
+
+    payloadArray[1] = (int)(currentAngle * 10) / 256;
+    payloadArray[2] = (int)(currentAngle * 10) % 256;
+    payloadArray[3] = (int)(currentX * 10) / 256;
+    payloadArray[4] = (int)(currentX * 10) % 256;
+    payloadArray[5] = (int)(currentY * 10) / 256;
+    payloadArray[6] = (int)(currentY * 10) % 256;
+
+    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payloadArray, 7);
 }

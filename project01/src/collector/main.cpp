@@ -124,8 +124,6 @@ void setup() {
     Serial1.print("HELLO sent\n");
     collectorState->drivingDisabled = false;
 
-    return;
-
     /*  Busy wait until config message received  */
     while (!collectorState->configurationReceived) {
         checkForNewRFMessage();
@@ -144,6 +142,8 @@ void setup() {
         checkForNewRFMessage();
     }
     Serial1.print("GO!!!\n");
+    collectorState->destinationReached = true;
+    collectorState->drivingDisabled = false;
 
     /*
 #ifdef COLLECTOR_LINE_SENSOR_READINGS
@@ -166,7 +166,6 @@ void loop() {
     Serial1.readBytes(testInput, 51);
     terminate = true;
      */
-
 
     collectorState->navigate();
     delay(1);

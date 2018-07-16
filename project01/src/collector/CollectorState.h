@@ -53,14 +53,19 @@ public:
     bool configurationReceived = false;
     bool gameStarted = false;
 
+    int scoutPosX, scoutPosY, scoutAngle;
+
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
     void outOfBoundsMessage();
-    void harvestPositionMessage(int, int);
+    void harvestPositionMessage(int, int, int);
     void navigate();
     void generateDestination();
+    void sendPositionUpdate();
+
+    void scoutPositionMessage(int angle, int x, int y);
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;
