@@ -177,9 +177,9 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             break;
         case 0x30:
             /* Scout position update */
-            int angle = payloadArray[1] * 256 + payloadArray[2];
-            int posX = payloadArray[3] * 256 + payloadArray[4];
-            int posY = payloadArray[5] * 256 + payloadArray[6];
+            float angle = payloadArray[1] * 256 + payloadArray[2];
+            float posX = payloadArray[3] * 256 + payloadArray[4];
+            float posY = payloadArray[5] * 256 + payloadArray[6];
 
             collectorState->scoutPositionMessage(angle, posX, posY);
 
@@ -275,8 +275,8 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             // Harvest Position
             uint8_t value = payloadArray[2];
 
-            int posX = payloadArray[3] * 256 + payloadArray[4];
-            int posY = payloadArray[5] * 256 + payloadArray[6];
+            int posX = (payloadArray[3] * 256  + payloadArray[4]) / 10;
+            int posY = (payloadArray[5] * 256 + payloadArray[6]) / 10;
 
             collectorState->harvestPositionMessage(value, posX, posY);
         }

@@ -65,7 +65,7 @@ public:
     void generateDestination();
     void sendPositionUpdate();
 
-    void scoutPositionMessage(int angle, int x, int y);
+    void scoutPositionMessage(float angle, float x, float y);
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;

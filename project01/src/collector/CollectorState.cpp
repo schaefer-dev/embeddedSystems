@@ -282,7 +282,7 @@ void CollectorState::generateDestination() {
     isHarvestDestination = false;
 }
 
-void CollectorState::scoutPositionMessage(int angle, int x, int y) {
+void CollectorState::scoutPositionMessage(float angle, float x, float y) {
     scoutAngle = angle;
     scoutPosY = x;
     scoutPosY = y;
@@ -293,12 +293,12 @@ void CollectorState::sendPositionUpdate() {
     uint8_t payloadArray[7];
     payloadArray[0] = 0x30;
 
-    payloadArray[1] = (int)(currentAngle * 10) / 256;
-    payloadArray[2] = (int)(currentAngle * 10) % 256;
-    payloadArray[3] = (int)(currentX * 10) / 256;
-    payloadArray[4] = (int)(currentX * 10) % 256;
-    payloadArray[5] = (int)(currentY * 10) / 256;
-    payloadArray[6] = (int)(currentY * 10) % 256;
+    payloadArray[1] = (int)(currentAngle) / 256;
+    payloadArray[2] = (int)(currentAngle) % 256;
+    payloadArray[3] = (int)(currentX) / 256;
+    payloadArray[4] = (int)(currentX) % 256;
+    payloadArray[5] = (int)(currentY) / 256;
+    payloadArray[6] = (int)(currentY) % 256;
 
     CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payloadArray, 7);
 }
