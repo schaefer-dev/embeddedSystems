@@ -18,16 +18,16 @@
 // #define COLLECTOR_SCENARIO_RELAY
 // #define COLLECTOR_SCENARIO_HOMING
 // #define COLLECTOR_SCENARIO_DEBUG_RF_REGISTER_CHECK
-// #define COLLECTOR_PROXIMITY_ENABLED
-
+#define COLLECTOR_PROXIMITY_ENABLED
 #define COLLECTOR_LINE_SENSOR_READINGS
+#define COLLECTOR_HUNT_OBJECT
 
 //#define COLLECTOR_MONITOR
 
 void setup();
 void loop();
 void performRotation(int degrees);
-void huntObject();
+bool huntObject();
 void generateBrightnessLevels();
 void homing();
 void checkForNewRFMessage();

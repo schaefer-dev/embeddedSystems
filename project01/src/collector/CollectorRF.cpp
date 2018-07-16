@@ -175,13 +175,15 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
-        case 0x30:
+        case 0x30: {
             /* Scout position update */
             float angle = payloadArray[1] * 256 + payloadArray[2];
             float posX = payloadArray[3] * 256 + payloadArray[4];
             float posY = payloadArray[5] * 256 + payloadArray[6];
 
             collectorState->scoutPositionMessage(angle, posX, posY);
+        }
+            break;
 
         case 0x42:
             // Hello
@@ -208,6 +210,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
 
         case 0x45:
             /* END */
+        {
             uint8_t outcome = payloadArray[1];
             switch (outcome) {
                 case 0: // Loss
@@ -223,8 +226,10 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                 case 3: // Disqualified
                     Serial1.print("We were disqualified :°(");
                     break;
-                default:break;
+                default:
+                    break;
             }
+        }
             break;
 
         case 0x50: {
@@ -276,7 +281,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             // Harvest Position
             uint8_t value = payloadArray[2];
 
-            int posX = (payloadArray[3] * 256  + payloadArray[4]) / 10;
+            int posX = (payloadArray[3] * 256 + payloadArray[4]) / 10;
             int posY = (payloadArray[5] * 256 + payloadArray[6]) / 10;
 
             collectorState->harvestPositionMessage(value, posX, posY);

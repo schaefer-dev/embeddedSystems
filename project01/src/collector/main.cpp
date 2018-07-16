@@ -167,7 +167,17 @@ void loop() {
     terminate = true;
      */
 
-    collectorState->navigate();
+    /* if collector is not driving to a harvest destination,
+     * check for proximity readings and try to hunt the enemy,
+     * otherwise continue to go to random destinations */
+    if (!collectorState->isHarvestDestination) {
+        if (!huntObject()){
+            collectorState->navigate();
+        }
+    } else {
+        collectorState->navigate();
+    }
+
     delay(1);
     collectorState->updateRoboterPositionAndAngles();
 
@@ -237,7 +247,7 @@ void homing() {
 
 
 #ifdef COLLECTOR_HUNT_OBJECT
-void huntObject() {
+bool huntObject() {
     proximitySensors->read();
     uint8_t frontLeftSensorValue = proximitySensors->countsFrontWithLeftLeds();
     uint8_t frontRightSensorValue = proximitySensors->countsFrontWithRightLeds();
@@ -259,27 +269,27 @@ void huntObject() {
 
     if (frontLeftSensorValue > PROXIMITY_THRESHOLD && frontRightSensorValue > PROXIMITY_THRESHOLD) {
         collectorState->setSpeeds(0.5 * collectorState->forwardSpeed, 0.5 * collectorState->forwardSpeed);
-        return;
+        return true;
     }
 
     if (frontLeftSensorValue > PROXIMITY_THRESHOLD) {
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
-        return;
+        return true;
     }
 
     if (frontRightSensorValue > PROXIMITY_THRESHOLD) {
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
-        return;
+        return true;
     }
 
     if (leftSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < leftSensorValue) {
         collectorState->setSpeeds(-0.7 * collectorState->turningSpeed, 0.7 * collectorState->turningSpeed);
-        return;
+        return true;
     }
 
     if (rightSensorValue > PROXIMITY_THRESHOLD && averageFrontSensorValue < rightSensorValue) {
         collectorState->setSpeeds(0.7 * collectorState->turningSpeed, -0.7 * collectorState->turningSpeed);
-        return;
+        return true;
     }
 }
 #endif
@@ -339,3 +349,5 @@ void generateBrightnessLevels() {
     }
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
 }
+
+
