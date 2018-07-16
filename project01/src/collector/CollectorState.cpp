@@ -58,10 +58,10 @@ float CollectorState::getAngle() {
 }
 
 /* drives towards current destination */
-void CollectorState::navigate(){
+void CollectorState::navigate() {
 
     if (drivingDisabled) {
-        setSpeeds(0,0);
+        setSpeeds(0, 0);
 #ifdef COLLECTOR_DEBUG
         //Serial1.println("driving disabled");
 #endif
@@ -69,7 +69,7 @@ void CollectorState::navigate(){
     }
 
     /* read new destination if no destination currently */
-    if (destinationReached){
+    if (destinationReached) {
         if (!isHarvestDestination) {
             // if this was a random destination, continue driving randomly
             generateDestination();
@@ -77,7 +77,7 @@ void CollectorState::navigate(){
             // if this was a harvest position, do X
         }
         if (nextDestinationCounter == 0) {
-            setSpeeds(0,0);
+            setSpeeds(0, 0);
 #ifdef COLLECTOR_DEBUG
             //Serial1.println("no new destination in queue");
 #endif
@@ -98,7 +98,7 @@ void CollectorState::navigate(){
     }
 
     /*  check if collision has just happened  */
-    if (unhandledCollisionFlag){
+    if (unhandledCollisionFlag) {
         driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
         setSpeeds(backwardsSpeed, backwardsSpeed);
         unhandledCollisionFlag = false;
@@ -106,7 +106,7 @@ void CollectorState::navigate(){
     }
 
     /*  check if we still have to drive backwards */
-    if (millis() <= driveBackwardsUntil){
+    if (millis() <= driveBackwardsUntil) {
         setSpeeds(backwardsSpeed, backwardsSpeed);
         return;
     }
@@ -162,7 +162,7 @@ void CollectorState::navigate(){
     /* drive straight if angle still correct */
     if ((deltaDegrees < theta_rotation_threshhold) || (deltaDegrees > (360 - theta_rotation_threshhold))) {
         /* if turned in previous step make sure to turn for at least the defined ms now */
-        if (navigationStep == NAV_TURNING_LEFT || navigationStep == NAV_TURNING_RIGHT){
+        if (navigationStep == NAV_TURNING_LEFT || navigationStep == NAV_TURNING_RIGHT) {
             earliestNextRotationTime = millis() + DO_NOT_ROTATE_AGAIN_MS;
         }
         navigationStep = NAV_DRIVING_STRAIGHT;
@@ -200,7 +200,7 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
 }
 
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
-    if (newLeftSpeed > 300 || newRightSpeed > 300){
+    if (newLeftSpeed > 300 || newRightSpeed > 300) {
         Serial1.println("ERROR: never allowed to drive faster than 300!");
         return;
     }
@@ -208,8 +208,8 @@ void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
         Zumo32U4Motors::setSpeeds(0, 0);
         return;
     }
-    if (outOfBounds){
-        if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS){
+    if (outOfBounds) {
+        if (millis() - outOfBoundsTime >= OOB_PUNISH_TIME_MS) {
             outOfBounds = false;
 #ifdef COLLECTOR_DEBUG
             Serial1.println("OOB Punish over");
@@ -250,7 +250,7 @@ void CollectorState::updateRoboterPositionAndAngles() {
 
 /* notifies the robot, that it drove out of bounds, disable all motor activity for 30s */
 void CollectorState::outOfBoundsMessage() {
-    setSpeeds(0,0);
+    setSpeeds(0, 0);
     outOfBounds = true;
 #ifdef COLLECTOR_DEBUG
     Serial1.println("OOB Punish start");
@@ -278,7 +278,7 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    harvestPositionMessage(0, (int)random(10, ARENA_SIZE_X - 10), (int)random(10, ARENA_SIZE_Y - 10));
+    harvestPositionMessage(0, (int) random(10, ARENA_SIZE_X - 10), (int) random(10, ARENA_SIZE_Y - 10));
     isHarvestDestination = false;
 }
 
@@ -293,12 +293,26 @@ void CollectorState::sendPositionUpdate() {
     uint8_t payloadArray[7];
     payloadArray[0] = 0x30;
 
-    payloadArray[1] = (int)(currentAngle) / 256;
-    payloadArray[2] = (int)(currentAngle) % 256;
-    payloadArray[3] = (int)(currentX) / 256;
-    payloadArray[4] = (int)(currentX) % 256;
-    payloadArray[5] = (int)(currentY) / 256;
-    payloadArray[6] = (int)(currentY) % 256;
+    payloadArray[1] = (int) (currentAngle) / 256;
+    payloadArray[2] = (int) (currentAngle) % 256;
+    payloadArray[3] = (int) (currentX) / 256;
+    payloadArray[4] = (int) (currentX) % 256;
+    payloadArray[5] = (int) (currentY) / 256;
+    payloadArray[6] = (int) (currentY) % 256;
 
     CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payloadArray, 7);
 }
+
+void CollectorState::danceBlocking() {
+    unsigned long danceUntil = millis() + 3000;
+    int speed = 50;
+    while (millis() < danceUntil) {
+        speed = (speed + 1) % 300;
+        setSpeeds(speed, -speed);
+
+        delay(10);
+    }
+    setSpeeds(0,0);
+    drivingDisabled = true;
+}
+

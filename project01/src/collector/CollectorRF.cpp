@@ -215,6 +215,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
                     break;
                 case 1: // Win
                     Serial1.print("We won :)");
+                    collectorState->danceBlocking();
                     break;
                 case 2: // Tie
                     Serial1.print("We tied :/");

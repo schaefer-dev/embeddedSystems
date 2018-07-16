@@ -64,6 +64,7 @@ public:
     void navigate();
     void generateDestination();
     void sendPositionUpdate();
+    void danceBlocking();
 
     void scoutPositionMessage(float angle, float x, float y);
 
