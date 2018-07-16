@@ -57,6 +57,10 @@ public:
     float photoY;
 
 
+    float collectorX;
+    float collectorY;
+    float collectorAngle;
+
     bool unhandledCollisionFlag;
     unsigned long driveBackwardsUntil;
     const int backwardsSpeed = -20;
@@ -88,8 +92,7 @@ private:
     static constexpr float WHEEL_DISTANCE = 9.3f;
 
 
-
-
+    void sendPosToTeammate();
 };
 
 #endif //EMBEDDEDSYSTEMS18_SCOUTSTATE_H

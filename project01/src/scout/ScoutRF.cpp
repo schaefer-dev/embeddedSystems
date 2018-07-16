@@ -189,6 +189,14 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
                              payloadArray[5] * 256 + payloadArray[6]);
             break;
 
+        case 0x30:
+            /* received Position of Teammate */
+            scoutState->collectorAngle = (float) (payloadArray[1] * 256 + payloadArray[2]);
+            scoutState->collectorX = (float) (payloadArray[3] * 256 + payloadArray[4]);
+            scoutState->collectorX = (float) (payloadArray[5] * 256 + payloadArray[6]);
+
+            break;
+
         case 0x42:
             // Hello
             ScoutSerial::serialWrite("Ref sent HELLO\n", 15);
@@ -211,6 +219,11 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
         case 0x44:
             // Go
             scoutState->gameStarted = true;
+            break;
+
+        case 0x45:
+            // End
+            //TODO
             break;
 
         case 0x50: {

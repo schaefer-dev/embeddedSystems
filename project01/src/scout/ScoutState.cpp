@@ -46,6 +46,9 @@ ScoutState::ScoutState() {
     configurationReceived = false;
     gameStarted = false;
     driveBackwardsUntil = millis();
+    collectorX = 0.0f;
+    collectorY = 0.0f;
+    collectorAngle = 0.0f;
 }
 
 /*
@@ -272,6 +275,26 @@ void ScoutState::outOfBoundsMessage() {
     outOfBoundsTime = millis();
 }
 
+/* communicate robot position to teammate */
+void ScoutState::sendPosToTeammate(){
+    uint8_t ownPosition[7];
+
+    int ownAngle = (int) currentAngle;
+    int ownXPos = (int) currentX;
+    int ownYPos = (int) currentY;
+
+    ownPosition[0] = 0x0030;
+
+    ownPosition[1] = ownAngle / 256;
+    ownPosition[2] = ownAngle % 256;
+    ownPosition[3] = ownXPos / 256;
+    ownPosition[4] = ownXPos % 256;
+    ownPosition[5] = ownYPos / 256;
+    ownPosition[6] = ownYPos % 256;
+
+    ScoutRF::sendMessageTo(ScoutRF::collectorAdress, ownPosition, 7);
+
+}
 
 /* check for high photo sensor readings, if they meet threshold, call handleHighPhotoReadings */
 void ScoutState::checkForHighPhotoReadings(){
@@ -299,6 +322,11 @@ void ScoutState::handleHighPhotoReadings(int maxReading) {
 
     } else if (photoSensorTimer - millis() > 0){
 
+        if (maxReading > photoSensorCurrentMax){
+            photoSensorCurrentMax = maxReading;
+            photoX = currentX;
+            photoY = currentY;
+        }
         return;
     }
 
