@@ -164,12 +164,12 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
     ScoutSerial::serialWrite("Message: ", 9);
-    ScoutSerial::serialWriteInt(millis());
 
     for (int i = 0; i < answerArray[0]; i++) {
         ScoutSerial::serialWrite8BitHex(payloadArray[i]);
     }
     ScoutSerial::serialWrite(" (only first 3 bytes displayed)\n", 32);
+    ScoutSerial::serialWriteInt(millis());
 
     /* clear status register */
     ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
@@ -229,6 +229,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
         case 0x50: {
             ScoutSerial::serialWrite("pi\n", 3);
+            ScoutSerial::serialWriteInt(millis());
 
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef SCOUT_MONITOR
@@ -298,6 +299,9 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
 void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int payloadArrayLength) {
 
+    ScoutSerial::serialWrite("sm\n",3);
+    ScoutSerial::serialWriteInt(millis());
+
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
@@ -308,18 +312,24 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 
     uint8_t commandArray[payloadArrayLength + 1];
     commandArray[0] = RF_COMMAND_W_TX_PAYLOAD;
+    ScoutSerial::serialWriteInt(millis());
     for (int i = 1; i < payloadArrayLength + 1; i++) {
         commandArray[i] = payloadArray[i - 1];
     }
+    ScoutSerial::serialWriteInt(millis());
 
     sendCommandWithPayload(commandArray, payloadArrayLength + 1);
-
     int status = 0;
     long timeout = millis();
 
     //delay(10);
-    //flushRXTX();
+    ScoutSerial::serialWrite("f\n",2);
+    ScoutSerial::serialWriteInt(millis());
+    flushRXTX();
+    ScoutSerial::serialWriteInt(millis());
+
     while (true) {
+        delay(10);
         status = queryRFModule();
 
         /* either message sent or max retries reached case */
