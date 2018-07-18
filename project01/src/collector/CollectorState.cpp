@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <Arduino.h>
 #include "main.h"
-#include "CollectorRF.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -291,7 +290,7 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
     payload[2] = x;
     payload[3] = y;
 
-    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 4);
+    // TODO send payload to scout
 }
 
 /**
@@ -331,7 +330,7 @@ void CollectorState::sendPositionUpdate() {
     payloadArray[5] = (int) (currentY) / 256;
     payloadArray[6] = (int) (currentY) % 256;
 
-    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payloadArray, 7);
+    // TODO send payloadarray to scout
 }
 
 void CollectorState::danceBlocking() {

@@ -3,18 +3,26 @@
 #include "CollectorState.h"
 #include "../utils/Coordinates.h"
 #include "main.h"
-#include "CollectorSPI.h"
 #include <math.h>
 #include "avr/io.h"
 #include "avr/interrupt.h"
 #include "../scout/main.h"
 #include "CollectorMonitor.h"
-#include "CollectorRF.h"
 #include "Zumo32U4LineSensors.h"
 #include "CollectorLineSensors.h"
 #include "Zumo32U4Motors.h"
 #include "CollectorLineSensors.h"
+#include "platform.h"
+#include "../common/rf.h"
 
+uint8_t rf_my_address[5] = {0x98, 0x65, 0xFA, 0x29, 0xE6};
+uint8_t rf_partner_address[5] = {0xE2, 0x91, 0xA8, 0x27, 0x85};
+extern uint8_t rf_referee_address [5];
+extern uint8_t rf_status;
+extern uint8_t rf_intr;
+static char serial_buffer [80];
+
+const char messageInitAll[]      = "--------------------  Initialized ---------------------\n";
 const char messageInitSerial[]      = "-------------- Serial Initialized ---------------------\n";
 const char messageInitSPI[]         = "------------- SPI Master Initialized ------------------\n";
 const char messageInitProximity[]   = "-------------- Proximity Initialized ------------------\n";
@@ -26,8 +34,6 @@ CollectorState *collectorState;
 Zumo32U4ProximitySensors *proximitySensors;
 
 int home[2] = {10, 20};      // home
-int statusRF = 0;
-char testInput[53];
 bool terminate;
 
 void setup() {
@@ -37,11 +43,15 @@ void setup() {
     // 1.2 Start calibrating
     // initialize serial connection
     Serial1.begin(9600);
-    Serial1.print(messageInitSerial);
+    platform_init();    // important to do this after Serial initialization
+    _delay_ms(200);
+    rf_setup(rf_my_address);
+    _delay_ms(200);
+    rf_start_listening();
+    Serial1.print(messageInitAll);
 
     /* initialization of Data structures */
     collectorState = new CollectorState();
-    statusRF = 0;
 
     CollectorLineSensors::init(collectorState);
 
@@ -49,6 +59,7 @@ void setup() {
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
+
 
 
 #ifdef COLLECTOR_PROXIMITY_ENABLED
@@ -78,10 +89,6 @@ void setup() {
     collectorState->nextDestinationCounter += 1;
 #endif
 
-    for (int i = 0; i < 53; i++){
-        testInput[i] = '.';
-    }
-    testInput[51] = '\0';
     terminate = false;
 
 
@@ -105,14 +112,6 @@ void setup() {
     CollectorMonitor::verifyState();
 #endif
 
-    CollectorSPI::SPIMasterInit();
-    delay(10);
-    Serial1.print(messageInitSPI);
-
-    CollectorRF::initializeRFModule();
-    Serial1.print(messageInitRF);
-    delay(10);
-
 
 #ifdef COLLECTOR_GAME
     // time to cancel and restart the robot
@@ -122,13 +121,43 @@ void setup() {
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (15);
-    CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);
+    rf_stop_listening();
+    rf_sendto_blocking(rf_referee_address, payloadArray, 2);
+    rf_start_listening();
+
     Serial1.print("HELLO sent\n");
     collectorState->drivingDisabled = false;
 
     /*  Busy wait until config message received  */
+    uint8_t receiveBuffer[32];
+    waitForMessage(0x43, receiveBuffer);
+
+    Serial1.print("Message arrived\n");
+
     while (!collectorState->configurationReceived) {
-        checkForNewRFMessage();
+        static uint8_t rf_buffer [32];
+
+        if (rf_data_available()) {
+            rf_standby();
+            uint8_t len = rf_read_payload_dyn(rf_buffer);
+            if ((len == 3) && (rf_buffer[0] == 0xFF)) {
+                sprintf(serial_buffer, "Received ADC %d value for sensor: %d\n", rf_buffer[1], rf_buffer[2]);
+                Serial1.print(serial_buffer);
+            }
+            rf_activate();
+
+            if (rf_buffer[0] == 0x43 && len == 2){
+                Serial1.print("unexpected message received!");
+                uint8_t channel = rf_buffer[1];
+                Serial1.print("New Channel: ");
+                Serial1.println(channel);
+
+                rf_write_register(RF_CH, channel);
+                collectorState->configurationReceived = true;
+                break;
+            }
+        }
+        continue;
     }
     Serial1.print("CONFIG received\n");
 
@@ -141,7 +170,21 @@ void setup() {
     // wait until the light turns off
     Serial1.print("Waiting for GO\n");
     while(!collectorState->gameStarted) {
-        checkForNewRFMessage();
+        static uint8_t rf_buffer [32];
+        if (rf_data_available()) {
+            rf_standby();
+            uint8_t len = rf_read_payload_dyn(rf_buffer);
+            rf_activate();
+            if (len == 0)
+                continue;
+        } else {
+            continue;
+        }
+        if (rf_buffer[0] != 0x44){
+            Serial1.print("unexpected message received!");
+        }
+
+        collectorState->gameStarted = true;
     }
 
     /*
@@ -159,7 +202,17 @@ void setup() {
 
 void loop() {
     /* ALWAYS check for new RF Message */
-    checkForNewRFMessage();
+    static uint8_t rf_buffer [32];
+
+    if (rf_data_available()) {
+        rf_standby();
+        uint8_t len = rf_read_payload_dyn(rf_buffer);
+        if ((len == 3) && (rf_buffer[0] == 0xFF)) {
+            sprintf(serial_buffer, "Received ADC %d value for sensor: %d\n", rf_buffer[1], rf_buffer[2]);
+            Serial1.print(serial_buffer);
+        }
+        rf_activate();
+    }
 
     /*if (terminate){
         Serial1.println(testInput);
@@ -234,18 +287,6 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 
     collectorState->destinationReached = true;
 };
-
-
-void checkForNewRFMessage(){
-    statusRF = CollectorRF::queryRFModule();
-    char messageReceived = statusRF & (1 << 6);
-
-    if (messageReceived){
-        /* clear status register, so we can respond asap again */
-        CollectorRF::writeRegister(RF_REGISTER_STATUS, 64);
-        CollectorRF::processReceivedMessage(collectorState);
-    }
-}
 
 void homing() {
 
@@ -360,4 +401,13 @@ void generateBrightnessLevels() {
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
 }
 
+void waitForMessage(uint8_t prefix, uint8_t* receiveBuffer){
+    while (1){
+        if(rf_data_available()){
+            rf_read_payload_dyn(receiveBuffer);
+            if (receiveBuffer[0] == prefix)
+                return;
+        }
+    }
+}
 

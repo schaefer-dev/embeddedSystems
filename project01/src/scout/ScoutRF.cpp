@@ -175,10 +175,6 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
 
     switch (payloadArray[0]) {
-        case 0x01:
-            /* Config case -> simply set Team channel according to received message */
-            // TODO
-            break;
 
         case 0x02:
             /* Collision case -> force robot to drive backwards (with low speed) for 500ms*/

@@ -18,9 +18,9 @@
 // #define COLLECTOR_SCENARIO_RELAY
 // #define COLLECTOR_SCENARIO_HOMING
 // #define COLLECTOR_SCENARIO_DEBUG_RF_REGISTER_CHECK
-#define COLLECTOR_PROXIMITY_ENABLED
-#define COLLECTOR_LINE_SENSOR_READINGS
-#define COLLECTOR_HUNT_OBJECT
+//#define COLLECTOR_PROXIMITY_ENABLED
+//#define COLLECTOR_LINE_SENSOR_READINGS
+//#define COLLECTOR_HUNT_OBJECT
 #define COLLECTOR_GAME
 
 //#define COLLECTOR_MONITOR
@@ -33,6 +33,7 @@ void generateBrightnessLevels();
 void homing();
 void checkForNewRFMessage();
 void generateBrightnessLevels();
+void waitForMessage(uint8_t prefix, uint8_t *receiveBuffer);
 
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
