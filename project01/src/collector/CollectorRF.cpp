@@ -354,7 +354,7 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
         }
 
         /* in case something goes wrong cancel after 1s */
-        if (millis() - timeout > 100) {
+        if (millis() - timeout > 5) {
 #ifdef COLLECTOR_DEBUG
             Serial1.println("Manual sending timeout");
 #endif

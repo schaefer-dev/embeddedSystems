@@ -122,7 +122,7 @@ void setup() {
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (15);
-    CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);
+    CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);;
     Serial1.print("HELLO sent\n");
     collectorState->drivingDisabled = false;
 
