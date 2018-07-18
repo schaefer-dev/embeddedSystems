@@ -63,7 +63,6 @@ void initialize() {
     ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);
-    return;
 
     /*  Busy wait until config message received  */
     while (!scoutState->configurationReceived) {
@@ -106,6 +105,7 @@ int main() {
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
 
+
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
         payload[0] = 0x80;
@@ -133,10 +133,10 @@ int main() {
         delay(100);
 #endif
 
-        scoutState->checkForHighPhotoReadings();
+        /*scoutState->checkForHighPhotoReadings();
         scoutState->navigate();
         delay(1);
-        scoutState->updateRoboterPositionAndAngles();
+        scoutState->updateRoboterPositionAndAngles();*/
 
 
 #ifdef SCENARIO_RELAY

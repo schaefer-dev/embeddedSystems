@@ -164,6 +164,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
     ScoutSerial::serialWrite("Message: ", 9);
+    ScoutSerial::serialWriteInt(millis());
 
     for (int i = 0; i < answerArray[0]; i++) {
         ScoutSerial::serialWrite8BitHex(payloadArray[i]);
@@ -227,6 +228,8 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             break;
 
         case 0x50: {
+            ScoutSerial::serialWrite("pi\n", 3);
+
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef SCOUT_MONITOR
             ScoutMonitor::logPingScout();
@@ -314,8 +317,8 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
     int status = 0;
     long timeout = millis();
 
-    delay(10);
-    flushRXTX();
+    //delay(10);
+    //flushRXTX();
     while (true) {
         status = queryRFModule();
 
@@ -331,6 +334,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
         if (((1 << 5) & status) > 0) {
 #ifdef DEBUG
             ScoutSerial::serialWrite("Message sent succesfully\n", 25);
+            ScoutSerial::serialWriteInt(millis());
 #endif
             break;
         }

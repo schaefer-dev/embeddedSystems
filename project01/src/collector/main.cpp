@@ -159,6 +159,7 @@ void setup() {
 
 void loop() {
     /* ALWAYS check for new RF Message */
+
     checkForNewRFMessage();
 
     /*if (terminate){

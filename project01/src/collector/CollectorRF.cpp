@@ -329,8 +329,8 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
     int status = 0;
     long timeout = millis();
 
-    delay(10);
-    flushRXTX();
+    // delay(10);
+    // flushRXTX();
     while (true) {
         status = queryRFModule();
 
@@ -351,7 +351,7 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
         }
 
         /* in case something goes wrong cancel after 1s */
-        if (millis() - timeout > 2000) {
+        if (millis() - timeout > 100) {
 #ifdef COLLECTOR_DEBUG
             Serial1.println("Manual sending timeout");
 #endif
