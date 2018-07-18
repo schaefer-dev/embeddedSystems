@@ -130,35 +130,8 @@ void setup() {
 
     /*  Busy wait until config message received  */
     uint8_t receiveBuffer[32];
-    (0x43, receiveBuffer);
+    waitForMessage(0x43, receiveBuffer);
 
-    Serial1.print("Message arrived\n");
-
-    while (!collectorState->configurationReceived) {
-        static uint8_t rf_buffer [32];
-
-        if (rf_data_available()) {
-            rf_standby();
-            uint8_t len = rf_read_payload_dyn(rf_buffer);
-            if ((len == 3) && (rf_buffer[0] == 0xFF)) {
-                sprintf(serial_buffer, "Received ADC %d value for sensor: %d\n", rf_buffer[1], rf_buffer[2]);
-                Serial1.print(serial_buffer);
-            }
-            rf_activate();
-
-            if (rf_buffer[0] == 0x43 && len == 2){
-                Serial1.print("unexpected message received!");
-                uint8_t channel = rf_buffer[1];
-                Serial1.print("New Channel: ");
-                Serial1.println(channel);
-
-                rf_write_register(RF_CH, channel);
-                collectorState->configurationReceived = true;
-                break;
-            }
-        }
-        continue;
-    }
     Serial1.print("CONFIG received\n");
 
     // wait until the light turns on
