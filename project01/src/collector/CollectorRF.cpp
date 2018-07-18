@@ -337,7 +337,7 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
         /* either message sent or max retries reached case */
         if (((1 << 4) & status) > 0) {
 #ifdef COLLECTOR_DEBUG
-            Serial1.println("PONG sending maxRetries");
+            Serial1.println("Message sending maxRetries");
 #endif
             break;
         }
@@ -345,7 +345,7 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
 
         if (((1 << 5) & status) > 0) {
 #ifdef COLLECTOR_DEBUG
-            Serial1.println("PONG sent succesfully");
+            Serial1.println("Message sent succesfully");
 #endif
             break;
         }
