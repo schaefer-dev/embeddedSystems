@@ -53,6 +53,8 @@ public:
     bool configurationReceived = false;
     bool gameStarted = false;
 
+    unsigned long harvestPositionReached;
+
     int scoutPosX, scoutPosY, scoutAngle;
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);

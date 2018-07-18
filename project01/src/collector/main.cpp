@@ -113,6 +113,11 @@ void setup() {
     Serial1.print(messageInitRF);
     delay(10);
 
+
+    Serial1.print("GO!!!\n");
+    collectorState->destinationReached = true;
+    collectorState->drivingDisabled = false;
+
     return;
 
     // time to cancel and restart the robot
@@ -172,13 +177,17 @@ void loop() {
     /* if collector is not driving to a harvest destination,
      * check for proximity readings and try to hunt the enemy,
      * otherwise continue to go to random destinations */
+
+    /*
     if (!collectorState->isHarvestDestination) {
         if (!huntObject()){
             collectorState->navigate();
         }
     } else {
         collectorState->navigate();
-    }
+    } */
+
+    collectorState->navigate();
 
     delay(1);
     collectorState->updateRoboterPositionAndAngles();

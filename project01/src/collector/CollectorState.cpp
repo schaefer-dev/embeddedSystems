@@ -60,6 +60,13 @@ float CollectorState::getAngle() {
 /* drives towards current destination */
 void CollectorState::navigate() {
 
+    if (millis() - harvestPositionReached < 5000) {
+        setSpeeds(0, 0);
+        return;
+    } else {
+        harvestPositionReached = 0;
+    }
+
     if (drivingDisabled) {
         setSpeeds(0, 0);
         return;
@@ -68,17 +75,18 @@ void CollectorState::navigate() {
     /* read new destination if no destination currently */
     if (destinationReached) {
         uint8_t payload[2];
-        payload[0] = 0x81;
+        /*payload[0] = 0x81;
         payload[1] = (uint8_t) 'r';
-        CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);
+        CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);*/
 
         if (!isHarvestDestination) {
             // if this was a random destination, continue driving randomly
-            // generateDestination();
+            generateDestination();
         } else {
             // if this was a harvest position, do X
-            // drivingDisabled = true;
-            // return;
+            harvestPositionReached = millis();
+            delay(10000);
+            return;
         }
         if (nextDestinationCounter == 0) {
             setSpeeds(0, 0);
@@ -290,12 +298,19 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    harvestPositionMessage(0, (int) random(10, ARENA_SIZE_X - 10), (int) random(10, ARENA_SIZE_Y - 10));
+    nextDestinationX = random(10, ARENA_SIZE_X - 10);
+    nextDestinationY = random(10, ARENA_SIZE_Y - 10);
+
+    nextDestinationCounter = 1;
+    destinationReached = false;
+    drivingDisabled = false;
+
     isHarvestDestination = false;
-    uint8_t payload[2];
+
+    /*uint8_t payload[2];
     payload[0] = 0x81;
     payload[1] = (uint8_t) 'g';
-    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);
+    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);*/
 }
 
 void CollectorState::scoutPositionMessage(float angle, float x, float y) {
