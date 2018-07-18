@@ -114,12 +114,7 @@ void setup() {
     delay(10);
 
 
-    Serial1.print("GO!!!\n");
-    collectorState->destinationReached = true;
-    collectorState->drivingDisabled = false;
-
-    return;
-
+#ifdef COLLECTOR_GAME
     // time to cancel and restart the robot
     delay(1000);
 
@@ -148,15 +143,17 @@ void setup() {
     while(!collectorState->gameStarted) {
         checkForNewRFMessage();
     }
-    Serial1.print("GO!!!\n");
-    collectorState->destinationReached = true;
-    collectorState->drivingDisabled = false;
 
     /*
 #ifdef COLLECTOR_LINE_SENSOR_READINGS
     CollectorLineSensors::driveOverLines(collectorState);
 #endif
      */
+#endif
+
+    Serial1.print("GO!!!\n");
+    collectorState->destinationReached = true;
+    collectorState->drivingDisabled = false;
 
 }
 
