@@ -14,6 +14,7 @@
 #include "CollectorLineSensors.h"
 #include "Zumo32U4Motors.h"
 #include "CollectorLineSensors.h"
+#include "platform_c.h"
 
 const char messageInitSerial[]      = "-------------- Serial Initialized ---------------------\n";
 const char messageInitSPI[]         = "------------- SPI Master Initialized ------------------\n";
@@ -104,8 +105,8 @@ void setup() {
     CollectorMonitor::emptyBuffer();            // will come too late, bad trace
     CollectorMonitor::verifyState();
 #endif
-
-    CollectorSPI::SPIMasterInit();
+    platform_init();
+    //CollectorSPI::SPIMasterInit();
     delay(10);
     Serial1.print(messageInitSPI);
 
