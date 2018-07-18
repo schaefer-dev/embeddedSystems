@@ -184,10 +184,10 @@ void loop() {
         collectorState->navigate();
     } */
 
-    collectorState->navigate();
+    //collectorState->navigate();
 
     delay(1);
-    collectorState->updateRoboterPositionAndAngles();
+    //collectorState->updateRoboterPositionAndAngles();
 
 
 #ifdef COLLECTOR_SCENARIO_DEBUG_RF_REGISTER_CHECK

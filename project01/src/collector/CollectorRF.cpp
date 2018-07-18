@@ -192,7 +192,8 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             // Config
             uint8_t channel = payloadArray[1];
 
-            Serial1.print("New channel: " + channel);
+            Serial1.println("New channel");
+            Serial1.println(channel);
 
             // switch to new comminucation channel
             writeRegister(0x00000005, channel);
