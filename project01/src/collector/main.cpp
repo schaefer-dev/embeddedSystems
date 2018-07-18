@@ -131,7 +131,6 @@ void setup() {
     /*  Busy wait until config message received  */
     uint8_t receiveBuffer[32];
     waitForMessage(0x43, receiveBuffer);
-
     Serial1.print("CONFIG received\n");
 
     // wait until the light turns on
@@ -141,33 +140,18 @@ void setup() {
     CollectorLineSensors::calibrate(collectorState, calibrationDuration);
 
     // wait until the light turns off
-    Serial1.print("Waiting for GO\n");
-    while(!collectorState->gameStarted) {
-        static uint8_t rf_buffer [32];
-        if (rf_data_available()) {
-            rf_standby();
-            uint8_t len = rf_read_payload_dyn(rf_buffer);
-            rf_activate();
-            if (len == 0)
-                continue;
-        } else {
-            continue;
-        }
-        if (rf_buffer[0] != 0x44){
-            Serial1.print("unexpected message received!");
-        }
-
-        collectorState->gameStarted = true;
+    /*  Busy wait until go message received  */
+    for (int i = 0; i < 32; i++){
+        receiveBuffer[i] = 0;
     }
 
-    /*
-#ifdef COLLECTOR_LINE_SENSOR_READINGS
-    CollectorLineSensors::driveOverLines(collectorState);
-#endif
-     */
-#endif
+    Serial1.println("Waiting for GO");
+    waitForMessage(0x44, receiveBuffer);
+    collectorState->gameStarted = true;
 
-    Serial1.print("GO!!!\n");
+#endif
+    Serial1.flush();
+    Serial1.println("lets go this is a test");
     collectorState->destinationReached = true;
     collectorState->drivingDisabled = false;
 
@@ -175,17 +159,10 @@ void setup() {
 
 void loop() {
     /* ALWAYS check for new RF Message */
-    static uint8_t rf_buffer [32];
 
-    if (rf_data_available()) {
-        rf_standby();
-        uint8_t len = rf_read_payload_dyn(rf_buffer);
-        if ((len == 3) && (rf_buffer[0] == 0xFF)) {
-            sprintf(serial_buffer, "Received ADC %d value for sensor: %d\n", rf_buffer[1], rf_buffer[2]);
-            Serial1.print(serial_buffer);
-        }
-        rf_activate();
-    }
+    Serial1.println("1");
+    processReceivedRFMessage(collectorState);
+    Serial1.println("2");
 
     /*if (terminate){
         Serial1.println(testInput);
@@ -374,13 +351,44 @@ void generateBrightnessLevels() {
     proximitySensors->setBrightnessLevels(defaultBrightnessLevels, numBrightnessLevels);
 }
 
+
+
 void waitForMessage(uint8_t prefix, uint8_t* receiveBuffer){
     while (1){
         if(rf_data_available()){
+            rf_standby();
             rf_read_payload_dyn(receiveBuffer);
-            if (receiveBuffer[0] == prefix)
+            if (receiveBuffer[0] == prefix){
+                rf_activate();
                 return;
+            }
+            rf_activate();
+
+        } else {
+            delay(10);
         }
     }
+}
+
+void processReceivedRFMessage(CollectorState* collectorState){
+    if(rf_data_available()) {
+
+        uint8_t receiveBuffer[32];
+        rf_read_payload_dyn(receiveBuffer);
+        switch (receiveBuffer[0]) {
+
+            case 0x50:
+                Serial1.println("Ping received");
+                break;
+
+            default:
+                Serial1.println("Invalid Message prefix received");
+
+        }
+    } else {
+        /* no message available */
+        return;
+    }
+
 }
 

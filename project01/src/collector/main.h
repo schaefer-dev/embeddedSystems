@@ -35,6 +35,7 @@ void homing();
 void checkForNewRFMessage();
 void generateBrightnessLevels();
 void waitForMessage(uint8_t prefix, uint8_t *receiveBuffer);
+void processReceivedRFMessage(CollectorState* collectorState);
 
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
