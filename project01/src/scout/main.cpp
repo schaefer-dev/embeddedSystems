@@ -27,7 +27,7 @@ void initialize() {
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
-    scoutState->resetDifferentialDrive(0, 0, 0);
+    scoutState->resetDifferentialDrive(scoutState->currentX, scoutState->currentY, scoutState->currentAngle);
     scoutState->lastDiffDriveCall = millis();
 
 #ifdef LINE_SENSOR_READINGS
@@ -63,10 +63,10 @@ void initialize() {
     ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);
-
+    return;
 
     /*  Busy wait until config message received  */
-    while(!scoutState->configurationReceived) {
+    while (!scoutState->configurationReceived) {
         checkForNewRFMessage();
     }
     ScoutSerial::serialWrite("CONFIG received\n", 16);
@@ -79,7 +79,7 @@ void initialize() {
 
     // wait until the light turns off
     ScoutSerial::serialWrite("Waiting for GO Message\n", 24);
-    while(!scoutState->gameStarted) {
+    while (!scoutState->gameStarted) {
         checkForNewRFMessage();
     }
 
@@ -88,7 +88,6 @@ void initialize() {
 
 int main() {
     initialize();
-    return 0;
 
 #ifdef DEBUG_SERIAL_PORT_ECHO
     char serialMessage[50];
@@ -134,9 +133,10 @@ int main() {
         delay(100);
 #endif
 
-    scoutState->navigate();
-    delay(1);
-    scoutState->updateRoboterPositionAndAngles();
+        scoutState->checkForHighPhotoReadings();
+        scoutState->navigate();
+        delay(1);
+        scoutState->updateRoboterPositionAndAngles();
 
 
 #ifdef SCENARIO_RELAY
@@ -213,7 +213,7 @@ bool checkForConfigMessage() {
         ScoutRF::processReceivedMessage(scoutState);
     }
 
-    if(ScoutRF::teamChannel != 0){
+    if (ScoutRF::teamChannel != 0) {
         /*  Case for Config Message received  */
         ScoutRF::setTeamChannel(ScoutRF::teamChannel);
         ScoutSerial::serialWrite("Team channel changed accordingly.\n", 34);
@@ -221,7 +221,6 @@ bool checkForConfigMessage() {
     }
     return false;
 }
-
 
 
 /* run photophobic Scout Controller as explained in Milestone 5

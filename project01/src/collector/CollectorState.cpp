@@ -62,19 +62,23 @@ void CollectorState::navigate() {
 
     if (drivingDisabled) {
         setSpeeds(0, 0);
-#ifdef COLLECTOR_DEBUG
-        //Serial1.println("driving disabled");
-#endif
         return;
     }
 
     /* read new destination if no destination currently */
     if (destinationReached) {
+        uint8_t payload[2];
+        payload[0] = 0x81;
+        payload[1] = (uint8_t) 'r';
+        CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);
+
         if (!isHarvestDestination) {
             // if this was a random destination, continue driving randomly
-            generateDestination();
+            // generateDestination();
         } else {
             // if this was a harvest position, do X
+            // drivingDisabled = true;
+            // return;
         }
         if (nextDestinationCounter == 0) {
             setSpeeds(0, 0);
@@ -272,6 +276,14 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
     destinationReached = false;
     drivingDisabled = false;
     isHarvestDestination = true;
+
+    uint8_t payload[4];
+    payload[0] = 0x81;
+    payload[1] = (uint8_t) 'h';
+    payload[2] = x;
+    payload[3] = y;
+
+    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 4);
 }
 
 /**
@@ -280,6 +292,10 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
 void CollectorState::generateDestination() {
     harvestPositionMessage(0, (int) random(10, ARENA_SIZE_X - 10), (int) random(10, ARENA_SIZE_Y - 10));
     isHarvestDestination = false;
+    uint8_t payload[2];
+    payload[0] = 0x81;
+    payload[1] = (uint8_t) 'g';
+    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);
 }
 
 void CollectorState::scoutPositionMessage(float angle, float x, float y) {

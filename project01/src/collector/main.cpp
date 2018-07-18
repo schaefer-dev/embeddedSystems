@@ -113,6 +113,8 @@ void setup() {
     Serial1.print(messageInitRF);
     delay(10);
 
+    return;
+
     // time to cancel and restart the robot
     delay(1000);
 

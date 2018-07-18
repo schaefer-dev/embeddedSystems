@@ -54,7 +54,6 @@ public:
     bool gameStarted = false;
 
     int scoutPosX, scoutPosY, scoutAngle;
-
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);
     void setSpeeds(int newLeftSpeed, int newRightSpeed);

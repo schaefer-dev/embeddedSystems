@@ -17,7 +17,7 @@ const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, v
 //constructor
 ScoutState::ScoutState() {
     currentX = 0.0f;
-    currentY = 0.0f;
+    currentY = ARENA_SIZE_Y;
     currentAngle = 0.0f;
     destinationX = 0;
     destinationY = 0;
@@ -303,6 +303,7 @@ void ScoutState::checkForHighPhotoReadings(){
     readingsMax = Utility::maximum(Utility::maximum(photoSensorFront, photoSensorBack),
                                    Utility::maximum(photoSensorLeft, photoSensorRight));
     if (readingsMax > PHOTOSENSOR_TRESHOLD){
+        ScoutSerial::serialWriteInt(readingsMax);
         handleHighPhotoReadings(readingsMax);
     }
 
@@ -342,6 +343,16 @@ void ScoutState::handleHighPhotoReadings(int maxReading) {
     harvestUpdate[6] = ( (int) (photoY * 10) ) % 256;
 
     ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
+
+    ScoutSerial::serialWrite("Sent ", 5);
+    ScoutSerial::serialWriteInt(photoX);
+    ScoutSerial::serialWrite(" ", 1);
+    ScoutSerial::serialWriteInt(photoY);
+    ScoutSerial::serialWrite(" ", 1);
+    ScoutSerial::serialWriteInt(currentX);
+    ScoutSerial::serialWrite(" ", 1);
+    ScoutSerial::serialWriteInt(currentY);
+
 
     photoSensorTimer = 0;
     photoSensorCurrentMax = 0;

@@ -267,6 +267,7 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             /* case for RELAY, scount sends and collector echos message with prefix 81 */
             /* Scout has to print messages here to serial */
 
+            ScoutSerial::serialWrite("Message: \n",11);
             for (int i = 0; i < answerArray[0]; i++) {
                 char buffer[1] = {payloadArray[i]};
                 ScoutSerial::serialWrite(buffer, 1);

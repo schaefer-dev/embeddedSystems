@@ -13,6 +13,7 @@
 /* debug define to enable serial output/inputs to save program memory */
 #define DEBUG
 #define ARENA_SIZE_X 140
+#define ARENA_SIZE_Y 80
 
 #define photophobicWaitThreshold 50
 #define photophobicDanceThreshold 100
@@ -23,7 +24,7 @@
 // #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
 // #define SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
-#define LINE_SENSOR_READINGS
+// #define LINE_SENSOR_READINGS
 // #define DEBUG_SERIAL_PORT_ECHO
 // #define SCOUT_MONITOR
 
