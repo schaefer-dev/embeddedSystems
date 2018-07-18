@@ -156,9 +156,7 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
         Serial1.print(payloadArray[i]);
     }
     Serial1.print("\n");
-
-    /* clear status register */
-    writeRegister(RF_REGISTER_STATUS, 64);
+    
 
     switch (payloadArray[0]) {
 

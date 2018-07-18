@@ -241,6 +241,8 @@ void checkForNewRFMessage(){
     char messageReceived = statusRF & (1 << 6);
 
     if (messageReceived){
+        /* clear status register, so we can respond asap again */
+        CollectorRF::writeRegister(RF_REGISTER_STATUS, 64);
         CollectorRF::processReceivedMessage(collectorState);
     }
 }
