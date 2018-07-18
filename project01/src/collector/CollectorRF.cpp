@@ -149,13 +149,14 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
     uint8_t payloadArray[answerArray[0]];
     getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
-
+#ifdef COLLECTOR_DEBUG
     Serial1.print("Message: ");
 
     for (int i = 0; i < answerArray[0]; i++) {
         Serial1.print(payloadArray[i]);
     }
     Serial1.print("\n");
+#endif
     
 
     switch (payloadArray[0]) {
