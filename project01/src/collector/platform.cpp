@@ -15,6 +15,9 @@
 #include <avr/interrupt.h>
 #include "../common/platform.h"
 
+
+#define COLLECTOR_RF_IRQ_JUMPERED
+
 extern volatile uint8_t rf_intr;
 
 void platform_init() {

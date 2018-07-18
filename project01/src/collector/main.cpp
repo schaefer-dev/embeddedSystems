@@ -53,7 +53,7 @@ void setup() {
     /* initialization of Data structures */
     collectorState = new CollectorState();
 
-    CollectorLineSensors::init(collectorState);
+    // CollectorLineSensors::init(collectorState);
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -130,7 +130,7 @@ void setup() {
 
     /*  Busy wait until config message received  */
     uint8_t receiveBuffer[32];
-    waitForMessage(0x43, receiveBuffer);
+    (0x43, receiveBuffer);
 
     Serial1.print("Message arrived\n");
 
@@ -379,7 +379,7 @@ void performRotation(int degrees) {
             loopCondition = false;
 
 #ifdef COLLECTOR_DEBUG
-            //serial_send("One rotation performed!\n", 24);
+        //serial_send("One rotation performed!\n", 24);
 #endif
             collectorState->setSpeeds(0, 0);
         }
