@@ -168,12 +168,14 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     uint8_t payloadArray[answerArray[0]];
     ScoutRF::getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
+#ifdef DEBUG
     ScoutSerial::serialWrite("Message: ", 9);
 
     for (int i = 0; i < answerArray[0]; i++) {
         ScoutSerial::serialWrite8BitHex(payloadArray[i]);
     }
     ScoutSerial::serialWrite(" (only first 3 bytes displayed)\n", 32);
+#endif
 
 
     switch (payloadArray[0]) {
@@ -316,10 +318,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
     int status = 0;
     long timeout = millis();
 
-    //delay(10); d
-
     while (true) {
-        delay(10);
         status = queryRFModule();
 
         /* either message sent or max retries reached case */

@@ -11,7 +11,7 @@
 #include "ScoutSerial.h"
 
 /* debug define to enable serial output/inputs to save program memory */
-#define DEBUG
+// #define DEBUG
 #define ARENA_SIZE_X 140
 #define ARENA_SIZE_Y 80
 
