@@ -32,7 +32,7 @@ bool terminate;
 
 void setup() {
     // 1.1. Place the robot in the arena, 1 sec to do this
-    delay(1000);
+    //delay(1000);
 
     // 1.2 Start calibrating
     // initialize serial connection
@@ -110,16 +110,14 @@ void setup() {
 
 #ifdef COLLECTOR_GAME
     // time to cancel and restart the robot
-    delay(1000);
+    //delay(1000);
 
     // 2. Send a HELLO message to the referee on channel 111
-    CollectorRF::debug_RFModule();
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (15);
     CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);;
     Serial1.print("HELLO sent\n");
-    CollectorRF::debug_RFModule();
     collectorState->drivingDisabled = false;
 
     /*  Busy wait until config message received  */
