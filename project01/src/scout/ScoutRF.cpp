@@ -439,6 +439,7 @@ void ScoutRF::write5ByteAdress(int reg, uint8_t *bytes) {
     spi_transfer(registerArray, 1);
     // ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
     delayMicroseconds(command_delay);
+    spi_transfer( byteArray, 5);
     
     UNSELECT_RF();
     delay(delay_after_RF_select);
