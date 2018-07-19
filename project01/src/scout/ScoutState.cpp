@@ -297,35 +297,31 @@ void ScoutState::sendPosToTeammate(){
 
 }
 
-/* check for high photo sensor readings, if they meet threshold, call handleHighPhotoReadings */
-void ScoutState::checkForHighPhotoReadings(){
+
+/* handle high photosensor readings by notifying Collector;
+ * Send Light Intensity, X position, Y position like pos update */
+void ScoutState::handleHighPhotoReadings() {
     ScoutState::updatePhotoSensorReadings();
     int readingsMax = 0;
     readingsMax = Utility::maximum(Utility::maximum(photoSensorFront, photoSensorBack),
                                    Utility::maximum(photoSensorLeft, photoSensorRight));
-    if (readingsMax > PHOTOSENSOR_TRESHOLD){
-        ScoutSerial::serialWriteInt(readingsMax);
-        handleHighPhotoReadings(readingsMax);
-    }
-
-}
-
-
-/* handle high photosensor readings by notifying Collector;
- * Send Light Intensity, X position, Y position like pos update */
-void ScoutState::handleHighPhotoReadings(int maxReading) {
 
     if (photoSensorTimer == 0){
 
-        photoSensorTimer = millis()+2000;
-        photoSensorCurrentMax = maxReading;
+        if (readingsMax < PHOTOSENSOR_TRESHOLD){
+            return;
+        }
+
+        photoSensorTimer = millis() + MSToCheckPhotosensorsBeforeMaximumSent;
+        photoSensorCurrentMax = readingsMax;
         photoX = currentX;
         photoY = currentY;
+        return;
 
-    } else if (photoSensorTimer - millis() > 0){
+    } else if (photoSensorTimer > millis()){
 
-        if (maxReading > photoSensorCurrentMax){
-            photoSensorCurrentMax = maxReading;
+        if (readingsMax > photoSensorCurrentMax){
+            photoSensorCurrentMax = readingsMax;
             photoX = currentX;
             photoY = currentY;
         }
@@ -334,7 +330,8 @@ void ScoutState::handleHighPhotoReadings(int maxReading) {
 
     uint8_t harvestUpdate[7];
 
-    harvestUpdate[0] = 0x0069;
+    harvestUpdate[0] = 0x69;
+    harvestUpdate[1] = 0;
     harvestUpdate[2] = photoSensorCurrentMax;
 
     harvestUpdate[3] = ( (int) (photoX * 10) ) / 256;
@@ -345,14 +342,18 @@ void ScoutState::handleHighPhotoReadings(int maxReading) {
 
     ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
 
+#ifdef DEBUG
     ScoutSerial::serialWrite("Sent ", 5);
+    ScoutSerial::serialWriteInt(photoSensorCurrentMax);
+    ScoutSerial::serialWrite("at ", 3);
     ScoutSerial::serialWriteInt(photoX);
-    ScoutSerial::serialWrite(" ", 1);
+    ScoutSerial::serialWrite(",", 1);
     ScoutSerial::serialWriteInt(photoY);
     ScoutSerial::serialWrite(" ", 1);
     ScoutSerial::serialWriteInt(currentX);
     ScoutSerial::serialWrite(" ", 1);
     ScoutSerial::serialWriteInt(currentY);
+#endif
 
 
     photoSensorTimer = 0;

@@ -51,7 +51,7 @@ public:
     long lastPhotoSensorUpdate;
 
 
-    long photoSensorTimer;
+    unsigned long photoSensorTimer;
     int photoSensorCurrentMax;
     float photoX;
     float photoY;
@@ -81,8 +81,7 @@ public:
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
     void updateRoboterPositionAndAngles();
     void updatePhotoSensorReadings();
-    void checkForHighPhotoReadings();
-    void handleHighPhotoReadings(int maxReading);
+    void handleHighPhotoReadings();
     void outOfBoundsMessage();
     void navigate();
 

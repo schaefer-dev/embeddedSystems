@@ -15,6 +15,7 @@ int statusRF = 0;
 int home[2] = {10, 10};
 //CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
+unsigned int checkLightsIterator = 0;
 
 void initialize() {
     // 1.1. Place the robot in the arena, 1 sec to do this
@@ -22,6 +23,7 @@ void initialize() {
 
     // 1.2 Start calibrating
     // initialize serial connection
+    checkLightsIterator = 0;
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     platform_init();
@@ -97,6 +99,7 @@ int main() {
 #endif
 
     while (1) {
+        checkLightsIterator += 1;
 
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
@@ -109,6 +112,11 @@ int main() {
         ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
         ScoutSerial::serialWrite("HELLO sent\n", 11);
         delay(200); */
+
+        checkLightsIterator = checkLightsIterator % checkPhotoSensorEveryXLoops;
+        if (checkLightsIterator == 0) {
+            scoutState->handleHighPhotoReadings();
+        }
 
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS

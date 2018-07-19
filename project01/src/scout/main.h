@@ -11,7 +11,6 @@
 #include "ScoutSerial.h"
 
 /* debug define to enable serial output/inputs to save program memory */
-// #define DEBUG
 #define ARENA_SIZE_X 140
 #define ARENA_SIZE_Y 80
 
@@ -20,6 +19,8 @@
 #define PHOTOPHOBIC_ROTATION 60
 
 /* Scenarios enabling disabling */
+#define DEBUG
+
 // #define SCENARIO_RELAY
 // #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
@@ -28,7 +29,11 @@
 // #define DEBUG_SERIAL_PORT_ECHO
 // #define SCOUT_MONITOR
 
-#define SCOUT_GAME
+//#define SCOUT_GAME
+
+#define checkPhotoSensorEveryXLoops 42
+
+#define MSToCheckPhotosensorsBeforeMaximumSent 1000
 
 
 void initialize();
