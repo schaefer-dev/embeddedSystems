@@ -47,20 +47,19 @@ void initialize() {
 
     delay(10);
 
-
     ScoutRF::initializeRFModule();
     delay(10);
-
 
     ScoutSerial::serialWrite("SPI and RF Initialization complete\n", 36);
     // time to cancel and restart the robot
     delay(100);
 
+#ifdef SCOUT_GAME
     // 2. Send a HELLO message to the referee on channel 111
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (14);
-    ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
+    ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);
 
@@ -78,6 +77,7 @@ void initialize() {
     while (!scoutState->gameStarted) {
         checkForNewRFMessage();
     }
+#endif
 
     ScoutSerial::serialWrite("GO!!!\n", 6);
 }
@@ -101,6 +101,16 @@ int main() {
 
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
+
+
+        uint8_t payloadArray[2];
+        payloadArray[0] = 0x42;
+        payloadArray[1] = (uint8_t) (14);
+        ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
+
+        ScoutSerial::serialWrite("HELLO sent\n", 11);
+
+        delay(200);
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
