@@ -105,8 +105,6 @@ int main() {
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
 
-        debug_printPhotosensorReadings();
-
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
         payload[0] = 0x80;
