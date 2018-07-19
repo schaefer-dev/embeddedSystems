@@ -175,9 +175,6 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
     ScoutSerial::serialWrite(" (only first 3 bytes displayed)\n", 32);
     ScoutSerial::serialWriteInt(millis());
 
-    /* clear status register */
-    ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
-
 
     switch (payloadArray[0]) {
         case 0x01:
@@ -326,11 +323,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
     int status = 0;
     long timeout = millis();
 
-    //delay(10);
-    ScoutSerial::serialWrite("f\n",2);
-    ScoutSerial::serialWriteInt(millis());
-    flushRXTX();
-    ScoutSerial::serialWriteInt(millis());
+    //delay(10); d
 
     while (true) {
         delay(10);
@@ -354,7 +347,7 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
         }
 
         /* in case something goes wrong cancel after 1s */
-        if (millis() - timeout > 2000) {
+        if (millis() - timeout > 1000) {
 #ifdef DEBUG
             ScoutSerial::serialWrite("Manual sending timeout\n", 23);
 #endif

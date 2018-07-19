@@ -48,7 +48,7 @@ void platform_init() {
 
 #ifdef COLLECTOR_RF_IRQ_JUMPERED
 ISR (INT2_vect) {
-    rf_intr = 1;
+    //rf_intr = 1;
 }
 #endif
 

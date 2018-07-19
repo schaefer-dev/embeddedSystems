@@ -28,7 +28,6 @@ Zumo32U4ProximitySensors *proximitySensors;
 
 int home[2] = {10, 20};      // home
 int statusRF = 0;
-char testInput[53];
 bool terminate;
 
 void setup() {
@@ -79,12 +78,6 @@ void setup() {
     collectorState->nextDestinationCounter += 1;
 #endif
 
-    for (int i = 0; i < 53; i++){
-        testInput[i] = '.';
-    }
-    testInput[51] = '\0';
-    terminate = false;
-
 
 #ifdef COLLECTOR_COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
@@ -120,11 +113,13 @@ void setup() {
     delay(1000);
 
     // 2. Send a HELLO message to the referee on channel 111
+    CollectorRF::debug_RFModule();
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (15);
     CollectorRF::sendMessageTo(CollectorRF::refereeAdress, payloadArray, 2);;
     Serial1.print("HELLO sent\n");
+    CollectorRF::debug_RFModule();
     collectorState->drivingDisabled = false;
 
     /*  Busy wait until config message received  */
