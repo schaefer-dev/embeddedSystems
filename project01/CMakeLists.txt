@@ -20,7 +20,9 @@ include(libs/Zumo.cmake)
 
 # Scout Executable
 add_pi_executable(scout
-        src/scout/main.cpp src/scout/ScoutState.cpp src/utils/Coordinates.cpp src/scout/ScoutSPI.cpp src/scout/ScoutSerial.cpp src/scout/ScoutMonitor.cpp src/utils/Utility.cpp src/scout/ScoutRF.cpp src/scout/ScoutLineSensors.cpp)
+        src/scout/main.cpp src/scout/ScoutState.cpp src/utils/Coordinates.cpp src/scout/ScoutSerial.cpp src/scout/ScoutMonitor.cpp src/utils/Utility.cpp src/scout/ScoutRF.cpp src/scout/ScoutLineSensors.cpp src/scout/spi_s.cpp src/scout/platform_s.cpp src/scout/adc.cpp)
+
+target_compile_definitions(scout PUBLIC SCOUT=1)
 
 
 # Collector Executable

@@ -8,8 +8,9 @@
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
 #include "ScoutLineSensors.h"
+#include "platform_s.h"
+#include "adc.h"
 
-bool spiEnabled = true;
 int statusRF = 0;
 int home[2] = {10, 10};
 //CoordinateQueue *coordinateQueue;
@@ -24,6 +25,7 @@ void initialize() {
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
+    platform_init();
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
@@ -45,12 +47,10 @@ void initialize() {
 
     delay(10);
 
-    if (spiEnabled) {
-        ScoutSPI::SPIMasterInit();
-        delay(10);
-        ScoutRF::initializeRFModule();
-        delay(10);
-    }
+
+    ScoutRF::initializeRFModule();
+    delay(10);
+
 
     ScoutSerial::serialWrite("SPI and RF Initialization complete\n", 36);
     // time to cancel and restart the robot
@@ -105,6 +105,7 @@ int main() {
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
 
+        debug_printPhotosensorReadings();
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
@@ -324,20 +325,21 @@ void photophobicScout() {
 void debug_printPhotosensorReadings() {
     int adcout11, adcout0, adcout1, adcout2, adcout3;
 
-    adcout11 = ScoutSPI::readADC(0);
-    ScoutSPI::ADCConversionWait();
 
-    adcout0 = ScoutSPI::readADC(1);
-    ScoutSPI::ADCConversionWait();
+    adcout11 = adc_communicate(0);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    adcout1 = ScoutSPI::readADC(2);
-    ScoutSPI::ADCConversionWait();
+    adcout0 = adc_communicate(1);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    adcout2 = ScoutSPI::readADC(3);
-    ScoutSPI::ADCConversionWait();
+    adcout1 = adc_communicate(2);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    adcout3 = ScoutSPI::readADC(11);
-    ScoutSPI::ADCConversionWait();
+    adcout2 = adc_communicate(3);
+    delay_us(ADC_COMPUTE_DELAY);
+
+    adcout3 = adc_communicate(11);
+    delay_us(ADC_COMPUTE_DELAY);
 
     ScoutSerial::serialWrite("LIGHT: front=", 13);
     ScoutSerial::serialWrite8Bit(adcout0);

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "main.h"
 #include "ScoutRF.h"
+#include "adc.h"
 
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
@@ -250,20 +251,20 @@ void ScoutState::updatePhotoSensorReadings() {
 
     lastPhotoSensorUpdate = millis();
 
-    int adcout11 = ScoutSPI::readADC(0);
-    ScoutSPI::ADCConversionWait();
+    int adcout11 = adc_communicate(0);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    photoSensorFront = ScoutSPI::readADC(1);
-    ScoutSPI::ADCConversionWait();
+    photoSensorFront = adc_communicate(1);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    photoSensorRight = ScoutSPI::readADC(2);
-    ScoutSPI::ADCConversionWait();
+    photoSensorRight = adc_communicate(2);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    photoSensorBack = ScoutSPI::readADC(3);
-    ScoutSPI::ADCConversionWait();
+    photoSensorBack = adc_communicate(3);
+    delay_us(ADC_COMPUTE_DELAY);
 
-    photoSensorLeft = ScoutSPI::readADC(11);
-    ScoutSPI::ADCConversionWait();
+    photoSensorLeft = adc_communicate(11);
+    delay_us(ADC_COMPUTE_DELAY);
 }
 
 
