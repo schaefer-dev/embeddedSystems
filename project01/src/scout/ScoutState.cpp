@@ -9,6 +9,7 @@
 #include "ScoutRF.h"
 #include "adc.h"
 
+
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
@@ -76,7 +77,7 @@ void ScoutState::navigate(){
     /* read new destination if no destination currently */
     if (destinationReached == true){
         setSpeeds(0,0);
-        // TODO generate new goal to drive to and set destinationReached false
+        generateDestination();
         return;
     }
 
@@ -172,6 +173,24 @@ void ScoutState::navigate(){
 #endif
     }
 
+}
+
+/**
+ * Generates and sets a new destination. Only called when the current destination is reached
+ */
+void ScoutState::generateDestination() {
+    destinationX = (random() % (ARENA_SIZE_X - 10)) + 5;
+    destinationY = (random() % (ARENA_SIZE_Y - 10)) + 5;
+
+#ifdef DEBUG
+    ScoutSerial::serialWrite("New Random Goal:\nX: ", 20);
+    ScoutSerial::serialWriteInt(destinationX);
+    ScoutSerial::serialWriteInt(destinationY);
+    ScoutSerial::serialWrite("Y: ", 3);
+#endif
+
+    destinationReached = false;
+    drivingDisabled = false;
 }
 
 void ScoutState::resetDifferentialDrive(float x, float y, float a) {
@@ -320,6 +339,21 @@ void ScoutState::handleHighPhotoReadings() {
     harvestUpdate[6] = ( (int) (photoY * 10) ) % 256;
 
     ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
+
+    // TESTING CODE: Send OOB message 5s after sending harvesting position to Collector. Update to: x:10 y:10 angle:0
+    /*delay(3000);
+
+    uint8_t payload[7];
+    payload[0] = 0x61;
+    payload[1] = 0;
+    payload[2] = 0;
+    payload[3] = 0;
+    payload[4] = 100;
+    payload[5] = 0;
+    payload[6] = 100;
+    ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payload, 7);
+     */
+
 
 #ifdef DEBUG
     ScoutSerial::serialWrite("Sent ", 5);

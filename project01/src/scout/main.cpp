@@ -16,6 +16,7 @@ int home[2] = {10, 10};
 //CoordinateQueue *coordinateQueue;
 ScoutState *scoutState;
 unsigned int checkLightsIterator = 0;
+unsigned int updatePositionEveryXLoops = 0;
 
 void initialize() {
     // 1.1. Place the robot in the arena, 1 sec to do this
@@ -24,6 +25,7 @@ void initialize() {
     // 1.2 Start calibrating
     // initialize serial connection
     checkLightsIterator = 0;
+    updatePositionEveryXLoops = 0;
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     platform_init();
@@ -81,6 +83,8 @@ void initialize() {
 #endif
 
     ScoutSerial::serialWrite("GO!!!\n", 6);
+
+    scoutState->generateDestination();
 }
 
 int main() {
@@ -118,6 +122,13 @@ int main() {
             scoutState->handleHighPhotoReadings();
         }
 
+        updatePositionEveryXLoops += 1;
+        updatePositionEveryXLoops = updatePositionEveryXLoops % UDATE_POSITION_EVERY_X_LOOPS;
+
+        if (updatePositionEveryXLoops == 0) {
+            scoutState->updateRoboterPositionAndAngles();
+            scoutState->navigate();
+        }
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
@@ -205,8 +216,6 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y) {
     int currentY = y / 10.0f;
 
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
-
-    scoutState->destinationReached = true;
 };
 
 

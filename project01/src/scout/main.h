@@ -28,10 +28,12 @@
 // #define DEBUG_SERIAL_PORT_ECHO
 // #define SCOUT_MONITOR
 
-//#define SCOUT_GAME
+#define SCOUT_GAME
+
 // #define DEBUG
 
 #define checkPhotoSensorEveryXLoops 42
+#define UDATE_POSITION_EVERY_X_LOOPS 10
 
 #define MSToCheckPhotosensorsBeforeMaximumSent 1000
 

@@ -235,8 +235,6 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 #endif
 
     collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
-
-    collectorState->destinationReached = true;
 };
 
 
