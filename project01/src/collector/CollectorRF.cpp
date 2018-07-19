@@ -96,22 +96,22 @@ void CollectorRF::debug_RFModule() {
         Serial1.print(i);
         Serial1.print(" = (");
         Serial1.print(output);
-        Serial1.print(")");
+        Serial1.println(")");
 
         delay(20);
 
     }
 
     uint8_t adressArray[5];
-    readAdressRegister(0x000A, adressArray);
+    readAdressRegister(0x0A, adressArray);
     Serial1.print("ADDR Register: 0A (");
     for (int i = 0; i < 5; i++) {
         Serial1.print(adressArray[i]);
     }
     Serial1.println(")");
 
-    readAdressRegister(0x000B, adressArray);
-    Serial1.print("ADDR Register: 0B (");
+    readAdressRegister(0x10, adressArray);
+    Serial1.print("ADDR Register: 10 (");
     for (int i = 0; i < 5; i++) {
         Serial1.print(adressArray[i]);
     }
@@ -317,6 +317,8 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
     write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_RX_ADDR_P0, receiverAdress);
+    Serial1.print("DEBUG: adresses written");
+    CollectorRF::debug_RFModule();
 
     /* switch to TX mode */
     writeRegister(RF_REGISTER_CONFIG, 14);

@@ -47,7 +47,9 @@ void initialize() {
 
     delay(10);
 
+    ScoutRF::debug_RFModule();
     ScoutRF::initializeRFModule();
+    ScoutRF::debug_RFModule();
     delay(10);
 
     ScoutSerial::serialWrite("SPI and RF Initialization complete\n", 36);
@@ -59,7 +61,9 @@ void initialize() {
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (14);
+    ScoutRF::debug_RFModule();
     ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
+    ScoutRF::debug_RFModule();
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);
 

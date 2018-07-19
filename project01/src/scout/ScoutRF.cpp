@@ -129,8 +129,8 @@ void ScoutRF::debug_RFModule() {
     }
     ScoutSerial::serialWrite(")\n", 2);
 
-    readAdressRegister(0x0B, adressArray);
-    ScoutSerial::serialWrite("ADDR Register: 0B (", 19);
+    readAdressRegister(0x10, adressArray);
+    ScoutSerial::serialWrite("ADDR Register: 10 (", 19);
     for (int i = 0; i < 5; i++) {
         ScoutSerial::serialWrite8BitHex(adressArray[i]);
     }

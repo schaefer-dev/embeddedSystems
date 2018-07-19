@@ -102,7 +102,7 @@ void setup() {
     //CollectorSPI::SPIMasterInit();
     delay(10);
     Serial1.print(messageInitSPI);
-
+    ;
     CollectorRF::initializeRFModule();
     Serial1.print(messageInitRF);
     delay(10);
