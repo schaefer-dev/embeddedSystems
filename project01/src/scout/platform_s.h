@@ -4,6 +4,7 @@
 #include <avr/io.h>
 #include <serial.h>
 #include <stdint.h>
+#include <OrangutanTime.h>
 
 #define SPI_SET_CLOCK() PORTB |= (1 << PB4)
 #define SPI_CLEAR_CLOCK() PORTB &= ~(1 << PB4)
