@@ -28,12 +28,11 @@ Zumo32U4ProximitySensors *proximitySensors;
 
 int home[2] = {10, 20};      // home
 int statusRF = 0;
-char testInput[53];
 bool terminate;
 
 void setup() {
     // 1.1. Place the robot in the arena, 1 sec to do this
-    delay(1000);
+    //delay(1000);
 
     // 1.2 Start calibrating
     // initialize serial connection
@@ -79,12 +78,6 @@ void setup() {
     collectorState->nextDestinationCounter += 1;
 #endif
 
-    for (int i = 0; i < 53; i++){
-        testInput[i] = '.';
-    }
-    testInput[51] = '\0';
-    terminate = false;
-
 
 #ifdef COLLECTOR_COLLECTOR_MONITOR
     CollectorMonitor::verifyState();
@@ -117,7 +110,7 @@ void setup() {
 
 #ifdef COLLECTOR_GAME
     // time to cancel and restart the robot
-    delay(1000);
+    //delay(1000);
 
     // 2. Send a HELLO message to the referee on channel 111
     uint8_t payloadArray[2];

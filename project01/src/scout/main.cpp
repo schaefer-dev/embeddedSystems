@@ -18,14 +18,14 @@ ScoutState *scoutState;
 
 void initialize() {
     // 1.1. Place the robot in the arena, 1 sec to do this
-    delay(1000);
+    //delay(1000);
 
     // 1.2 Start calibrating
     // initialize serial connection
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
-    ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
     platform_init();
+    ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
@@ -54,13 +54,13 @@ void initialize() {
 
     ScoutSerial::serialWrite("SPI and RF Initialization complete\n", 36);
     // time to cancel and restart the robot
-    delay(1000);
+    delay(100);
 
     // 2. Send a HELLO message to the referee on channel 111
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (14);
-    ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
+    ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);
 
@@ -72,9 +72,6 @@ void initialize() {
 
     // wait until the light turns on
     delay(3100);
-
-    int calibrationDuration = 2000;
-    ScoutLineSensors::calibrate(scoutState, calibrationDuration);
 
     // wait until the light turns off
     ScoutSerial::serialWrite("Waiting for GO Message\n", 24);
@@ -199,6 +196,7 @@ void checkForNewRFMessage() {
     char messageReceived = statusRF & (1 << 6);
 
     if (messageReceived) {
+        ScoutRF::writeRegister(RF_REGISTER_STATUS, 64);
         ScoutRF::processReceivedMessage(scoutState);
     }
 }
