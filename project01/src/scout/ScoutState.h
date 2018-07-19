@@ -30,9 +30,6 @@ public:
     float currentAngle;
     float destinationX;
     float destinationY;
-    float nextDestinationX;
-    float nextDestinationY;
-    unsigned short nextDestinationCounter;
     int leftSpeed;
     int rightSpeed;
     long lastDiffDriveCall;

@@ -22,9 +22,6 @@ ScoutState::ScoutState() {
     currentAngle = 0.0f;
     destinationX = 0;
     destinationY = 0;
-    nextDestinationCounter = 0;
-    nextDestinationX = 0;
-    nextDestinationY = 0;
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
@@ -78,26 +75,9 @@ void ScoutState::navigate(){
 
     /* read new destination if no destination currently */
     if (destinationReached == true){
-        if (nextDestinationCounter == 0) {
-            setSpeeds(0,0);
-#ifdef DEBUG
-            ScoutSerial::serialWrite("no new destination in queue\n",28);
-#endif
-            return;
-        }
-
-#ifdef DEBUG
-        ScoutSerial::serialWrite("set new destination from queue\n",31);
-        ScoutSerial::serialWrite("X: ",3);
-        ScoutSerial::serialWriteInt(nextDestinationX);
-        ScoutSerial::serialWrite("Y: ",3);
-        ScoutSerial::serialWriteInt(nextDestinationY);
-        ScoutSerial::serialWrite("\n",1);
-#endif
-
-        destinationX = nextDestinationX;
-        destinationY = nextDestinationY;
-        destinationReached = false;
+        setSpeeds(0,0);
+        // TODO generate new goal to drive to and set destinationReached false
+        return;
     }
 
     /*  check if collision has just happened  */
@@ -125,7 +105,6 @@ void ScoutState::navigate(){
         destinationX = 0;
         destinationY = 0;
         destinationReached = true;
-        drivingDisabled = true;
         return;
     }
 

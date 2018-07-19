@@ -168,8 +168,6 @@ void CollectorState::navigate() {
         return;
     }
 
-    Serial1.print(deltaAngle);
-
     if (deltaAngle < 0) {
         // turn left
         navigationStep = NAV_TURNING_LEFT;
