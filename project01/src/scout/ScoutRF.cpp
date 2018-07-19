@@ -149,6 +149,7 @@ int ScoutRF::queryRFModule() {
     //ScoutSerial::serialWrite8Bit(statusRF);
     //ScoutSerial::serialWrite(")\n", 2);
     UNSELECT_RF();
+    delay(delay_after_RF_select);
 
     return buffer[0];
 }
@@ -370,6 +371,8 @@ void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount) {
 
     SELECT_RF();
 
+    delayMicroseconds(50);
+
     spi_transfer(commandArray, byteCount);
     /*
     for (int i = 0; i < byteCount; i++) {
@@ -378,6 +381,7 @@ void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount) {
     } */
 
     UNSELECT_RF();
+    delay(delay_after_RF_select);
 }
 
 

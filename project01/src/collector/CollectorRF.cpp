@@ -8,6 +8,7 @@
 #include "main.h"
 #include "CollectorMonitor.h"
 #include "spi_c.h"
+#include <Zumo32U4Motors.h>
 
 
 uint8_t CollectorRF::refereeAdress[5];
@@ -153,6 +154,9 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
     getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
 #ifdef COLLECTOR_DEBUG
+    Zumo32U4Motors::setSpeeds(100, -100);
+    delay(2000);
+    Zumo32U4Motors::setSpeeds(0, 0);
     Serial1.print("Message: ");
 
     for (int i = 0; i < answerArray[0]; i++) {

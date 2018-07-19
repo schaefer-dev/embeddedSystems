@@ -58,9 +58,7 @@ void initialize() {
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
     payloadArray[1] = (uint8_t) (14);
-    ScoutRF::debug_RFModule();
     ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
-    ScoutRF::debug_RFModule();
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);
 
@@ -104,15 +102,13 @@ int main() {
         checkForNewRFMessage();
 
 
-        /* Send message to collector test */
+        /* Send message to collector test
         uint8_t payloadArray[2];
         payloadArray[0] = 0x42;
         payloadArray[1] = (uint8_t) (14);
         ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
-
         ScoutSerial::serialWrite("HELLO sent\n", 11);
-
-        delay(200);
+        delay(200); */
 
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
@@ -179,6 +175,8 @@ int main() {
         photophobicScout();
         delay(100);
 #endif
+
+        delay(1);
 
     }
 
