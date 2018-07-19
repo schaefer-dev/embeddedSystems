@@ -18,9 +18,8 @@
 #define photophobicDanceThreshold 100
 #define PHOTOPHOBIC_ROTATION 60
 
-/* Scenarios enabling disabling */
-#define DEBUG
 
+/* Scenarios enabling disabling */
 // #define SCENARIO_RELAY
 // #define SCENARIO_HOMING
 // #define SCENARIO_PHOTOPHOBIC
@@ -30,6 +29,7 @@
 // #define SCOUT_MONITOR
 
 //#define SCOUT_GAME
+// #define DEBUG
 
 #define checkPhotoSensorEveryXLoops 42
 

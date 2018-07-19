@@ -7,7 +7,7 @@
 
 #include "../utils/Coordinates.h"
 
-#define OOB_PUNISH_TIME_MS 10000
+#define OOB_PUNISH_TIME_MS 31000
 #define DRIVE_BACKWARDS_TIME 500
 
 #define PHOTOSENSOR_TRESHOLD 100
