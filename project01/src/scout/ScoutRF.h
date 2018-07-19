@@ -28,6 +28,7 @@
 #define RF_REGISTER_CONFIG          0x00
 #define RF_MASK_REGISTER	        0x1F
 
+#define SCOUT_MESSAGE_SEND_TIMEOUT_MS 300
 
 class ScoutRF {
 

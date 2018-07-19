@@ -173,7 +173,6 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
         ScoutSerial::serialWrite8BitHex(payloadArray[i]);
     }
     ScoutSerial::serialWrite(" (only first 3 bytes displayed)\n", 32);
-    ScoutSerial::serialWriteInt(millis());
 
 
     switch (payloadArray[0]) {
@@ -229,8 +228,6 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             break;
 
         case 0x50: {
-            ScoutSerial::serialWrite("pi\n", 3);
-            ScoutSerial::serialWriteInt(millis());
 
             /* PING case -> simply respond with PONG which contains nonce+1 */
 #ifdef SCOUT_MONITOR
@@ -300,9 +297,6 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
 
 void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int payloadArrayLength) {
 
-    ScoutSerial::serialWrite("sm\n",3);
-    ScoutSerial::serialWriteInt(millis());
-
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
@@ -313,11 +307,9 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 
     uint8_t commandArray[payloadArrayLength + 1];
     commandArray[0] = RF_COMMAND_W_TX_PAYLOAD;
-    ScoutSerial::serialWriteInt(millis());
     for (int i = 1; i < payloadArrayLength + 1; i++) {
         commandArray[i] = payloadArray[i - 1];
     }
-    ScoutSerial::serialWriteInt(millis());
 
     sendCommandWithPayload(commandArray, payloadArrayLength + 1);
     int status = 0;
@@ -341,13 +333,12 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
         if (((1 << 5) & status) > 0) {
 #ifdef DEBUG
             ScoutSerial::serialWrite("Message sent succesfully\n", 25);
-            ScoutSerial::serialWriteInt(millis());
 #endif
             break;
         }
 
         /* in case something goes wrong cancel after 1s */
-        if (millis() - timeout > 1000) {
+        if (millis() - timeout > SCOUT_MESSAGE_SEND_TIMEOUT_MS) {
 #ifdef DEBUG
             ScoutSerial::serialWrite("Manual sending timeout\n", 23);
 #endif
