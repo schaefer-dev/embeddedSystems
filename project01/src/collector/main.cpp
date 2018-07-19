@@ -155,6 +155,7 @@ void loop() {
     /* ALWAYS check for new RF Message */
 
     checkForNewRFMessage();
+    collectorState->navigate();
 
     /*if (terminate){
         Serial1.println(testInput);

@@ -154,9 +154,6 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
     getCommandAnswer(payloadArray, answerArray[0], RF_COMMAND_R_RX_PAYLOAD);
 
 #ifdef COLLECTOR_DEBUG
-    Zumo32U4Motors::setSpeeds(100, -100);
-    delay(2000);
-    Zumo32U4Motors::setSpeeds(0, 0);
     Serial1.print("Message: ");
 
     for (int i = 0; i < answerArray[0]; i++) {
@@ -290,6 +287,14 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
 
             int posX = (payloadArray[3] * 256 + payloadArray[4]) / 10;
             int posY = (payloadArray[5] * 256 + payloadArray[6]) / 10;
+
+
+            Serial1.print("Val: ");
+            Serial1.println(value);
+            Serial1.print("X: ");
+            Serial1.println(posX);
+            Serial1.print("Y: ");
+            Serial1.println(posY);
 
             collectorState->harvestPositionMessage(value, posX, posY);
         }

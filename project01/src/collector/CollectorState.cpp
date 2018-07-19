@@ -60,12 +60,12 @@ float CollectorState::getAngle() {
 /* drives towards current destination */
 void CollectorState::navigate() {
 
-    if (millis() - harvestPositionReached < 5000) {
+    if (millis() - harvestPositionReached < 5000 && millis() > 5000) {
         setSpeeds(0, 0);
         return;
-    } else {
-        harvestPositionReached = 0;
     }
+
+    harvestPositionReached = 0;
 
     if (drivingDisabled) {
         setSpeeds(0, 0);
@@ -74,18 +74,14 @@ void CollectorState::navigate() {
 
     /* read new destination if no destination currently */
     if (destinationReached) {
-        uint8_t payload[2];
-        /*payload[0] = 0x81;
-        payload[1] = (uint8_t) 'r';
-        CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 2);*/
-
         if (!isHarvestDestination) {
             // if this was a random destination, continue driving randomly
             generateDestination();
+            Serial1.print("Generate random destination");
         } else {
             // if this was a harvest position, do X
+            Serial1.print("Harvest reached");
             harvestPositionReached = millis();
-            delay(10000);
             return;
         }
         if (nextDestinationCounter == 0) {
@@ -277,29 +273,21 @@ void CollectorState::outOfBoundsMessage() {
  * @param y
  */
 void CollectorState::harvestPositionMessage(int value, int x, int y) {
-    nextDestinationX = x;
-    nextDestinationY = y;
+    destinationX = x;
+    destinationY = y;
 
     nextDestinationCounter = 1;
     destinationReached = false;
     drivingDisabled = false;
     isHarvestDestination = true;
-
-    uint8_t payload[4];
-    payload[0] = 0x81;
-    payload[1] = (uint8_t) 'h';
-    payload[2] = x;
-    payload[3] = y;
-
-    CollectorRF::sendMessageTo(CollectorRF::scoutAdress, payload, 4);
 }
 
 /**
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    nextDestinationX = random(10, ARENA_SIZE_X - 10);
-    nextDestinationY = random(10, ARENA_SIZE_Y - 10);
+    destinationX = random(10, ARENA_SIZE_X - 10);
+    destinationY = random(10, ARENA_SIZE_Y - 10);
 
     nextDestinationCounter = 1;
     destinationReached = false;

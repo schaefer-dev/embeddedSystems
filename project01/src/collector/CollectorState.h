@@ -2,7 +2,7 @@
 #define Collector_state_H
 
 
-#define OOB_PUNISH_TIME_MS 10000
+#define OOB_PUNISH_TIME_MS 31000
 #define DRIVE_BACKWARDS_TIME 500
 
 #define DO_NOT_ROTATE_AGAIN_MS 500
