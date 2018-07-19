@@ -8,6 +8,7 @@
 #include "../scout/ScoutMonitor.h"
 #include "ScoutRF.h"
 #include "ScoutLineSensors.h"
+#include "platform_s.h"
 
 bool spiEnabled = true;
 int statusRF = 0;
@@ -24,6 +25,7 @@ void initialize() {
     ScoutSerial::initScoutSerial();
     OrangutanSerial::setBaudRate(9600);
     ScoutSerial::serialWrite("--- Start Serial Monitor ---\n", 29);
+    platform_init();
 
     /* initialization of Data structures */
     scoutState = new ScoutState();
