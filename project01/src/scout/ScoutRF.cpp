@@ -440,13 +440,6 @@ void ScoutRF::writeRegister(uint8_t reg, uint8_t setting) {
 /* Write bytes to adress !!! THIS FUNCTION TAKES CARE OF INVERTING !!! */
 void ScoutRF::write5ByteAdress(int reg, uint8_t *bytes) {
 
-    SELECT_RF();
-
-    uint8_t registerArray[1] = { RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg) };
-    spi_transfer(registerArray, 1);
-    // ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
-    delayMicroseconds(command_delay);
-
     uint8_t byteArray[5];
     int j = 0;
     for (int i = 4; i >= 0; i--) {
@@ -458,7 +451,13 @@ void ScoutRF::write5ByteAdress(int reg, uint8_t *bytes) {
          */
     }
 
+    SELECT_RF();
 
+    uint8_t registerArray[1] = { RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg) };
+    spi_transfer(registerArray, 1);
+    // ScoutSPI::readWriteSPI(RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg)); // write command for register
+    delayMicroseconds(command_delay);
+    
     UNSELECT_RF();
     delay(delay_after_RF_select);
 }
