@@ -103,6 +103,7 @@ int main() {
         checkForNewRFMessage();
 
 
+        /* Send message to collector test
         uint8_t payloadArray[2];
         payloadArray[0] = 0x42;
         payloadArray[1] = (uint8_t) (14);
@@ -111,6 +112,7 @@ int main() {
         ScoutSerial::serialWrite("HELLO sent\n", 11);
 
         delay(200);
+         */
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
         int payload[10];
