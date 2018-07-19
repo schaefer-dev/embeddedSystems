@@ -16,11 +16,11 @@
 
 #define SPI_READ_MISO() ((PINB >> PB0) & 1)
 
-#define SELECT_RF() PORTD &= ~(1 << PD4)
-#define UNSELECT_RF() PORTD |= 1 << PD4
+#define SELECT_RF() PORTD &= ~(1 << PD4); delayMicroseconds(30)
+#define UNSELECT_RF() PORTD |= 1 << PD4; delayMicroseconds(30)
 
-#define SELECT_ADC() PORTC &= ~(1 << PC5)
-#define UNSELECT_ADC() PORTC |= 1 << PC5
+#define SELECT_ADC() PORTC &= ~(1 << PC5); delayMicroseconds(30)
+#define UNSELECT_ADC() PORTC |= 1 << PC5; delayMicroseconds(30)
 
 #define ENABLE_RF() PORTD |= 1 << PD7
 #define DISABLE_RF() PORTD &= ~(1 << PD7)

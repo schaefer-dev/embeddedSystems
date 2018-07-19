@@ -369,7 +369,6 @@ void ScoutRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, int 
 void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount) {
 
     SELECT_RF();
-    delay(delay_after_RF_select);
 
     spi_transfer(commandArray, byteCount);
     /*
@@ -379,7 +378,6 @@ void ScoutRF::sendCommandWithPayload(uint8_t *commandArray, int byteCount) {
     } */
 
     UNSELECT_RF();
-    delay(delay_after_RF_select);
 }
 
 
