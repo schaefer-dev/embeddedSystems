@@ -21,6 +21,8 @@
 
 #define ASSERT(cond, string) assert(cond, string)
 
+#define COLLECTOR_RF_IRQ_JUMPERED
+
 
 void platform_init();
 
