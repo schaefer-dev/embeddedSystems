@@ -40,12 +40,14 @@ void platform_init() {
     DISABLE_RF();
 
     /* configure timer 1 (4MHz clock on PB1)*/
+    /*
     TCCR1A = (1 << COM1A0);
     TCCR1B = (1 << WGM12) | (1 << CS10);
     TCCR1C = 0;
     TCNT1 = 0;
     OCR1A = 4;
     OCR1B = 0;
+     */
 
     /* enable pull-up resistor on PD2 (RF IRQ) */
     PORTD |= (1 << PD2);
@@ -59,7 +61,7 @@ void platform_init() {
 }
 
 ISR (INT0_vect) {
-    rf_intr = 1;
+    //rf_intr = 1;
 }
 
 void assert(bool b, const char *s, uint8_t len) {
