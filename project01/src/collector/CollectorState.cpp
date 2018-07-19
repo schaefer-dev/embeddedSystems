@@ -19,9 +19,6 @@ CollectorState::CollectorState() {
     currentAngle = 0.0f;
     destinationX = 0.0f;
     destinationY = 0.0f;
-    nextDestinationCounter = 0;
-    nextDestinationX = 0;
-    nextDestinationY = 0;
     leftSpeed = 0;
     rightSpeed = 0;
     lastDiffDriveCall = 0;
@@ -60,12 +57,18 @@ float CollectorState::getAngle() {
 /* drives towards current destination */
 void CollectorState::navigate() {
 
-    if (millis() - harvestPositionReached < 5000 && millis() > 5000) {
+    unsigned long timeSinceLastHarvestingReached = millis() - harvestPositionReachedAtTime;
+
+    if (timeSinceLastHarvestingReached < 5000 && millis() > 5000) {
+#ifdef COLLECTOR_DEBUG
+        Serial1.println("harvesting...");
+#endif
+        isHarvestDestination = false;
         setSpeeds(0, 0);
         return;
     }
 
-    harvestPositionReached = 0;
+    harvestPositionReachedAtTime = 0;
 
     if (drivingDisabled) {
         setSpeeds(0, 0);
@@ -76,33 +79,17 @@ void CollectorState::navigate() {
     if (destinationReached) {
         if (!isHarvestDestination) {
             // if this was a random destination, continue driving randomly
-            generateDestination();
-            Serial1.print("Generate random destination");
+            //generateDestination();
+#ifdef COLLECTOR_DEBUG
+            //Serial1.print("Generate random destination");
+#endif
+            return;
         } else {
             // if this was a harvest position, do X
             Serial1.print("Harvest reached");
-            harvestPositionReached = millis();
+            harvestPositionReachedAtTime = millis();
             return;
         }
-        if (nextDestinationCounter == 0) {
-            setSpeeds(0, 0);
-#ifdef COLLECTOR_DEBUG
-            //Serial1.println("no new destination in queue");
-#endif
-            return;
-        }
-
-#ifdef COLLECTOR_DEBUG
-        Serial1.println("set new destination from queue");
-        Serial1.print("X: ");
-        Serial1.print(nextDestinationX);
-        Serial1.print("Y: ");
-        Serial1.println(nextDestinationY);
-#endif
-
-        destinationX = nextDestinationX;
-        destinationY = nextDestinationY;
-        destinationReached = false;
     }
 
     /*  check if collision has just happened  */
@@ -162,7 +149,7 @@ void CollectorState::navigate() {
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
 #ifdef COLLECTOR_DEBUG
-        //Serial1.println("straight ahead!");
+        Serial1.println("straight...");
 #endif
         return;
     }
@@ -176,25 +163,26 @@ void CollectorState::navigate() {
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
 #ifdef COLLECTOR_DEBUG
-        //Serial1.println("straight ahead!");
+        Serial1.println("straight");
 #endif
         return;
     }
 
+    Serial1.print(deltaAngle);
 
     if (deltaAngle < 0) {
         // turn left
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
 #ifdef COLLECTOR_DEBUG
-        //Serial1.println("turning left!");
+        Serial1.println("turning left!");
 #endif
     } else {
         // turn right
         navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
 #ifdef COLLECTOR_DEBUG
-        //Serial1.println("turning right!");
+        Serial1.println("turning right!");
 #endif
     }
 
@@ -276,7 +264,6 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
     destinationX = x;
     destinationY = y;
 
-    nextDestinationCounter = 1;
     destinationReached = false;
     drivingDisabled = false;
     isHarvestDestination = true;
@@ -289,7 +276,6 @@ void CollectorState::generateDestination() {
     destinationX = random(10, ARENA_SIZE_X - 10);
     destinationY = random(10, ARENA_SIZE_Y - 10);
 
-    nextDestinationCounter = 1;
     destinationReached = false;
     drivingDisabled = false;
 

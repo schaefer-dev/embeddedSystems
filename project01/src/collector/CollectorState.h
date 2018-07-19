@@ -24,10 +24,7 @@ public:
     float currentAngle;
     float destinationX;
     float destinationY;
-    float nextDestinationX;
-    float nextDestinationY;
     bool isHarvestDestination;
-    unsigned short nextDestinationCounter;
     int leftSpeed;
     int rightSpeed;
     long lastDiffDriveCall;
@@ -53,7 +50,7 @@ public:
     bool configurationReceived = false;
     bool gameStarted = false;
 
-    unsigned long harvestPositionReached;
+    unsigned long harvestPositionReachedAtTime;
 
     int scoutPosX, scoutPosY, scoutAngle;
     float getAngle();

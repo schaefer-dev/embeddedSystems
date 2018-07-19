@@ -12,6 +12,8 @@
 
 #define SERIAL_TIMEOUT_BLOCKING_READING 20000
 
+#define UDATE_POSITION_EVERY_X_LOOPS 10
+
 #define COLLECTOR_DEBUG
 
 /* Scenario enabling disabling */

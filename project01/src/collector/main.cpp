@@ -29,6 +29,7 @@ Zumo32U4ProximitySensors *proximitySensors;
 int home[2] = {10, 20};      // home
 int statusRF = 0;
 bool terminate;
+unsigned int updatePositionEveryXLoops = 0;
 
 void setup() {
     // 1.1. Place the robot in the arena, 1 sec to do this
@@ -42,6 +43,7 @@ void setup() {
     /* initialization of Data structures */
     collectorState = new CollectorState();
     statusRF = 0;
+    updatePositionEveryXLoops = 0;
 
     CollectorLineSensors::init(collectorState);
 
@@ -153,9 +155,15 @@ void setup() {
 
 void loop() {
     /* ALWAYS check for new RF Message */
-
     checkForNewRFMessage();
-    collectorState->navigate();
+
+    updatePositionEveryXLoops += 1;
+    updatePositionEveryXLoops = updatePositionEveryXLoops % UDATE_POSITION_EVERY_X_LOOPS;
+
+    if (updatePositionEveryXLoops == 0) {
+        collectorState->updateRoboterPositionAndAngles();
+        collectorState->navigate();
+    }
 
     /*if (terminate){
         Serial1.println(testInput);
