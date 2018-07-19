@@ -46,6 +46,7 @@ public:
     int photoSensorRight;
     int photoSensorBack;
     long lastPhotoSensorUpdate;
+    int calibratedLightSensorThreshhold;
 
 
     unsigned long photoSensorTimer;

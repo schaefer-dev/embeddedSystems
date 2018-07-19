@@ -48,6 +48,7 @@ ScoutState::ScoutState() {
     collectorX = 0.0f;
     collectorY = 0.0f;
     collectorAngle = 0.0f;
+    calibratedLightSensorThreshhold = 0;
 }
 
 /*
@@ -179,8 +180,8 @@ void ScoutState::navigate(){
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void ScoutState::generateDestination() {
-    destinationX = (random() % (ARENA_SIZE_X - 10)) + 5;
-    destinationY = (random() % (ARENA_SIZE_Y - 10)) + 5;
+    destinationX = (random() % (ARENA_SIZE_X - 30)) + 15;
+    destinationY = (random() % (ARENA_SIZE_Y - 30)) + 15;
 
 #ifdef DEBUG
     ScoutSerial::serialWrite("New Random Goal:\nX: ", 20);
@@ -305,10 +306,16 @@ void ScoutState::handleHighPhotoReadings() {
                                    Utility::maximum(photoSensorLeft, photoSensorRight));
 
     if (photoSensorTimer == 0){
-
-        if (readingsMax < PHOTOSENSOR_TRESHOLD){
+#ifdef SCOUT_GAME
+        if (readingsMax < calibratedLightSensorThreshhold){
             return;
         }
+#endif
+#ifndef SCOUT_GAME
+        if (readingsMax < PHOTOSENSOR_THRESHOLD_NO_GAME){
+            return;
+        }
+#endif
 
         photoSensorTimer = millis() + MSToCheckPhotosensorsBeforeMaximumSent;
         photoSensorCurrentMax = readingsMax;

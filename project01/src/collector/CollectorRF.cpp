@@ -326,9 +326,10 @@ void CollectorRF::sendMessageTo(uint8_t *receiverAdress, uint8_t *payloadArray, 
     write5ByteAdress(RF_REGISTER_TX_REG, receiverAdress);
     /* Write Referee adress to TX Register */
     write5ByteAdress(RF_REGISTER_RX_ADDR_P0, receiverAdress);
+#ifdef COLLECTOR_DEBUG
     Serial1.print("DEBUG: adresses written");
     CollectorRF::debug_RFModule();
-
+#endif
     /* switch to TX mode */
     writeRegister(RF_REGISTER_CONFIG, 14);
 

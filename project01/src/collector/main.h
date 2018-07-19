@@ -14,7 +14,7 @@
 
 #define UDATE_POSITION_EVERY_X_LOOPS 10
 
-#define COLLECTOR_DEBUG
+//#define COLLECTOR_DEBUG
 
 /* Scenario enabling disabling */
 // #define COLLECTOR_SCENARIO_RELAY
@@ -24,7 +24,7 @@
 // #define COLLECTOR_LINE_SENSOR_READINGS
 // #define COLLECTOR_HUNT_OBJECT
 
-// #define COLLECTOR_GAME
+#define COLLECTOR_GAME
 
 // #define COLLECTOR_MONITOR
 

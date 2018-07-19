@@ -147,9 +147,12 @@ void setup() {
      */
 #endif
 
+
     Serial1.print("GO!!!\n");
     collectorState->destinationReached = true;
     collectorState->drivingDisabled = false;
+
+    collectorState->generateDestination();
 
 }
 
@@ -255,6 +258,7 @@ void homing() {
 
     delay(1);
     collectorState->updateRoboterPositionAndAngles();
+
 }
 
 

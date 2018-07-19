@@ -79,9 +79,9 @@ void CollectorState::navigate() {
     if (destinationReached) {
         if (!isHarvestDestination) {
             // if this was a random destination, continue driving randomly
-            //generateDestination();
+            generateDestination();
 #ifdef COLLECTOR_DEBUG
-            //Serial1.print("Generate random destination");
+            Serial1.print("Generate random destination");
 #endif
             return;
         } else {
@@ -271,8 +271,8 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    destinationX = random(10, ARENA_SIZE_X - 10);
-    destinationY = random(10, ARENA_SIZE_Y - 10);
+    destinationX = random(15, ARENA_SIZE_X - 15);
+    destinationY = random(15, ARENA_SIZE_Y - 15);
 
     destinationReached = false;
     drivingDisabled = false;
