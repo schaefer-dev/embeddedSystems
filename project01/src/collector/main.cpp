@@ -146,7 +146,7 @@ void setup() {
 #endif
      */
 #endif
-    
+
 
     Serial1.print("GO!!!\n");
     collectorState->destinationReached = true;
