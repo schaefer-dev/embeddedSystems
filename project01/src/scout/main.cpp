@@ -73,7 +73,14 @@ void initialize() {
     ScoutSerial::serialWrite("CONFIG received\n", 16);
 
     // wait until the light turns on
-    delay(3100);
+    delay(4000);
+    ScoutSerial::serialWrite("Calibrated\n", 11);
+
+    scoutState->updatePhotoSensorReadings();
+    scoutState->updatePhotoSensorReadings();
+    scoutState->calibratedLightSensorThreshhold = scoutState->photoSensorFront - PHOTOSENSOR_MINUS_CALIBRATED;
+    ScoutSerial::serialWriteInt(scoutState->calibratedLightSensorThreshhold);
+
 
     // wait until the light turns off
     ScoutSerial::serialWrite("Waiting for GO Message\n", 24);

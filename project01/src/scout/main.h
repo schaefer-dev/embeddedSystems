@@ -17,6 +17,9 @@
 #define photophobicWaitThreshold 50
 #define photophobicDanceThreshold 100
 #define PHOTOPHOBIC_ROTATION 60
+#define PHOTOSENSOR_MINUS_CALIBRATED 20
+
+#define PHOTOSENSOR_THRESHOLD_NO_GAME 200
 
 
 /* Scenarios enabling disabling */
