@@ -133,8 +133,8 @@ void setup() {
     // wait until the light turns on
     delay(3100);
 
-    int calibrationDuration = 2000;
-    CollectorLineSensors::calibrate(collectorState, calibrationDuration);
+    //int calibrationDuration = 2000;
+    //CollectorLineSensors::calibrate(collectorState, calibrationDuration);
 
     // wait until the light turns off
     Serial1.print("Waiting for GO\n");

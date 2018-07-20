@@ -76,6 +76,20 @@ void ScoutState::navigate(){
         return;
     }*/
 
+    /*  check if collision has just happened  */
+    if (unhandledCollisionFlag){
+        driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        unhandledCollisionFlag = false;
+        return;
+    }
+
+    /*  check if we still have to drive backwards */
+    if (millis() <= driveBackwardsUntil){
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        return;
+    }
+
     unsigned long timeSinceLastPositionUpdate = millis() - lastPositionUpdateReceivedAtTime;
 
     if (timeSinceLastPositionUpdate > 4000) {
@@ -101,20 +115,6 @@ void ScoutState::navigate(){
     if (destinationReached == true){
         setSpeeds(0,0);
         generateDestination();
-        return;
-    }
-
-    /*  check if collision has just happened  */
-    if (unhandledCollisionFlag){
-        driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
-        setSpeeds(backwardsSpeed, backwardsSpeed);
-        unhandledCollisionFlag = false;
-        return;
-    }
-
-    /*  check if we still have to drive backwards */
-    if (millis() <= driveBackwardsUntil){
-        setSpeeds(backwardsSpeed, backwardsSpeed);
         return;
     }
 

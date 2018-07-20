@@ -71,6 +71,20 @@ void CollectorState::navigate() {
     unsigned long timeSinceLastHarvestingReached = currentMillis - harvestPositionReachedAtTime;
     unsigned long timeSinceLastPositionUpdate = currentMillis - lastPositionUpdateAtTime;
 
+    /*  check if collision has just happened  */
+    if (unhandledCollisionFlag) {
+        driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        unhandledCollisionFlag = false;
+        return;
+    }
+
+    /*  check if we still have to drive backwards */
+    if (millis() <= driveBackwardsUntil) {
+        setSpeeds(backwardsSpeed, backwardsSpeed);
+        return;
+    }
+
     if (timeSinceLastPositionUpdate > 4000) {
         if (timeSinceLastPositionUpdate > 6000) {
             // we missed the position update, act as if we received it
@@ -113,20 +127,6 @@ void CollectorState::navigate() {
             isHarvestDestination = false;
             return;
         }
-    }
-
-    /*  check if collision has just happened  */
-    if (unhandledCollisionFlag) {
-        driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
-        setSpeeds(backwardsSpeed, backwardsSpeed);
-        unhandledCollisionFlag = false;
-        return;
-    }
-
-    /*  check if we still have to drive backwards */
-    if (millis() <= driveBackwardsUntil) {
-        setSpeeds(backwardsSpeed, backwardsSpeed);
-        return;
     }
 
     // check if destination reached
