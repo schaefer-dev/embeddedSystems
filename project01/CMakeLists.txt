@@ -27,4 +27,4 @@ target_compile_definitions(scout PUBLIC SCOUT=1)
 
 # Collector Executable
 add_zumo_executable(collector
-        src/collector/main.cpp src/utils/Coordinates.cpp src/collector/CollectorState.cpp src/collector/CollectorMonitor.cpp src/collector/CollectorSPI.cpp src/utils/Utility.cpp src/collector/CollectorRF.cpp src/collector/CollectorLineSensors.cpp src/collector/spi_c.cpp src/collector/platform_c.cpp)
+        src/collector/main.cpp src/utils/Coordinates.cpp src/collector/CollectorState.cpp src/collector/CollectorMonitor.cpp src/utils/Utility.cpp src/collector/CollectorRF.cpp src/collector/CollectorLineSensors.cpp src/collector/spi_c.cpp src/collector/platform_c.cpp)
