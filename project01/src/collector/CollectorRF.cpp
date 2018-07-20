@@ -265,6 +265,9 @@ void CollectorRF::processReceivedMessage(CollectorState *collectorState) {
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
+            collectorState->destinationReached = false;
+            collectorState->destinationX = ARENA_SIZE_X / 2;
+            collectorState->destinationY = ARENA_SIZE_Y / 2;
             break;
 
         case 0x66: {
