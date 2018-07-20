@@ -206,7 +206,7 @@ void calibrateLightSensorReadings() {
     scoutState->updatePhotoSensorReadings();
     scoutState->updatePhotoSensorReadings();
     scoutState->calibratedLightSensorThreshhold = scoutState->photoSensorFront;
-    ScoutSerial::serialWriteInt(scoutState->calibratedLightSensorThreshhold);
+    ScoutSerial::serialWriteInt(scoutState->photoSensorFront);
 
 
     // wait until the light turns on
@@ -215,12 +215,12 @@ void calibrateLightSensorReadings() {
 
     scoutState->updatePhotoSensorReadings();
     scoutState->updatePhotoSensorReadings();
-    scoutState->calibratedLightSensorThreshhold += scoutState->photoSensorFront;
+    scoutState->calibratedLightSensorThreshhold += 2 * scoutState->photoSensorFront;
     ScoutSerial::serialWriteInt(scoutState->photoSensorFront);
 
 
     ScoutSerial::serialWrite("Median: ", 8);
-    scoutState->calibratedLightSensorThreshhold = scoutState->calibratedLightSensorThreshhold / 2;
+    scoutState->calibratedLightSensorThreshhold = scoutState->calibratedLightSensorThreshhold / 3;
     ScoutSerial::serialWriteInt(scoutState->calibratedLightSensorThreshhold);
 
 

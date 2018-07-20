@@ -5,6 +5,7 @@
 #include "../utils/Utility.h"
 #include <math.h>
 #include <stdlib.h>
+#include <Zumo32U4Motors.h>
 #include "main.h"
 #include "ScoutRF.h"
 #include "adc.h"
@@ -201,7 +202,7 @@ void ScoutState::navigate(){
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void ScoutState::generateDestination() {
-    destinationX = (random() % (ARENA_SIZE_X - 40)) + 20;
+    destinationX = (random() % (ARENA_SIZE_X - 60)) + 30;
     destinationY = (random() % (ARENA_SIZE_Y - 40)) + 20;
 
 #ifdef DEBUG
@@ -367,6 +368,14 @@ void ScoutState::handleHighPhotoReadings() {
     harvestUpdate[6] = ( (int) (photoY * 10) ) % 256;
 
     ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
+
+    unsigned long driveBackwardsuntil = millis() + 500;
+    OrangutanMotors::setSpeeds(-30, -30);
+    while(millis() < driveBackwardsuntil){
+        checkForNewRFMessage();
+    }
+
+
 
     // TESTING CODE: Send OOB message 5s after sending harvesting position to Collector. Update to: x:10 y:10 angle:0
     /*delay(3000);

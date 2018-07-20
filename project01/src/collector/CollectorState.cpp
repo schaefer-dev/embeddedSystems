@@ -294,7 +294,7 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    destinationX = random(20, ARENA_SIZE_X - 20);
+    destinationX = random(30, ARENA_SIZE_X - 30);
     destinationY = random(20, ARENA_SIZE_Y - 20);
 
     destinationReached = false;
