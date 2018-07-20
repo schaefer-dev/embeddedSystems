@@ -152,8 +152,9 @@ void setup() {
     collectorState->destinationReached = true;
     collectorState->drivingDisabled = false;
 
-    collectorState->generateDestination();
-
+    collectorState->destinationReached = false;
+    collectorState->destinationX = ARENA_SIZE_X / 2;
+    collectorState->destinationY = ARENA_SIZE_Y / 2;
 }
 
 void loop() {
