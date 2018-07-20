@@ -1,0 +1,18 @@
+1. Scout und Collector Geschwindigkeiten festlegen und darauf Kalibrieren 
+	(kann schneller sein als Ref tracken kann falls Stillstand kurz vor Positionsupdate, 
+		bei Max nachfragen ob Positionsupdates weiterhin so regelmäßig ankommen).
+		
+2. Scout alle 4 Lichtsensoren einzeln bei hell und dunkel messen und Threshold berechnen.
+	(bei Max nachfragen wie die Lichtverhältnisse bei der Abnahne/Turnier sein werden
+		und Potentiometer entsprechend einstellen)
+		
+3. Scout Lichtsensoren einzeln abfragen und versuchen dem Licht zu folgen.
+
+4. Roboter tauschen ihre Positionen aus, bei Kollisionskurs Ausweichtaktik implementieren.
+
+5. Roboter bleiben 4 Sekunden nach Positionsupdate stehen falls Distanz > x zurückgelegt und warten auf neues Update.
+
+6. Collectorkollision testen (500ms zurückfahren und drehen).
+
+7. Vollwertigen Scheduler implementieren um Spezifikation zu gewährleisten.
+
