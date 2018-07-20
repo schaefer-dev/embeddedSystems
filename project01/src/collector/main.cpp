@@ -47,16 +47,12 @@ void setup() {
     statusRF = 0;
     updatePositionEveryXLoops = 0;
 
-    CollectorLineSensors::init(collectorState);
+    //CollectorLineSensors::init(collectorState);
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
     collectorState->resetDifferentialDrive(0, 0, 0);
     collectorState->lastDiffDriveCall = millis();
-
-
-    performRotation(40);
-    delay(5000);
 
 
 #ifdef COLLECTOR_PROXIMITY_ENABLED
