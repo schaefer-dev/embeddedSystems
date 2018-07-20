@@ -73,6 +73,7 @@ void CollectorState::navigate() {
 
     /*  check if collision has just happened  */
     if (unhandledCollisionFlag) {
+        Serial1.println("COLLISON HAPPENED");
         driveBackwardsUntil = millis() + DRIVE_BACKWARDS_TIME;
         setSpeeds(backwardsSpeed, backwardsSpeed);
         unhandledCollisionFlag = false;
@@ -81,6 +82,7 @@ void CollectorState::navigate() {
 
     /*  check if we still have to drive backwards */
     if (millis() <= driveBackwardsUntil) {
+        Serial1.println("COL..");
         setSpeeds(backwardsSpeed, backwardsSpeed);
         return;
     }

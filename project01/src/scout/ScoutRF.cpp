@@ -184,15 +184,6 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             // TODO
             break;
 
-        case 0x02:
-            /* Collision case -> force robot to drive backwards (with low speed) for 500ms*/
-            scoutState->unhandledCollisionFlag = true;
-            ScoutSerial::serialWrite("Collision received!\n", 20);
-            receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
-                             payloadArray[3] * 256 + payloadArray[4],
-                             payloadArray[5] * 256 + payloadArray[6]);
-            break;
-
         case 0x30:
             /* received Position of Teammate */
             scoutState->collectorAngle = (float) (payloadArray[1] * 256 + payloadArray[2]);
@@ -265,6 +256,15 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             scoutState->destinationReached = false;
             scoutState->destinationX = ARENA_SIZE_X / 2;
             scoutState->destinationY = ARENA_SIZE_Y / 2;
+            break;
+
+        case 0x62:
+            /* Collision case -> force robot to drive backwards (with low speed) for 500ms*/
+            scoutState->unhandledCollisionFlag = true;
+            ScoutSerial::serialWrite("Collision received!\n", 20);
+            receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
+                             payloadArray[3] * 256 + payloadArray[4],
+                             payloadArray[5] * 256 + payloadArray[6]);
             break;
 
         case 0x70:

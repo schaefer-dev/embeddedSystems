@@ -3,7 +3,7 @@
 
 
 #define OOB_PUNISH_TIME_MS 31000
-#define DRIVE_BACKWARDS_TIME 500
+#define DRIVE_BACKWARDS_TIME 600
 
 #define DO_NOT_ROTATE_AGAIN_MS 500
 #define NAV_NONE 0
@@ -36,7 +36,7 @@ public:
 
     bool unhandledCollisionFlag;
     unsigned long driveBackwardsUntil;
-    const int backwardsSpeed = -30;
+    const int backwardsSpeed = -100;
 
     const int forwardSpeed = 100;
     const int turningSpeed = 100;
