@@ -31,6 +31,8 @@ int statusRF = 0;
 bool terminate;
 unsigned int updatePositionEveryXLoops = 0;
 
+unsigned long lastPositionSentAtTime = 0;
+
 void setup() {
     // 1.1. Place the robot in the arena, 1 sec to do this
     //delay(1000);
@@ -167,7 +169,11 @@ void loop() {
     if (updatePositionEveryXLoops == 0) {
         collectorState->updateRoboterPositionAndAngles();
         collectorState->navigate();
-        collectorState->sendPosToTeammate();
+
+        unsigned long timeSinceLastPositionSent = millis() - lastPositionSentAtTime;
+        if (timeSinceLastPositionSent < 3000) {
+            collectorState->sendPosToTeammate();
+        }
     }
 
     /*if (terminate){

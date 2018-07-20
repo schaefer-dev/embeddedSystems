@@ -88,6 +88,8 @@ void initialize() {
 }
 
 int main() {
+    unsigned long lastPositionSentAtTime = 0;
+
     initialize();
 
 #ifdef DEBUG_SERIAL_PORT_ECHO
@@ -107,16 +109,6 @@ int main() {
 
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
-        scoutState->sendPosToTeammate();
-
-
-        /* Send message to collector test
-        uint8_t payloadArray[2];
-        payloadArray[0] = 0x42;
-        payloadArray[1] = (uint8_t) (14);
-        ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
-        ScoutSerial::serialWrite("HELLO sent\n", 11);
-        delay(200); */
 
         checkLightsIterator = checkLightsIterator % checkPhotoSensorEveryXLoops;
         if (checkLightsIterator == 0) {
@@ -129,6 +121,13 @@ int main() {
         if (updatePositionEveryXLoops == 0) {
             scoutState->updateRoboterPositionAndAngles();
             scoutState->navigate();
+
+            // share position with collector every 2 seconds
+            unsigned long timeSinceLastPositionSent = millis() - lastPositionSentAtTime;
+            if (timeSinceLastPositionSent > 2000) {
+                scoutState->sendPosToTeammate();
+                lastPositionSentAtTime = millis();
+            }
         }
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
