@@ -367,3 +367,32 @@ void generateBrightnessLevels() {
 }
 
 
+void performStraightDrive(int cmLength) {
+    float startX = collectorState->currentX;
+    float targetX = startX + cmLength;
+    bool loopCondition = true;
+
+    while (loopCondition) {
+
+        // drive straight
+        collectorState->setSpeeds(collectorState->forwardSpeed, collectorState->forwardSpeed);
+
+        delay(10);
+
+        collectorState->updateRoboterPositionAndAngles();
+
+        /* rotation completed condition */
+        if (collectorState->currentX > targetX) {
+            loopCondition = false;
+#ifdef COLLECTOR_DEBUG
+            Serial1.println("Driving performed!");
+#endif
+            collectorState->setSpeeds(0, 0);
+
+        } else {
+#ifdef COLLECTOR_DEBUG
+            Serial1.println(collectorState->currentX);
+#endif
+        }
+    }
+}
