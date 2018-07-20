@@ -89,11 +89,6 @@ void initialize() {
 
 int main() {
     initialize();
-    delay(5000);
-    performStraightDrive(120);
-    delay(8000);
-    performRotation(720);
-    return 1;
 
 #ifdef DEBUG_SERIAL_PORT_ECHO
     char serialMessage[50];

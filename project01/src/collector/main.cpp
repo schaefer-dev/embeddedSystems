@@ -155,17 +155,9 @@ void setup() {
     collectorState->destinationReached = false;
     collectorState->destinationX = ARENA_SIZE_X / 2;
     collectorState->destinationY = ARENA_SIZE_Y / 2;
-
-    delay(5000);
-    performStraightDrive(120);
-    delay(8000);
-    performRotation(720);
 }
 
 void loop() {
-
-    return;
-
     /* ALWAYS check for new RF Message */
     checkForNewRFMessage();
 

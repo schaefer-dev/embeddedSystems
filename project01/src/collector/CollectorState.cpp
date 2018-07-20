@@ -9,7 +9,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 20.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 6.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
@@ -271,8 +271,8 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    destinationX = random(15, ARENA_SIZE_X - 15);
-    destinationY = random(15, ARENA_SIZE_Y - 15);
+    destinationX = random(20, ARENA_SIZE_X - 20);
+    destinationY = random(20, ARENA_SIZE_Y - 20);
 
     destinationReached = false;
     drivingDisabled = false;

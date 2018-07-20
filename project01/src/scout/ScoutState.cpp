@@ -13,7 +13,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 15.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 6.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
@@ -180,8 +180,8 @@ void ScoutState::navigate(){
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void ScoutState::generateDestination() {
-    destinationX = (random() % (ARENA_SIZE_X - 30)) + 15;
-    destinationY = (random() % (ARENA_SIZE_Y - 30)) + 15;
+    destinationX = (random() % (ARENA_SIZE_X - 40)) + 20;
+    destinationY = (random() % (ARENA_SIZE_Y - 40)) + 20;
 
 #ifdef DEBUG
     ScoutSerial::serialWrite("New Random Goal:\nX: ", 20);
