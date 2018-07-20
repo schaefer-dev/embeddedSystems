@@ -55,6 +55,10 @@ void setup() {
     collectorState->lastDiffDriveCall = millis();
 
 
+    performRotation(40);
+    delay(5000);
+
+
 #ifdef COLLECTOR_PROXIMITY_ENABLED
     proximitySensors = new Zumo32U4ProximitySensors();
     generateBrightnessLevels();

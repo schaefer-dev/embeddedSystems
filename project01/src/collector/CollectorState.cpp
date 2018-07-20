@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <Arduino.h>
-#include <cmath> #include "main.h"
+#include "main.h"
 #include "CollectorRF.h"
 
 // 0,0 is top left corner
