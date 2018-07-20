@@ -1,4 +1,4 @@
-1. Scout und Collector Geschwindigkeiten festlegen und darauf Kalibrieren 
+DONE 1. Scout und Collector Geschwindigkeiten festlegen und darauf Kalibrieren 
 	(kann schneller sein als Ref tracken kann falls Stillstand kurz vor Positionsupdate, 
 		bei Max nachfragen ob Positionsupdates weiterhin so regelmäßig ankommen).
 		

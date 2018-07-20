@@ -262,6 +262,9 @@ void ScoutRF::processReceivedMessage(ScoutState *scoutState) {
             receivePosUpdate(payloadArray[1] * 256 + payloadArray[2],
                              payloadArray[3] * 256 + payloadArray[4],
                              payloadArray[5] * 256 + payloadArray[6]);
+            scoutState->destinationReached = false;
+            scoutState->destinationX = ARENA_SIZE_X / 2;
+            scoutState->destinationY = ARENA_SIZE_Y / 2;
             break;
 
         case 0x70:

@@ -9,7 +9,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 20.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 6.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
@@ -40,6 +40,8 @@ CollectorState::CollectorState() {
 
     unhandledCollisionFlag = false;
     driveBackwardsUntil = millis();
+
+    lastPositionUpdateAtTime = 0;
 }
 
 /*
@@ -57,7 +59,27 @@ float CollectorState::getAngle() {
 /* drives towards current destination */
 void CollectorState::navigate() {
 
-    unsigned long timeSinceLastHarvestingReached = millis() - harvestPositionReachedAtTime;
+    /*double distanceToScout = sqrt(
+            (scoutPosX - currentX) * (scoutPosX - currentX) - (scoutPosY - currentY) * (scoutPosY - currentY));
+
+    if (distanceToScout < 20) {
+        setSpeeds(0, 0);
+        return;
+    }*/
+
+    unsigned long currentMillis = millis();
+    unsigned long timeSinceLastHarvestingReached = currentMillis - harvestPositionReachedAtTime;
+    unsigned long timeSinceLastPositionUpdate = currentMillis - lastPositionUpdateAtTime;
+
+    if (timeSinceLastPositionUpdate > 4000) {
+        if (timeSinceLastPositionUpdate > 6000) {
+            // we missed the position update, act as if we received it
+            lastPositionUpdateAtTime += 5000;
+        } else {
+            setSpeeds(0, 0);
+            return;
+        }
+    }
 
     if (timeSinceLastHarvestingReached < 5000 && millis() > 5000) {
 #ifdef COLLECTOR_DEBUG
@@ -88,6 +110,7 @@ void CollectorState::navigate() {
             // if this was a harvest position, do X
             Serial1.print("Harvest reached");
             harvestPositionReachedAtTime = millis();
+            isHarvestDestination = false;
             return;
         }
     }
@@ -149,7 +172,7 @@ void CollectorState::navigate() {
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("straight...");
+        //Serial1.println("straight...");
 #endif
         return;
     }
@@ -163,7 +186,7 @@ void CollectorState::navigate() {
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("straight");
+        //Serial1.println("straight");
 #endif
         return;
     }
@@ -173,14 +196,14 @@ void CollectorState::navigate() {
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("turning left!");
+        //Serial1.println("turning left!");
 #endif
     } else {
         // turn right
         navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("turning right!");
+        //Serial1.println("turning right!");
 #endif
     }
 
@@ -265,14 +288,15 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
     destinationReached = false;
     drivingDisabled = false;
     isHarvestDestination = true;
+    harvestPositionReachedAtTime = 0;
 }
 
 /**
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    destinationX = random(15, ARENA_SIZE_X - 15);
-    destinationY = random(15, ARENA_SIZE_Y - 15);
+    destinationX = random(30, ARENA_SIZE_X - 30);
+    destinationY = random(20, ARENA_SIZE_Y - 20);
 
     destinationReached = false;
     drivingDisabled = false;
@@ -291,8 +315,7 @@ void CollectorState::scoutPositionMessage(float angle, float x, float y) {
     scoutPosY = y;
 }
 
-void CollectorState::sendPositionUpdate() {
-
+void CollectorState::sendPosToTeammate() {
     uint8_t payloadArray[7];
     payloadArray[0] = 0x30;
 
@@ -315,7 +338,7 @@ void CollectorState::danceBlocking() {
 
         delay(10);
     }
-    setSpeeds(0,0);
+    setSpeeds(0, 0);
     drivingDisabled = true;
 }
 

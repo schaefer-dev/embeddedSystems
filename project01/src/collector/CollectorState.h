@@ -13,8 +13,7 @@
 #define NAV_DRIVING_STRAIGHT 4
 
 
-class CollectorState
-{
+class CollectorState {
 
 public:
     CollectorState();
@@ -42,26 +41,40 @@ public:
     const int forwardSpeed = 100;
     const int turningSpeed = 100;
 
-    /* for base speed rotation of 100, 0.47f perfect */
-    /* for base speed rotation of 200, 0.55f perfect */
-    const float rotationImprecision = 0.47f;     // simple approximation for friction when turning
-    const float straightImprecision = 0.665f;     // simple approximation for friction when driving straight
+    // Calibration, forward: 100, turning: 100, straight: 0.55f, rotation: 0.35f
+    // Calibration, forward: 150, turning: 150, straight: 0.6f, rotation: 0.435f
+
+    // wenn zu weit dann wert erhöhen
+
+    const float straightImprecision = 0.55f;     // simple approximation for friction when driving straight
+    const float rotationImprecision = 0.35f;     // simple approximation for friction when turning
 
     bool configurationReceived = false;
     bool gameStarted = false;
 
     unsigned long harvestPositionReachedAtTime;
+    unsigned long lastPositionUpdateAtTime;
 
     int scoutPosX, scoutPosY, scoutAngle;
+
     float getAngle();
+
     void resetDifferentialDrive(float x, float y, float a);
+
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
+
     void updateRoboterPositionAndAngles();
+
     void outOfBoundsMessage();
+
     void harvestPositionMessage(int, int, int);
+
     void navigate();
+
     void generateDestination();
-    void sendPositionUpdate();
+
+    void sendPosToTeammate();
+
     void danceBlocking();
 
     void scoutPositionMessage(float angle, float x, float y);

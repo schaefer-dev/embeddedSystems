@@ -31,6 +31,8 @@ int statusRF = 0;
 bool terminate;
 unsigned int updatePositionEveryXLoops = 0;
 
+unsigned long lastPositionSentAtTime = 0;
+
 void setup() {
     // 1.1. Place the robot in the arena, 1 sec to do this
     //delay(1000);
@@ -45,7 +47,7 @@ void setup() {
     statusRF = 0;
     updatePositionEveryXLoops = 0;
 
-    CollectorLineSensors::init(collectorState);
+    //CollectorLineSensors::init(collectorState);
 
     // initialize differential updateRoboterPositionAndAngles
     collectorState->setSpeeds(0, 0);
@@ -152,8 +154,9 @@ void setup() {
     collectorState->destinationReached = true;
     collectorState->drivingDisabled = false;
 
-    collectorState->generateDestination();
-
+    collectorState->destinationReached = false;
+    collectorState->destinationX = ARENA_SIZE_X / 2;
+    collectorState->destinationY = ARENA_SIZE_Y / 2;
 }
 
 void loop() {
@@ -166,6 +169,11 @@ void loop() {
     if (updatePositionEveryXLoops == 0) {
         collectorState->updateRoboterPositionAndAngles();
         collectorState->navigate();
+
+        unsigned long timeSinceLastPositionSent = millis() - lastPositionSentAtTime;
+        if (timeSinceLastPositionSent < 3000) {
+            collectorState->sendPosToTeammate();
+        }
     }
 
     /*if (terminate){
@@ -238,6 +246,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 #endif
 
     collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
+    collectorState->lastPositionUpdateAtTime = millis();
 };
 
 
@@ -367,3 +376,32 @@ void generateBrightnessLevels() {
 }
 
 
+void performStraightDrive(int cmLength) {
+    float startX = collectorState->currentX;
+    float targetX = startX + cmLength;
+    bool loopCondition = true;
+
+    while (loopCondition) {
+
+        // drive straight
+        collectorState->setSpeeds(collectorState->forwardSpeed, collectorState->forwardSpeed);
+
+        delay(10);
+
+        collectorState->updateRoboterPositionAndAngles();
+
+        /* rotation completed condition */
+        if (collectorState->currentX > targetX) {
+            loopCondition = false;
+#ifdef COLLECTOR_DEBUG
+            Serial1.println("Driving performed!");
+#endif
+            collectorState->setSpeeds(0, 0);
+
+        } else {
+#ifdef COLLECTOR_DEBUG
+            Serial1.println(collectorState->currentX);
+#endif
+        }
+    }
+}

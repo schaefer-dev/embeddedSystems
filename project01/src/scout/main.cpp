@@ -72,15 +72,8 @@ void initialize() {
     }
     ScoutSerial::serialWrite("CONFIG received\n", 16);
 
-    // wait until the light turns on
-    delay(4000);
-    ScoutSerial::serialWrite("Calibrated\n", 11);
 
-    scoutState->updatePhotoSensorReadings();
-    scoutState->updatePhotoSensorReadings();
-    scoutState->calibratedLightSensorThreshhold = scoutState->photoSensorFront - PHOTOSENSOR_MINUS_CALIBRATED;
-    ScoutSerial::serialWriteInt(scoutState->calibratedLightSensorThreshhold);
-
+    calibrateLightSensorReadings();
 
     // wait until the light turns off
     ScoutSerial::serialWrite("Waiting for GO Message\n", 24);
@@ -95,6 +88,8 @@ void initialize() {
 }
 
 int main() {
+    unsigned long lastPositionSentAtTime = 0;
+
     initialize();
 
 #ifdef DEBUG_SERIAL_PORT_ECHO
@@ -115,15 +110,6 @@ int main() {
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
 
-
-        /* Send message to collector test
-        uint8_t payloadArray[2];
-        payloadArray[0] = 0x42;
-        payloadArray[1] = (uint8_t) (14);
-        ScoutRF::sendMessageTo(ScoutRF::collectorAdress, payloadArray, 2);
-        ScoutSerial::serialWrite("HELLO sent\n", 11);
-        delay(200); */
-
         checkLightsIterator = checkLightsIterator % checkPhotoSensorEveryXLoops;
         if (checkLightsIterator == 0) {
             scoutState->handleHighPhotoReadings();
@@ -135,6 +121,13 @@ int main() {
         if (updatePositionEveryXLoops == 0) {
             scoutState->updateRoboterPositionAndAngles();
             scoutState->navigate();
+
+            // share position with collector every 2 seconds
+            unsigned long timeSinceLastPositionSent = millis() - lastPositionSentAtTime;
+            if (timeSinceLastPositionSent > 2000) {
+                scoutState->sendPosToTeammate();
+                lastPositionSentAtTime = millis();
+            }
         }
 
 #ifdef SCENARIO_DEBUG_SEND_MESSAGES_CONTINIOUS
@@ -205,6 +198,31 @@ int main() {
         delay(1);
 
     }
+}
+
+void calibrateLightSensorReadings() {
+
+    ScoutSerial::serialWrite("Reading Dark: ", 14);
+    scoutState->updatePhotoSensorReadings();
+    scoutState->updatePhotoSensorReadings();
+    scoutState->calibratedLightSensorThreshhold = scoutState->photoSensorFront;
+    ScoutSerial::serialWriteInt(scoutState->photoSensorFront);
+
+
+    // wait until the light turns on
+    delay(3500);
+    ScoutSerial::serialWrite("Reading Bright: ", 16);
+
+    scoutState->updatePhotoSensorReadings();
+    scoutState->updatePhotoSensorReadings();
+    scoutState->calibratedLightSensorThreshhold += 2 * scoutState->photoSensorFront;
+    ScoutSerial::serialWriteInt(scoutState->photoSensorFront);
+
+
+    ScoutSerial::serialWrite("Median: ", 8);
+    scoutState->calibratedLightSensorThreshhold = scoutState->calibratedLightSensorThreshhold / 3;
+    ScoutSerial::serialWriteInt(scoutState->calibratedLightSensorThreshhold);
+
 
 }
 
@@ -223,6 +241,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y) {
     int currentY = y / 10.0f;
 
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
+    scoutState->lastPositionUpdateReceivedAtTime = millis();
 };
 
 
@@ -426,6 +445,42 @@ void performRotation(int degrees) {
             scoutState->setSpeeds(0, 0);
         }
     }
+}
+
+
+
+void performStraightDrive(int cmLength) {
+    float startX = scoutState->currentX;
+    float targetX = startX + cmLength;
+    bool loopCondition = true;
+
+    while (loopCondition) {
+
+        // drive straight
+        scoutState->setSpeeds(scoutState->forwardSpeed, scoutState->forwardSpeed);
+
+        delay(10);
+
+        scoutState->updateRoboterPositionAndAngles();
+
+        /* rotation completed condition */
+        if (scoutState->currentX > targetX) {
+            loopCondition = false;
+#ifdef DEBUG
+            //serial_send("Driving performed!\n", 19);
+#endif
+            scoutState->setSpeeds(0, 0);
+
+        } else {
+#ifdef DEBUG
+            //Serial1.println(scoutState->currentX);
+#endif
+        }
+    }
+}
+
+void sharePosition() {
+
 }
 
 

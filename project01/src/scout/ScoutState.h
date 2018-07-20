@@ -64,16 +64,17 @@ public:
     const int backwardsSpeed = -20;
 
 
-    const int forwardSpeed = 40;
-    const int turningSpeed = 25;
+    const int forwardSpeed = 50;
+    const int turningSpeed = 30;
 
-    // Calibrated for forward=80, turning=50  rotation=2.1 and straight=2.3
+    // Calibrated for forward=80, turning=50  rotation=2.2 and straight=2.3
+    // Calibrated for forward=50, turning=30, rotation=2.1 and straight=2.3
     const float rotationImprecision = 2.1f;     // simple approximation for friction when turning
     const float straightImprecision = 2.3f;     // simple approximation for friction when driving straight
 
     bool configurationReceived = false;
     bool gameStarted = false;
-
+    unsigned long lastPositionUpdateReceivedAtTime;
 
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);
@@ -84,13 +85,11 @@ public:
     void outOfBoundsMessage();
     void navigate();
     void generateDestination();
+    void sendPosToTeammate();
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;
     static constexpr float WHEEL_DISTANCE = 9.3f;
-
-
-    void sendPosToTeammate();
 };
 
 #endif //EMBEDDEDSYSTEMS18_SCOUTSTATE_H

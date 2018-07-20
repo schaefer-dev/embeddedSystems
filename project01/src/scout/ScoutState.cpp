@@ -5,6 +5,7 @@
 #include "../utils/Utility.h"
 #include <math.h>
 #include <stdlib.h>
+#include <Zumo32U4Motors.h>
 #include "main.h"
 #include "ScoutRF.h"
 #include "adc.h"
@@ -13,7 +14,7 @@
 // 0,0 is top left corner
 // degrees grow in clockwise rotation
 
-const float theta_rotation_threshhold = 15.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
+const float theta_rotation_threshhold = 6.0f;      // for turningSpeed = 100, value > 11 prevents quick direction changes
 const float destination_reached_threshhold = 3.0f;  // for forwardSpeed = 200, value > 2.5 prevents overshoot
 
 //constructor
@@ -49,6 +50,7 @@ ScoutState::ScoutState() {
     collectorY = 0.0f;
     collectorAngle = 0.0f;
     calibratedLightSensorThreshhold = 0;
+    lastPositionUpdateReceivedAtTime = 0;
 }
 
 /*
@@ -66,6 +68,26 @@ float ScoutState::getAngle() {
 
 /* drives towards current destination */
 void ScoutState::navigate(){
+    /*double distanceToScout = sqrt(
+            (collectorX - currentX) * (collectorX - currentX) - (collectorY - currentY) * (collectorY - currentY));
+
+    if (distanceToScout < 20) {
+        setSpeeds(0, 0);
+        return;
+    }*/
+
+    unsigned long timeSinceLastPositionUpdate = millis() - lastPositionUpdateReceivedAtTime;
+
+    if (timeSinceLastPositionUpdate > 4000) {
+        if (timeSinceLastPositionUpdate > 6000) {
+            // we missed the position update, act as if we received it
+            lastPositionUpdateReceivedAtTime += 5000;
+        } else {
+            setSpeeds(0, 0);
+            return;
+        }
+    }
+
 
     if (drivingDisabled) {
         setSpeeds(0,0);
@@ -180,8 +202,8 @@ void ScoutState::navigate(){
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void ScoutState::generateDestination() {
-    destinationX = (random() % (ARENA_SIZE_X - 30)) + 15;
-    destinationY = (random() % (ARENA_SIZE_Y - 30)) + 15;
+    destinationX = (random() % (ARENA_SIZE_X - 60)) + 30;
+    destinationY = (random() % (ARENA_SIZE_Y - 40)) + 20;
 
 #ifdef DEBUG
     ScoutSerial::serialWrite("New Random Goal:\nX: ", 20);
@@ -346,6 +368,17 @@ void ScoutState::handleHighPhotoReadings() {
     harvestUpdate[6] = ( (int) (photoY * 10) ) % 256;
 
     ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
+
+
+    /* Nice debug code to drive backwards when sending harvesting position
+    unsigned long driveBackwardsuntil = millis() + 500;
+    OrangutanMotors::setSpeeds(-30, -30);
+    while(millis() < driveBackwardsuntil){
+        checkForNewRFMessage();
+    }
+     */
+
+
 
     // TESTING CODE: Send OOB message 5s after sending harvesting position to Collector. Update to: x:10 y:10 angle:0
     /*delay(3000);
