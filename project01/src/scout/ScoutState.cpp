@@ -49,6 +49,7 @@ ScoutState::ScoutState() {
     collectorY = 0.0f;
     collectorAngle = 0.0f;
     calibratedLightSensorThreshhold = 0;
+    lastPositionUpdateReceivedAtTime = 0;
 }
 
 /*
@@ -66,6 +67,22 @@ float ScoutState::getAngle() {
 
 /* drives towards current destination */
 void ScoutState::navigate(){
+    double distanceToScout = sqrt(
+            (collectorX - currentX) * (collectorX - currentX) - (collectorY - currentY) * (collectorY - currentY));
+
+    if (distanceToScout < 20) {
+        setSpeeds(0, 0);
+        return;
+    }
+
+
+    unsigned long timeSinceLastPositionUpdate = millis() - lastPositionUpdateReceivedAtTime;
+
+    if (timeSinceLastPositionUpdate > 4000) {
+        setSpeeds(0, 0);
+        return;
+    }
+
 
     if (drivingDisabled) {
         setSpeeds(0,0);

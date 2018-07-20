@@ -167,6 +167,7 @@ void loop() {
     if (updatePositionEveryXLoops == 0) {
         collectorState->updateRoboterPositionAndAngles();
         collectorState->navigate();
+        collectorState->sendPosToTeammate();
     }
 
     /*if (terminate){
@@ -239,6 +240,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y){
 #endif
 
     collectorState->resetDifferentialDrive(currentX, currentY, currentAngle);
+    collectorState->lastPositionUpdateAtTime = millis();
 };
 
 

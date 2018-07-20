@@ -36,8 +36,6 @@ void generateBrightnessLevels();
 void homing();
 void checkForNewRFMessage();
 void generateBrightnessLevels();
-
-
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 
 

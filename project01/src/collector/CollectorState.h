@@ -53,6 +53,7 @@ public:
     bool gameStarted = false;
 
     unsigned long harvestPositionReachedAtTime;
+    unsigned long lastPositionUpdateAtTime;
 
     int scoutPosX, scoutPosY, scoutAngle;
 
@@ -72,7 +73,7 @@ public:
 
     void generateDestination();
 
-    void sendPositionUpdate();
+    void sendPosToTeammate();
 
     void danceBlocking();
 

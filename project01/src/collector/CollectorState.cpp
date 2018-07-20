@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <Arduino.h>
-#include "main.h"
+#include <cmath> #include "main.h"
 #include "CollectorRF.h"
 
 // 0,0 is top left corner
@@ -40,6 +40,8 @@ CollectorState::CollectorState() {
 
     unhandledCollisionFlag = false;
     driveBackwardsUntil = millis();
+
+    lastPositionUpdateAtTime = 0;
 }
 
 /*
@@ -57,7 +59,22 @@ float CollectorState::getAngle() {
 /* drives towards current destination */
 void CollectorState::navigate() {
 
-    unsigned long timeSinceLastHarvestingReached = millis() - harvestPositionReachedAtTime;
+    double distanceToScout = sqrt(
+            (scoutPosX - currentX) * (scoutPosX - currentX) - (scoutPosY - currentY) * (scoutPosY - currentY));
+
+    if (distanceToScout < 20) {
+        setSpeeds(0, 0);
+        return;
+    }
+
+    unsigned long currentMillis = millis();
+    unsigned long timeSinceLastHarvestingReached = currentMillis - harvestPositionReachedAtTime;
+    unsigned long timeSinceLastPositionUpdate = currentMillis - lastPositionUpdateAtTime;
+
+    if (timeSinceLastPositionUpdate > 4000) {
+        setSpeeds(0, 0);
+        return;
+    }
 
     if (timeSinceLastHarvestingReached < 5000 && millis() > 5000) {
 #ifdef COLLECTOR_DEBUG
@@ -291,8 +308,7 @@ void CollectorState::scoutPositionMessage(float angle, float x, float y) {
     scoutPosY = y;
 }
 
-void CollectorState::sendPositionUpdate() {
-
+void CollectorState::sendPosToTeammate() {
     uint8_t payloadArray[7];
     payloadArray[0] = 0x30;
 
@@ -315,7 +331,7 @@ void CollectorState::danceBlocking() {
 
         delay(10);
     }
-    setSpeeds(0,0);
+    setSpeeds(0, 0);
     drivingDisabled = true;
 }
 

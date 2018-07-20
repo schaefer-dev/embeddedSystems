@@ -107,6 +107,7 @@ int main() {
 
         /* ALWAYS check for new RF Message */
         checkForNewRFMessage();
+        scoutState->sendPosToTeammate();
 
 
         /* Send message to collector test
@@ -198,7 +199,6 @@ int main() {
         delay(1);
 
     }
-
 }
 
 void calibrateLightSensorReadings() {
@@ -242,6 +242,7 @@ void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y) {
     int currentY = y / 10.0f;
 
     scoutState->resetDifferentialDrive(currentX, currentY, currentAngle);
+    scoutState->lastPositionUpdateReceivedAtTime = millis();
 };
 
 
@@ -477,6 +478,10 @@ void performStraightDrive(int cmLength) {
 #endif
         }
     }
+}
+
+void sharePosition() {
+
 }
 
 

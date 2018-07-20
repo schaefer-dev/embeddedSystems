@@ -74,7 +74,7 @@ public:
 
     bool configurationReceived = false;
     bool gameStarted = false;
-
+    unsigned long lastPositionUpdateReceivedAtTime;
 
     float getAngle();
     void resetDifferentialDrive(float x, float y, float a);
@@ -85,13 +85,11 @@ public:
     void outOfBoundsMessage();
     void navigate();
     void generateDestination();
+    void sendPosToTeammate();
 
 private:
     static constexpr float WHEEL_RADIUS = 1.75f;
     static constexpr float WHEEL_DISTANCE = 9.3f;
-
-
-    void sendPosToTeammate();
 };
 
 #endif //EMBEDDEDSYSTEMS18_SCOUTSTATE_H
