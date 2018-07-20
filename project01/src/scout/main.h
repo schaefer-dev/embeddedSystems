@@ -31,7 +31,7 @@
 // #define DEBUG_SERIAL_PORT_ECHO
 // #define SCOUT_MONITOR
 
-#define SCOUT_GAME
+// #define SCOUT_GAME
 
 // #define DEBUG
 
@@ -48,6 +48,7 @@ void debug_printPhotosensorReadings();
 void photophobicScout();
 void checkForNewRFMessage();
 void homing();
+void performStraightDrive(int);
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 
