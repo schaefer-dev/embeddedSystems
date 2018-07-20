@@ -369,11 +369,14 @@ void ScoutState::handleHighPhotoReadings() {
 
     ScoutRF::sendMessageTo(ScoutRF::collectorAdress, harvestUpdate, 7);
 
+
+    /* Nice debug code to drive backwards when sending harvesting position
     unsigned long driveBackwardsuntil = millis() + 500;
     OrangutanMotors::setSpeeds(-30, -30);
     while(millis() < driveBackwardsuntil){
         checkForNewRFMessage();
     }
+     */
 
 
 

@@ -171,7 +171,7 @@ void CollectorState::navigate() {
         setSpeeds(forwardSpeed, forwardSpeed);
         navigationStep = NAV_DRIVING_STRAIGHT;
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("straight...");
+        //Serial1.println("straight...");
 #endif
         return;
     }
@@ -185,7 +185,7 @@ void CollectorState::navigate() {
         navigationStep = NAV_DRIVING_STRAIGHT;
         setSpeeds(forwardSpeed, forwardSpeed);
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("straight");
+        //Serial1.println("straight");
 #endif
         return;
     }
@@ -195,14 +195,14 @@ void CollectorState::navigate() {
         navigationStep = NAV_TURNING_LEFT;
         setSpeeds(-turningSpeed, turningSpeed);
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("turning left!");
+        //Serial1.println("turning left!");
 #endif
     } else {
         // turn right
         navigationStep = NAV_TURNING_RIGHT;
         setSpeeds(turningSpeed, -turningSpeed);
 #ifdef COLLECTOR_DEBUG
-        Serial1.println("turning right!");
+        //Serial1.println("turning right!");
 #endif
     }
 
