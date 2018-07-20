@@ -48,6 +48,7 @@ void debug_printPhotosensorReadings();
 void photophobicScout();
 void checkForNewRFMessage();
 void homing();
+void calibrateLightSensorReadings();
 
 void receivePosUpdate(unsigned int angle, unsigned int x, unsigned int y);
 
