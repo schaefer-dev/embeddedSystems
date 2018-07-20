@@ -81,7 +81,7 @@ void CollectorState::navigate() {
         }
     }
 
-    if (timeSinceLastHarvestingReached < 10000 && millis() > 10000) {
+    if (timeSinceLastHarvestingReached < 5000 && millis() > 5000) {
 #ifdef COLLECTOR_DEBUG
         Serial1.println("harvesting...");
 #endif
@@ -110,6 +110,7 @@ void CollectorState::navigate() {
             // if this was a harvest position, do X
             Serial1.print("Harvest reached");
             harvestPositionReachedAtTime = millis();
+            isHarvestDestination = false;
             return;
         }
     }
