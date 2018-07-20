@@ -67,20 +67,24 @@ float ScoutState::getAngle() {
 
 /* drives towards current destination */
 void ScoutState::navigate(){
-    double distanceToScout = sqrt(
+    /*double distanceToScout = sqrt(
             (collectorX - currentX) * (collectorX - currentX) - (collectorY - currentY) * (collectorY - currentY));
 
     if (distanceToScout < 20) {
         setSpeeds(0, 0);
         return;
-    }
-
+    }*/
 
     unsigned long timeSinceLastPositionUpdate = millis() - lastPositionUpdateReceivedAtTime;
 
     if (timeSinceLastPositionUpdate > 4000) {
-        setSpeeds(0, 0);
-        return;
+        if (timeSinceLastPositionUpdate > 6000) {
+            // we missed the position update, act as if we received it
+            lastPositionUpdateReceivedAtTime += 5000;
+        } else {
+            setSpeeds(0, 0);
+            return;
+        }
     }
 
 

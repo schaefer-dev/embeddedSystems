@@ -3,7 +3,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <Arduino.h>
-#include <cmath> #include "main.h"
+#include "main.h"
 #include "CollectorRF.h"
 
 // 0,0 is top left corner
@@ -59,21 +59,26 @@ float CollectorState::getAngle() {
 /* drives towards current destination */
 void CollectorState::navigate() {
 
-    double distanceToScout = sqrt(
+    /*double distanceToScout = sqrt(
             (scoutPosX - currentX) * (scoutPosX - currentX) - (scoutPosY - currentY) * (scoutPosY - currentY));
 
     if (distanceToScout < 20) {
         setSpeeds(0, 0);
         return;
-    }
+    }*/
 
     unsigned long currentMillis = millis();
     unsigned long timeSinceLastHarvestingReached = currentMillis - harvestPositionReachedAtTime;
     unsigned long timeSinceLastPositionUpdate = currentMillis - lastPositionUpdateAtTime;
 
     if (timeSinceLastPositionUpdate > 4000) {
-        setSpeeds(0, 0);
-        return;
+        if (timeSinceLastPositionUpdate > 6000) {
+            // we missed the position update, act as if we received it
+            lastPositionUpdateAtTime += 5000;
+        } else {
+            setSpeeds(0, 0);
+            return;
+        }
     }
 
     if (timeSinceLastHarvestingReached < 5000 && millis() > 5000) {
