@@ -44,10 +44,10 @@ public:
     // Calibration, forward: 100, turning: 100, straight: 0.55f, rotation: 0.35f
     // Calibration, forward: 150, turning: 150, straight: 0.6f, rotation: 0.435f
 
-    // wenn zu weit dann wert erhöhen
+    // wenn zu weit dann wert erhöhen, calibrated for CO03 (with our batteries)
 
     const float straightImprecision = 0.55f;     // simple approximation for friction when driving straight
-    const float rotationImprecision = 0.35f;     // simple approximation for friction when turning
+    const float rotationImprecision = 0.32f;     // simple approximation for friction when turning
 
     bool configurationReceived = false;
     bool gameStarted = false;
