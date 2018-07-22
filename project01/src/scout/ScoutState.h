@@ -68,9 +68,11 @@ public:
     const int turningSpeed = 30;
 
     // Calibrated for forward=80, turning=50  rotation=2.2 and straight=2.3
-    // Calibrated for forward=50, turning=30, rotation=2.1 and straight=2.3
-    const float rotationImprecision = 2.1f;     // simple approximation for friction when turning
-    const float straightImprecision = 2.3f;     // simple approximation for friction when driving straight
+    // Calibrated for forward=50, turning=30, rotation=2.1 and straight=2.3 (our robot)
+
+    // Tournament calibration SC00
+    const float rotationImprecision = 2.0f;     // simple approximation for friction when turning
+    const float straightImprecision = 2.0f;     // simple approximation for friction when driving straight
 
     bool configurationReceived = false;
     bool gameStarted = false;
