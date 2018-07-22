@@ -769,4 +769,59 @@ TODO list for this Iteration:
     - Maybe:
         - Track Grid position independently of differential drive and occasionally update diff drive position depending on Grid position
         - send robot positions to each other to avoid collisions with own team
+		
+
+# Thu 12.07.
+- Daniel: Plan last milestone, todo list
+	Implemented prohibition of speed > 300
+	Collision message handling, drive backwards
+- Rafael: Scout photo sensor handling and comparison to threshold
+- Kevin: Minor line sensor tests for usability in tactic
+
+# Fri 13.07.
+- Kevin: Implemented game intialization message exchange until GO message.
+
+# Mon 16.07.
+- Kevin: End dance and store teammate position
+ 
+# Wed 18.07.
+- Daniel: Robot game setup using defines for easy toggle of game mode
+	RF optimization (clear register asap after new message)
+	
+- Kevin: Fixes in the game setup and message exchange
+	Trying to find RF communication bottleneck to improve response time
+
+- Rafael: Include reference SPI implementation into our code and
+	integrate it with the existing RF methods.
+	
+# Thu 19.07.
+- Daniel: RF fixed and defines for RF IRQ, disabled interrupt and timer1 in platform_s to use our timer
+	A lot of SPI tests, includ some delays, should be working now
+	Clean up code, remove dead code and unused methods
+	Fix Scout writebytes method
+	Final response PingPong time is 8-150 seconds (is OK)
+	Fixed scout sending harvest position
+- Rafael: RF Optimizations to reduce delays in platform_s
+	Fixing the address problem
+- Kevin: Implemented send harvest position and receive it on the collector
+
+# Fri 20.07.
+- Daniel: Drive back to center after OOB message and 30sec delay and at the beginnig of the round
+	Improved light sensor calibration at the beginning of the round
+	Fix in collision message handling
+- Rafael: Chip select implemented as Macro in scout
+- Kevin: Renewed motor calibration for fuller batteries
+	Random destination generation changed to not drive to the border
+	Implemented standing still to get an accurate position update (stand still in [4,6] sec after last update)
+
+# Sun 22.07.
+- All: Final testing, adding code to argue about prohibitions and do a final motor calibration on the tournament hardware
+	A lot of testing in the readl game setup and we can play very nicely for whole rounds without getting disqualified
+	
+	
+
+
+	
+	
+
         
