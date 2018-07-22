@@ -61,7 +61,7 @@ void initialize() {
     // 2. Send a HELLO message to the referee on channel 111
     uint8_t payloadArray[2];
     payloadArray[0] = 0x42;
-    payloadArray[1] = (uint8_t) (26);
+    payloadArray[1] = (uint8_t) (14);
     ScoutRF::sendMessageTo(ScoutRF::refereeAdress, payloadArray, 2);
 
     ScoutSerial::serialWrite("HELLO sent\n", 11);

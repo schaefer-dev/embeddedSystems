@@ -38,16 +38,16 @@ void CollectorRF::initializeRFModule() {
     refereeAdress[2] = 0xf0;
     refereeAdress[1] = 0xf0;
     refereeAdress[0] = 0xf0;
-    scoutAdress[4] = 0x8c;
-    scoutAdress[3] = 0xb0;
-    scoutAdress[2] = 0x4a;
-    scoutAdress[1] = 0x9c;
-    scoutAdress[0] = 0x5f;
-    collectorAdress[4] = 0x97;
-    collectorAdress[3] = 0xcd;
-    collectorAdress[2] = 0x71;
-    collectorAdress[1] = 0x06;
-    collectorAdress[0] = 0x67;
+    scoutAdress[4] = 0xe2;
+    scoutAdress[3] = 0x91;
+    scoutAdress[2] = 0xa8;
+    scoutAdress[1] = 0x27;
+    scoutAdress[0] = 0x85;
+    collectorAdress[4] = 0x98;
+    collectorAdress[3] = 0x65;
+    collectorAdress[2] = 0xfa;
+    collectorAdress[1] = 0x29;
+    collectorAdress[0] = 0xe2;
 
     /* TODO: some of this is default set already, so can be optimized */
 
