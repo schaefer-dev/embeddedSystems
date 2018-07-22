@@ -69,7 +69,7 @@ void ScoutRF::initializeRFModule() {
     writeRegister(0x00000004, 138);
 
     // set channel to 111
-    switchTeamChannel(111);
+    writeRegister(0x00000005, 111);
 
     // write register 06: data rate 1 mbps, max power
     writeRegister(0x00000006, 6);

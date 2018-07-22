@@ -202,7 +202,13 @@ void ScoutState::navigate(){
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void ScoutState::generateDestination() {
-    destinationX = (random() % (ARENA_SIZE_X - 60)) + 30;
+    // Either drive in 'left' or in 'right block'
+    if (random() % 2){
+        destinationX = (random() % 30) + 20;
+    } else {
+        destinationX = (random() % 30) + 90;
+    }
+
     destinationY = (random() % (ARENA_SIZE_Y - 40)) + 20;
 
 #ifdef DEBUG

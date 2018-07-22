@@ -53,8 +53,6 @@ public:
 
     static void sendMessageTo(uint8_t* receiverAdress, uint8_t* payloadArray, int payloadArrayLength);
 
-    static void switchTeamChannel(uint8_t teamChannel);
-
     static uint8_t refereeAdress[5];
     static uint8_t scoutAdress[5];
     static uint8_t collectorAdress[5];
