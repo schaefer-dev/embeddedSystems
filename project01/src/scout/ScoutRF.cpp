@@ -48,16 +48,16 @@ void ScoutRF::initializeRFModule() {
     refereeAdress[2] = 0xf0;
     refereeAdress[1] = 0xf0;
     refereeAdress[0] = 0xf0;
-    scoutAdress[4] = 0xe9;
-    scoutAdress[3] = 0x69;
-    scoutAdress[2] = 0x60;
-    scoutAdress[1] = 0x35;
-    scoutAdress[0] = 0xc2;
-    collectorAdress[4] = 0xcd;
-    collectorAdress[3] = 0x73;
-    collectorAdress[2] = 0x68;
-    collectorAdress[1] = 0xa5;
-    collectorAdress[0] = 0xb7;
+    scoutAdress[4] = 0x8c;
+    scoutAdress[3] = 0xb0;
+    scoutAdress[2] = 0x4a;
+    scoutAdress[1] = 0x9c;
+    scoutAdress[0] = 0x5f;
+    collectorAdress[4] = 0x97;
+    collectorAdress[3] = 0xcd;
+    collectorAdress[2] = 0x71;
+    collectorAdress[1] = 0x06;
+    collectorAdress[0] = 0x67;
 
 
     /* TODO: some of this is default set already, so can be optimized */
