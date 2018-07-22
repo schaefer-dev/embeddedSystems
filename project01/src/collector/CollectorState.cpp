@@ -218,6 +218,16 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
     lastDiffDriveCall = millis();
 }
 
+
+void CollectorState::overwriteMotorSpeed(int newLeftSpeed, int newRightSpeed){
+    if (newLeftSpeed > 300 || newRightSpeed > 300) {
+        Serial1.println("ERROR: never allowed to drive faster than 300!");
+        return;
+    }
+    Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
+}
+
+
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (newLeftSpeed > 300 || newRightSpeed > 300) {
         Serial1.println("ERROR: never allowed to drive faster than 300!");
@@ -297,8 +307,8 @@ void CollectorState::harvestPositionMessage(int value, int x, int y) {
  * Generates and sets a new destination. Only called when the current destination is reached
  */
 void CollectorState::generateDestination() {
-    destinationX = random(30, ARENA_SIZE_X - 30);
-    destinationY = random(20, ARENA_SIZE_Y - 20);
+    destinationX = random(40, ARENA_SIZE_X - 40);
+    destinationY = random(25, ARENA_SIZE_Y - 25);
 
     destinationReached = false;
     drivingDisabled = false;

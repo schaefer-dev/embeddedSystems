@@ -63,6 +63,8 @@ public:
 
     void setSpeeds(int newLeftSpeed, int newRightSpeed);
 
+    void overwriteMotorSpeed(int newLeftSpeed, int newRightSpeed);
+
     void updateRoboterPositionAndAngles();
 
     void outOfBoundsMessage();
