@@ -218,6 +218,14 @@ void CollectorState::resetDifferentialDrive(float x, float y, float a) {
     lastDiffDriveCall = millis();
 }
 
+void CollectorState::overwriteMotorSpeed(int newLeftSpeed, int newRightSpeed){
+    if (newLeftSpeed > 300 || newRightSpeed > 300) {
+        Serial1.println("ERROR: never allowed to drive faster than 300!");
+        return;
+    }
+    Zumo32U4Motors::setSpeeds(newLeftSpeed, newRightSpeed);
+}
+
 void CollectorState::setSpeeds(int newLeftSpeed, int newRightSpeed) {
     if (newLeftSpeed > 300 || newRightSpeed > 300) {
         Serial1.println("ERROR: never allowed to drive faster than 300!");

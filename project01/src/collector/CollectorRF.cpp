@@ -15,7 +15,8 @@
 uint8_t CollectorRF::refereeAdress[5];
 uint8_t CollectorRF::scoutAdress[5];
 uint8_t CollectorRF::collectorAdress[5];
-uint8_t CollectorRF::teamChannel;
+int CollectorRF::channelChanges;
+
 
 void CollectorRF::initializeRFModule() {
 
@@ -27,6 +28,8 @@ void CollectorRF::initializeRFModule() {
      * deselect slave
      * short delay
      * */
+
+    channelChanges = 0;
 
     /* create arrays to store the adress values of referee,
      * collector and scout (already inverted) */
@@ -54,12 +57,11 @@ void CollectorRF::initializeRFModule() {
     // write command register 04: enable 10 retries w delay 2ms
     writeRegister(0x00000004, 138);
 
-    // write register 05: set channel to 111
-    writeRegister(0x00000005, 111);
+    // set channel to 111
+    switchTeamChannel(111);
 
     // write register 06: data rate 1 mbps, max power
     writeRegister(0x00000006, 6);
-
 
 
     /* write command register 11 to 16 to maximum RX payload (32 Bytes) */
@@ -446,6 +448,15 @@ void CollectorRF::getCommandAnswer(uint8_t *answerArray, int byteCount, int8_t c
 
 void CollectorRF::writeRegister(uint8_t reg, uint8_t setting) {
 
+    if (reg == 0x00000005){
+        channelChanges += 1;
+
+        if (channelChanges > 2){
+            Serial1.println("TEAM CHANNEL ONLY ALLOWED TO BE SET AT MOST TWICE!!!");
+            return;
+        }
+    }
+
     SELECT_RF();
 
     uint8_t registerArray[1] = { RF_COMMAND_W_REGISTER | (RF_MASK_REGISTER & reg) };
@@ -526,18 +537,4 @@ void CollectorRF::readAdressRegister(uint8_t reg, uint8_t *outputArray) {
 
     UNSELECT_RF();
     delay(delay_after_RF_select);
-}
-
-void CollectorRF::setTeamChannel(uint8_t teamChannel) {
-    /* drive RF module enable pin, might not be necessary */
-    PORTC &= ~(1 << PIN_RF_ENABLE_C);
-    delayMicroseconds(30);
-
-    // write register 05: set channel to 111
-    writeRegister(0x00000005, teamChannel);
-
-    /* drive RF module enable pin, might not be necessary */
-    PORTC |= (1 << PIN_RF_ENABLE_C);
-    delayMicroseconds(30);
-
 }

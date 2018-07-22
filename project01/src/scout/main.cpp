@@ -256,24 +256,6 @@ void checkForNewRFMessage() {
 }
 
 
-bool checkForConfigMessage() {
-    statusRF = ScoutRF::queryRFModule();
-    char messageReceived = statusRF & (1 << 6);
-
-    if (messageReceived) {
-        ScoutRF::processReceivedMessage(scoutState);
-    }
-
-    if (ScoutRF::teamChannel != 0) {
-        /*  Case for Config Message received  */
-        ScoutRF::setTeamChannel(ScoutRF::teamChannel);
-        ScoutSerial::serialWrite("Team channel changed accordingly.\n", 34);
-        return true;
-    }
-    return false;
-}
-
-
 /* run photophobic Scout Controller as explained in Milestone 5
  * If all photosensors less then 100, dance in place, if all sensors in range of
  * defined threshold stand still, otherwise follow the shadow */
