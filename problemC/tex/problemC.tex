@@ -99,7 +99,7 @@ I selected the LDF (Latest Deadline First) scheduler to schedule this task with 
 \subsection*{a)}
 We assume a preemptive schedule $\sigma$ with task $J_I$. Assume furthermore $J_I$ being preempted at time $t$ and then resumed at time $t'$ to finish at $f^\sigma_{J_I}$. 
 
-We can remove the preemption of $J_I$ in postponing it by time $t' - t$ so that it still finishes at $f^\sigma_{J_I}$. Call this changed schedule $\sigma'$. All tasks happening before or after $J_I$ in $\sigma$ are unaffected by the change, as is $f^\sigma_{J_I}$. 
+We can remove the preemption of $J_I$ in postponing it by time $t' - t$ so that it still finishes at $f^\sigma_{J_I}$. Call this changed schedule $\sigma'$. All tasks finishing before or starting after $J_I$ in $\sigma$ are unaffected by the change, as is $f^\sigma_{J_I}$. 
 Only the tasks running during the preemption of $J_I$ can finish earlier by time $t' - t$, therefore the objective function $T_\omega (\mathcal{J}, \sigma) \geq T_\omega (\mathcal{J}, \sigma')$. 
 
 Removing all preemptions from $\sigma$ in this way yields a non preemptive schedule $\sigma^\star$ with $T_\omega (\mathcal{J}, \sigma^\star) \leq T_\omega (\mathcal{J}, \sigma)$. $\square$
@@ -138,7 +138,7 @@ Therefore our algorithm just needs to schedule the tasks in decreasing order of 
 \item[b)] 
 	\begin{itemize}
 	\item A game is won when all tokens have a y-value of 0 and a positive x-value, meaning they are located on the positive x-axis. Note that the origin (0, 0) is also fine. In this case, all task will have completed their execution and no task has a negative slack time, i.e. they are on time. Hence, such a schedule would be feasible.
-	\item A game is lost when at least one token has an x-value < 0 and a y-value >= 0. This means that during execution a task that has not yet finished got a negative slack time and was late. 
+	\item A game is lost when at least one token has an x-value $<$ 0 and a y-value $\geq$ 0. This means that during execution a task that has not yet finished got a negative slack time and was late. 
 	\end{itemize}
 	
 \item[c)] Always execute the leftmost task, i.e. the one with the smalles slack time.  This is known as least slack time (LST) scheduling.
